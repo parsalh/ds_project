@@ -43,7 +43,7 @@ public class Person {
     private String emailAddress;
 
     @Column(name = "address", nullable = false, length = 100)
-    private String address;
+    private String address; //ισως να το κανω list idk
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)

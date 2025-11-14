@@ -6,7 +6,7 @@ StreetFoodGo - Εργασία D.S.
 Clone the repository:
 
 ```shell
-mpla mpla
+git clone https://github.com/parsalh/ds_project.git
 ```
 
 ---
