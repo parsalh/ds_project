@@ -14,7 +14,7 @@ mpla mpla
 Run the project:
 
 ```shell
-mpla mpla mpla
+mpla mpla mpla ΜΠΛΑ
 ```
 
 ---
