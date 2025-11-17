@@ -36,13 +36,12 @@ public class OpenHour {
 
     public OpenHour() {}
 
-    public OpenHour(Long id,
+    public OpenHour(
                     Restaurant restaurant,
                     DayOfWeek dayOfWeek,
                     LocalTime openTime,
                     LocalTime closeTime) {
 
-        this.id = id;
         this.restaurant = restaurant;
         this.dayOfWeek = dayOfWeek;
         this.openTime = openTime;

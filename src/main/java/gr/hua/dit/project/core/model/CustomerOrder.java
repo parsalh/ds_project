@@ -12,7 +12,11 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "customer_order" //Δεν επιτρεπεται το ονομα order!!!!
+        name = "customer_order", //Δεν επιτρεπεται το ονομα order!!!!
+        indexes = {
+                @Index(name = "idx_order_customer", columnList = "customer_id"),
+                @Index(name = "idx_order_restaurant", columnList = "restaurant_id"),
+        }
 )
 public class CustomerOrder {
 
@@ -55,7 +59,7 @@ public class CustomerOrder {
 
     public CustomerOrder() {}
 
-    public CustomerOrder(Long id,
+    public CustomerOrder(
                  Person customer,
                  Restaurant restaurant,
                  String deliveryAddress,
@@ -66,7 +70,6 @@ public class CustomerOrder {
                  Instant createdAt,
                  Instant updatedAt) {
 
-        this.id = id;
         this.customer = customer;
         this.restaurant = restaurant;
         this.deliveryAddress = deliveryAddress;

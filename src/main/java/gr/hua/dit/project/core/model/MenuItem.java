@@ -6,7 +6,16 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(
-        name = "menu_item"
+        name = "menu_item",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_menu_item_restaurant_name",
+                        columnNames = {"restaurant_id","name"} //trim, ignore case στο service
+                )
+        },
+        indexes = {
+                @Index(name = "idx_menu_item_restaurant", columnList = "restaurant_id")
+        }
 )
 public class MenuItem {
 
@@ -35,14 +44,13 @@ public class MenuItem {
 
     public MenuItem() {}
 
-    public MenuItem(Long id,
+    public MenuItem(
                     Restaurant restaurant,
                     String name,
                     BigDecimal price,
                     Boolean available,
                     String description) {
 
-        this.id = id;
         this.restaurant = restaurant;
         this.name = name;
         this.price = price;
@@ -102,7 +110,7 @@ public class MenuItem {
     @Override
     public String toString() {
         return "MenuItem{" +
-                "restaurant=" + restaurant +
+                "restaurantId=" + restaurant.getId() +
                 ", name='" + name + '\'' +
                 ", price=" + price +
                 ", available=" + available +

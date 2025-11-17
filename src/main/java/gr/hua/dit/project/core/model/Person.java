@@ -58,7 +58,7 @@ public class Person {
 
     public Person() {}
 
-    public Person(Long id,
+    public Person(
                   String username,
                   String firstName,
                   String lastName,
@@ -69,7 +69,6 @@ public class Person {
                   String passwordHash,
                   Instant createdAt) {
 
-        this.id = id;
         this.username = username;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -167,7 +166,15 @@ public class Person {
         return "Person{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", mobilePhoneNumber='" + mobilePhoneNumber + '\'' +
+                ", emailAddress='" + emailAddress + '\'' +
+                ", address='" + address + '\'' +
                 ", type=" + type +
+                ", passwordHash='" + passwordHash + '\'' +
+                ", createdAt=" + createdAt +
                 '}';
     }
+
 }

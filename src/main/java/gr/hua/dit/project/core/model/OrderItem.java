@@ -6,7 +6,11 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(
-        name = "order_item"
+        name = "order_item",
+        indexes = {
+                @Index(name = "idx_order_item_order", columnList = "order_id"),
+                @Index(name = "idx_order_item_menu_item", columnList = "menu_item_id") //προαιρετικο
+        }
 )
 public class OrderItem {
 
@@ -39,7 +43,7 @@ public class OrderItem {
 
     public OrderItem() {}
 
-    public OrderItem(Long id,
+    public OrderItem(
                      String name,
                      BigDecimal price,
                      Integer quantity,
@@ -47,7 +51,6 @@ public class OrderItem {
                      CustomerOrder order,
                      MenuItem menuItem) {
 
-        this.id = id;
         this.name = name;
         this.price = price;
         this.quantity = quantity;

@@ -8,8 +8,21 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ *  Repository for managing {@link Person} entity.
+ */
 @Repository
 public interface PersonRepository extends JpaRepository<Person,Long> {
+
+//    // CRUD
+//
+//    void savePerson(Person person);
+//
+//    Person getPersonById(Long id);
+//
+//    void deletePersonById(Long id);
+
+
 
     Optional<Person> findByUsername(final String username);
 
