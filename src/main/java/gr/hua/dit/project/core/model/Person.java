@@ -27,7 +27,7 @@ public class Person {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "username", nullable = false, length = 20)
+    @Column(name = "username", nullable = false, length = 50)
     private String username;
 
     @Column(name = "first_name", nullable = false, length = 100)
@@ -58,7 +58,7 @@ public class Person {
 
     public Person() {}
 
-    public Person(
+    public Person(Long id,
                   String username,
                   String firstName,
                   String lastName,

@@ -55,6 +55,7 @@ public class Restaurant {
 
     public Restaurant() {}
 
+    //TODO add Id to constructor
     public Restaurant(Person owner,
                       String name,
                       String address,

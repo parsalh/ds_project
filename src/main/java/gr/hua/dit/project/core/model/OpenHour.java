@@ -36,6 +36,7 @@ public class OpenHour {
 
     public OpenHour() {}
 
+    //TODO add Id to constructor
     public OpenHour(
                     Restaurant restaurant,
                     DayOfWeek dayOfWeek,

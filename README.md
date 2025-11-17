@@ -19,6 +19,6 @@ mpla mpla mpla ΜΠΛΑ
 
 ---
 
-Open in browser: docker tou nikou or smth
+Open in browser: http://localhost:8080/test //temp
 
 ---

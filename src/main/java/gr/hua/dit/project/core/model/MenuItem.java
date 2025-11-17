@@ -44,6 +44,7 @@ public class MenuItem {
 
     public MenuItem() {}
 
+    //TODO add Id to constructor
     public MenuItem(
                     Restaurant restaurant,
                     String name,

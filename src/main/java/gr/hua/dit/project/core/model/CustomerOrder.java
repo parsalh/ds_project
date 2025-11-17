@@ -59,6 +59,7 @@ public class CustomerOrder {
 
     public CustomerOrder() {}
 
+    //TODO add Id to constructor
     public CustomerOrder(
                  Person customer,
                  Restaurant restaurant,

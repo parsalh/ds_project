@@ -27,12 +27,12 @@ public class TestController {
         //Example 1: create Person
         Person person = new Person();
         person.setId(null); //auto-gen
-        person.setUsername("example_username");
+        person.setUsername("example_" + System.currentTimeMillis());
         person.setType(PersonType.CUSTOMER);
         person.setFirstName("Stavroula");
         person.setLastName("Parsali");
-        person.setEmailAddress("example@gmail.com");
-        person.setMobilePhoneNumber("+306900000000");
+        person.setEmailAddress("ex" + System.currentTimeMillis() + "@test.com");
+        person.setMobilePhoneNumber("+3069" + (int)(Math.random() * 1_000_00000));
         person.setAddress("Omirou 9");
         person.setPasswordHash("<invalid>");
         person.setCreatedAt(Instant.now());

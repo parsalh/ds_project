@@ -43,6 +43,7 @@ public class OrderItem {
 
     public OrderItem() {}
 
+    //TODO add Id to constructor
     public OrderItem(
                      String name,
                      BigDecimal price,
