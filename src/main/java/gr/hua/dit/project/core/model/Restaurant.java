@@ -37,6 +37,9 @@ public class Restaurant {
     @Column(name = "longitude")
     private Double longitude;
 
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MenuItem> menu = new ArrayList<>();
+
     @Column(name = "minimum_order_amount", nullable = false)
     private BigDecimal minimumOrderAmount;
 
@@ -52,27 +55,27 @@ public class Restaurant {
 
     public Restaurant() {}
 
-    public Restaurant(Long id,
-                      Person owner,
+    public Restaurant(Person owner,
                       String name,
                       String address,
                       Double latitude,
                       Double longitude,
+                      List<MenuItem> menu,
                       BigDecimal minimumOrderAmount,
                       BigDecimal deliveryFee,
                       ServiceType serviceType,
                       List<OpenHour> openHours) {
 
-        this.id = id;
         this.owner = owner;
         this.name = name;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.menu = (menu != null ? menu : new ArrayList<>());
         this.minimumOrderAmount = minimumOrderAmount;
         this.deliveryFee = deliveryFee;
         this.serviceType = serviceType;
-        this.openHours = openHours;
+        this.openHours = (openHours != null ? openHours : new ArrayList<>());
 
     }
 
@@ -156,15 +159,20 @@ public class Restaurant {
         this.openHours = openHours;
     }
 
+    public List<MenuItem> getMenu() {
+        return menu;
+    }
+    public void setMenu(List<MenuItem> menu) {
+        this.menu = menu;
+    }
+
     @Override
     public String toString() {
         return "Restaurant{" +
                 "name='" + name + '\'' +
-                ", openHours=" + openHours +
                 ", address='" + address + '\'' +
-                ", minimumOrderAmount=" + minimumOrderAmount +
-                ", deliveryFee=" + deliveryFee +
                 ", serviceType=" + serviceType +
                 '}';
     }
+
 }
