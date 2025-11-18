@@ -14,7 +14,9 @@ git clone https://github.com/parsalh/ds_project.git
 Run the project:
 
 ```shell
-mpla mpla mpla ΜΠΛΑ
+cd ds-project
+./mvnw spring-boot:run # MacOs / Linux
+./mvnw.cmd spring-boot:run  # Windows
 ```
 
 ---
