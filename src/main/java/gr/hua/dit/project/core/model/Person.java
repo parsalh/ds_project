@@ -77,7 +77,7 @@ public class Person {
         this.address = address;
         this.type = type;
         this.passwordHash = passwordHash;
-        this.createdAt = createdAt;
+        this.createdAt = createdAt; // not sure αν πρέπει να υπάρχει αυτό εδώ
 
     }
 
