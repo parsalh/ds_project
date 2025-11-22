@@ -42,7 +42,7 @@ public class RegistrationController {
      */
     @PostMapping("/register")
     public String handleRegistrationFormSubmission(
-            @ModelAttribute("createPersonRequest") CreatePersonRequest createPersonRequest,
+            @ModelAttribute("person") CreatePersonRequest createPersonRequest,
             final Model model
     ) {
         // TODO if user is authenticated, redirect to tickets
