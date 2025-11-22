@@ -32,7 +32,7 @@ public class RegistrationController {
     public String showRegistrationForm(final Model model){
         // TODO if user is authenticated,redirect to tickets
         //Initial data for the form
-        model.addAttribute("person", new CreatePersonRequest(PersonType.CUSTOMER,"","","","","","",""));
+        model.addAttribute("createPersonRequest", new CreatePersonRequest(PersonType.CUSTOMER,"","","","","","",""));
 
         return "register"; // the name of the thymeleaf/HTML template
     }
@@ -42,7 +42,7 @@ public class RegistrationController {
      */
     @PostMapping("/register")
     public String handleRegistrationFormSubmission(
-            @ModelAttribute("person") CreatePersonRequest createPersonRequest,
+            @ModelAttribute("createPersonRequest") CreatePersonRequest createPersonRequest,
             final Model model
     ) {
         // TODO if user is authenticated, redirect to tickets

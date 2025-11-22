@@ -5,7 +5,7 @@
 </head>
 <body>
 <h1>Registration Form</h1>
-<form th:action="@{/register}" method="POST" th:object="${person}">
+<form th:action="@{/register}" method="POST" th:object="${createPersonRequest}">
 
     <label>Role:</label>
     <select name="type" th:field="*{type}">
@@ -40,6 +40,8 @@
 
     <label>Mobile Phone Number:</label>
     <input th:field="*{mobilePhoneNumber}" />
+
+    <button type="submit">Register</button>
 
 </form>
 </body>
