@@ -1,44 +1,89 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <title>Register</title>
 </head>
 <body>
 <h1>Registration Form</h1>
+<style>
+    body {
+        display: flex;
+        flex-direction: column;/*registration on top*/
+
+        justify-content: center;
+        align-items: center;
+        /*text-align: center;*/
+
+        margin: 0;
+        height: 100vh;
+
+        background: linear-gradient(-45deg, coral, darkred);
+        background-size: cover;
+        background-position: center center;
+    }
+    /*
+    form {
+        display: grid;
+        grid-template-columns: 150px 1fr;  /* labels on left, inputs on right */
+    }
+    */
+    h1 {
+        position: absolute;
+        top: 20px;         /* Space from the top of the viewport */
+        left: 50%;         /* Center horizontally */
+        transform: translateX(-50%);  /* Adjust positioning for perfect centering */
+        background-color: antiquewhite;
+        box-shadow: 5px 5px 5px;
+    }
+    label {
+        margin-bottom: 0.25cm;
+        background-color: antiquewhite;
+        box-shadow: 5px 5px 5px;
+    }
+
+    /*
+    input, select, button {
+        width: 100%;              /* Makes inputs align perfectly */
+    box-sizing: border-box;   /* Prevents width overflow */
+    }
+    */
+
+</style>
 <form th:action="@{/register}" method="POST" th:object="${createPersonRequest}">
 
-    <label>Role:</label>
+    <label>Role: </label>
     <select name="type" th:field="*{type}">
         <option value="CUSTOMER">Customer</option>
         <option value="OWNER">Owner</option>
     </select>
     <br/>
 
-    <label>Username:</label>
+    <label>Username: </label>
     <input th:field="*{username}" />
     <br/>
 
-    <label>Password:</label>
+    <label>Password: </label>
     <input th:field="*{rawPassword}" />
     <br/>
 
-    <label>First Name:</label>
+    <label>First Name: </label>
     <input th:field="*{firstName}" />
     <br/>
 
-    <label>Last Name:</label>
+    <label>Last Name: </label>
     <input th:field="*{lastName}" />
     <br/>
 
-    <label>Address:</label>
+    <label>Address: </label>
     <input th:field="*{address}" />
     <br/>
 
-    <label>Email Address:</label>
+    <label>Email Address: </label>
     <input th:field="*{emailAddress}" />
     <br/>
 
-    <label>Mobile Phone Number:</label>
+    <label>Mobile Phone Number: </label>
     <input th:field="*{mobilePhoneNumber}" />
     <br/>
 
