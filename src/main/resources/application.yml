@@ -2,16 +2,18 @@ spring:
   application:
     name: DS Project
 
+
   datasource:
-    url: jdbc:h2:file:./LOCAL_DATA/h2/app;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE;
-    username: sa
-    password: changeme
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://postgres.pios.autos:5432/postgres
+    username: postgres
+    password: huagank123
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update #for startup/shutdown: "create-drop"
-    open-in-view: false
+      ddl-auto: update
+    show-sql: true
     properties:
-      hibernate.dialect: org.hibernate.dialect.H2Dialect
-      hibernate.format_sql: true
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
