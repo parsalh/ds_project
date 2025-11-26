@@ -4,7 +4,7 @@ spring:
 
 
   datasource:
-    url: jdbc:postgresql://postgres.pios.autos:5432/postgres
+    url: jdbc:postgresql://postgres.pios.autos:6432/postgres
     username: postgres
     password: huagank123
     driver-class-name: org.postgresql.Driver
