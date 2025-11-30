@@ -17,3 +17,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  routee:
+    app-id:
+    app-secret:
+    sender:

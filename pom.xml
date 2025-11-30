@@ -51,6 +51,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>8.13.26</version>
+        </dependency>
 	</dependencies>
 
     <!-- SECURITY -->
@@ -66,6 +71,7 @@
         <artifactId>thyme-leaf-extras-springsecurity6</artifactId>
     </dependency>
     -->
+
 
 	<build>
 		<plugins>

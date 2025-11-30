@@ -4,9 +4,13 @@ import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.model.PersonType;
 import gr.hua.dit.project.core.repository.PersonRepository;
 import gr.hua.dit.project.core.service.PersonService;
+import gr.hua.dit.project.core.service.mapper.PersonMapper;
 import gr.hua.dit.project.core.service.model.CreatePersonRequest;
+import gr.hua.dit.project.core.service.model.CreatePersonResult;
 import gr.hua.dit.project.core.service.model.PersonView;
 import org.springframework.stereotype.Service;
+
+import gr.hua.dit.project.core.port.SmsService;
 
 import java.util.List;
 
@@ -18,19 +22,24 @@ import java.util.List;
 public final class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
+    private final PersonMapper personMapper;
 
-    public PersonServiceImpl(final PersonRepository personRepository) {
+    public PersonServiceImpl(final PersonRepository personRepository,
+                             final PersonMapper personMapper) {
         if (personRepository == null) throw new NullPointerException();
+        if (personMapper == null) throw new NullPointerException();
+
         this.personRepository = personRepository;
+        this.personMapper = personMapper;
     }
 
-    @Override
-    public List<PersonView> getPeople() {
-        return List.of(); // TODO Implement.
-    }
+//    @Override
+//    public List<PersonView> getPeople() {
+//        return List.of(); // TODO Implement.
+//    }
 
     @Override
-    public PersonView createPerson(final CreatePersonRequest createPersonRequest) {
+    public CreatePersonResult createPerson(final CreatePersonRequest createPersonRequest) {
         if (createPersonRequest == null) throw new NullPointerException();
 
         // Unpack (we assume validated `CreatePersonRequest`)
@@ -84,11 +93,11 @@ public final class PersonServiceImpl implements PersonService {
         // Map `Person` to `PersonView`
         // --------------------------------------------------
 
-        final PersonView personView = null; // TODO Implement.
+        final PersonView personView = this.personMapper.convertPersonToPersonView(person);
 
         // --------------------------------------------------
 
-        return personView;
+        return CreatePersonResult.success(personView);
     }
 
 }
