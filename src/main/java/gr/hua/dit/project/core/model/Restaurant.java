@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(
@@ -37,6 +39,15 @@ public class Restaurant {
     @Column(name = "longitude")
     private Double longitude;
 
+    @ElementCollection(targetClass = Cuisine.class)
+    @CollectionTable(
+            name = "restaurant_cuisines",
+            joinColumns = @JoinColumn(name = "restaurant_id")
+    )
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Set<Cuisine> cuisines = new HashSet<>();
+
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MenuItem> menu = new ArrayList<>();
 
@@ -65,7 +76,8 @@ public class Restaurant {
                       BigDecimal minimumOrderAmount,
                       BigDecimal deliveryFee,
                       ServiceType serviceType,
-                      List<OpenHour> openHours) {
+                      List<OpenHour> openHours,
+                      Set<Cuisine> cuisines) {
 
         this.owner = owner;
         this.name = name;
@@ -77,6 +89,7 @@ public class Restaurant {
         this.deliveryFee = deliveryFee;
         this.serviceType = serviceType;
         this.openHours = (openHours != null ? openHours : new ArrayList<>());
+        this.cuisines = (cuisines != null ? cuisines : new HashSet<>());
 
     }
 
@@ -167,13 +180,21 @@ public class Restaurant {
         this.menu = menu;
     }
 
+    public Set<Cuisine> getCuisines() {
+        return cuisines;
+    }
+
+    public void setCuisines(Set<Cuisine> cuisines) {
+        this.cuisines = cuisines;
+    }
+
     @Override
     public String toString() {
         return "Restaurant{" +
                 "name='" + name + '\'' +
                 ", address='" + address + '\'' +
+                ", cuisines=" + cuisines +
                 ", serviceType=" + serviceType +
                 '}';
     }
-
 }
