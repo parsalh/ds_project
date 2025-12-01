@@ -23,4 +23,6 @@ cd ds-project
 
 Open in browser: http://localhost:8080/test //temp
 
+postgres
+huagank123
 ---
