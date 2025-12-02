@@ -30,13 +30,13 @@ public class SecurityConfig {
                 .securityMatcher("/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/register").permitAll() // Public
-                        .requestMatchers("/profileView", "/logout").authenticated() // Private
+                        .requestMatchers("/customerProfile", "/logout").authenticated() // Private
                         .anyRequest().permitAll() // the rest
                 )
                 .formLogin(form -> form
                         .loginPage("/login") // custom login page (see login.html)
                         .loginProcessingUrl("/login") // POST request target (handled by Spring Security)
-                        .defaultSuccessUrl("/login-success", true)
+                        .defaultSuccessUrl("/customerProfile", true)
                         .failureUrl("/login?error")
                         .permitAll()
                 )
