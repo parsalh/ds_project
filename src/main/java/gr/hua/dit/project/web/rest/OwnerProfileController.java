@@ -5,16 +5,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/**
- * UI controller for managing profile.
- */
 @Controller
-public class CustomerProfileController {
+public class OwnerProfileController {
 
-    @GetMapping("/customer/profile")
-    public String customerProfile(Authentication authentication, Model model) {
+    @GetMapping("/owner/profile")
+    public String ownerProfile(Authentication authentication, Model model) {
         model.addAttribute("username", authentication.getName());
-        return "customerProfile";
+        return "ownerProfile";
     }
 }
-

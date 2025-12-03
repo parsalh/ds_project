@@ -15,30 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AuthController {
 
     @GetMapping("/login")
-    public String login(
-            final Authentication authentication,
-            final HttpServletRequest request,
-            final Model model
-    ) {
-        if (AuthUtils.isAuthenticated(authentication)) {
-            return "redirect:/viewProfile";
-        }
-
-        // Spring Security appends ?error or ?logout; show friendly messages.
-        if (request.getParameter("error") != null) {
-            model.addAttribute("error", "Invalid email or password.");
-        }
-        if (request.getParameter("logout") != null) {
-            model.addAttribute("message", "You have been logged out.");
-        }
-        return "login";
+    public String login() {
+        return "login"; // thymeleaf template name: login.html
     }
 
-    @GetMapping("/logout")
-    public String logout(final Authentication authentication) {
-        if (AuthUtils.isAnonymous(authentication)) {
-            return "redirect:/login";
-        }
-        return "logout";
+    @GetMapping("/logout-success")
+    public String logout() {
+        return "redirect:/login?logout";
     }
 }

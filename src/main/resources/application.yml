@@ -16,6 +16,15 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+debug: true
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    gr.hua.dit.project: DEBUG
 
   routee:
     app-id:

@@ -8,6 +8,7 @@ import gr.hua.dit.project.core.service.mapper.PersonMapper;
 import gr.hua.dit.project.core.service.model.CreatePersonRequest;
 import gr.hua.dit.project.core.service.model.CreatePersonResult;
 import gr.hua.dit.project.core.service.model.PersonView;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import gr.hua.dit.project.core.port.SmsService;
@@ -23,9 +24,11 @@ public final class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public PersonServiceImpl(final PersonRepository personRepository,
-                             final PersonMapper personMapper) {
+                             final PersonMapper personMapper, PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
         if (personRepository == null) throw new NullPointerException();
         if (personMapper == null) throw new NullPointerException();
 
@@ -45,6 +48,7 @@ public final class PersonServiceImpl implements PersonService {
         // Unpack (we assume validated `CreatePersonRequest`)
         // --------------------------------------------------
 
+
         final PersonType type = createPersonRequest.type();
         final String username = createPersonRequest.username().strip(); // remove whitespaces
         final String firstName = createPersonRequest.firstName().strip();
@@ -54,6 +58,7 @@ public final class PersonServiceImpl implements PersonService {
         final String address = createPersonRequest.address().strip();
         final String rawPassword = createPersonRequest.rawPassword();
 
+        final String hashedPassword = passwordEncoder.encode(rawPassword);
         // --------------------------------------------------
 
         // TODO username must be unique
@@ -68,7 +73,7 @@ public final class PersonServiceImpl implements PersonService {
         // --------------------------------------------------
 
         // TODO encode password! raw to hash!
-        final String hashedPassword = rawPassword; // TODO BUG! Encode.
+        //final String hashedPassword = rawPassword; // TODO BUG! Encode.
 
         // Instantiate person.
         // --------------------------------------------------
