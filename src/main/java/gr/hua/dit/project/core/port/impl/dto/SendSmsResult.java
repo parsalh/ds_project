@@ -1,4 +1,6 @@
-package gr.hua.dit.project.core.service.model;
+package gr.hua.dit.project.core.port.impl.dto;
 
-public class SendSmsResult {
-}
+/**
+ * SendSmsResult DTO.
+ */
+public record SendSmsResult(boolean sent) {}

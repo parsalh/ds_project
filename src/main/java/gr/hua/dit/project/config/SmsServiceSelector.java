@@ -7,21 +7,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.parameters.P;
 import org.springframework.util.StringUtils;
 
 /**
- * Factory for creating instances of {@link SmsService} based on application properties.
+ * Class (configuration) for selecting the instance of {@link SmsService} based on application properties.
  */
 @Configuration
-public class SmsServiceFactory {
+public class SmsServiceSelector {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SmsServiceFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SmsServiceSelector.class);
 
     @Bean
     public SmsService smsService(final RouteeProperties routeeProperties,
                                  final RouteeSmsService routeeSmsService,
                                  final MockSmsService mockSmsService) {
+
+        // --- DEBUG PRINTS ---
+        System.out.println("--------------------------------------------------");
+        System.out.println("DEBUG: Routee App ID: '" + routeeProperties.getAppId() + "'");
+        System.out.println("DEBUG: Routee Secret: '" + routeeProperties.getAppSecret() + "'");
+        System.out.println("--------------------------------------------------");
+        // --------------------
 
         if (StringUtils.hasText(routeeProperties.getAppId()) && StringUtils.hasText(routeeProperties.getAppSecret())) {
             return routeeSmsService;

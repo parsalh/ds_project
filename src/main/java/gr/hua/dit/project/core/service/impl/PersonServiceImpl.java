@@ -2,18 +2,18 @@ package gr.hua.dit.project.core.service.impl;
 
 import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.model.PersonType;
+import gr.hua.dit.project.core.port.SmsNotificationPort;
 import gr.hua.dit.project.core.repository.PersonRepository;
 import gr.hua.dit.project.core.service.PersonService;
 import gr.hua.dit.project.core.service.mapper.PersonMapper;
 import gr.hua.dit.project.core.service.model.CreatePersonRequest;
 import gr.hua.dit.project.core.service.model.CreatePersonResult;
 import gr.hua.dit.project.core.service.model.PersonView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import gr.hua.dit.project.core.port.SmsService;
-
-import java.util.List;
 
 
 /**
@@ -22,24 +22,29 @@ import java.util.List;
 @Service
 public final class PersonServiceImpl implements PersonService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersonServiceImpl.class);
+    private final SmsNotificationPort smsNotificationPort;
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public PersonServiceImpl(final PersonRepository personRepository,
-                             final PersonMapper personMapper, PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
+
+
+    public PersonServiceImpl(final SmsNotificationPort smsNotificationPort,
+                             final PersonRepository personRepository,
+                             final PersonMapper personMapper,
+                             final PasswordEncoder passwordEncoder) {
+        if (smsNotificationPort == null) throw new NullPointerException();
         if (personRepository == null) throw new NullPointerException();
         if (personMapper == null) throw new NullPointerException();
 
+
+        this.smsNotificationPort = smsNotificationPort;
         this.personRepository = personRepository;
         this.personMapper = personMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
-//    @Override
-//    public List<PersonView> getPeople() {
-//        return List.of(); // TODO Implement.
-//    }
 
     @Override
     public CreatePersonResult createPerson(final CreatePersonRequest createPersonRequest) {
@@ -47,7 +52,6 @@ public final class PersonServiceImpl implements PersonService {
 
         // Unpack (we assume validated `CreatePersonRequest`)
         // --------------------------------------------------
-
 
         final PersonType type = createPersonRequest.type();
         final String username = createPersonRequest.username().strip(); // remove whitespaces
@@ -59,11 +63,21 @@ public final class PersonServiceImpl implements PersonService {
         final String rawPassword = createPersonRequest.rawPassword();
 
         final String hashedPassword = passwordEncoder.encode(rawPassword);
+
         // --------------------------------------------------
 
-        // TODO username must be unique
-        // TODO emailAddress must be unique
-        // TODO mobilePhoneNumber must be unique
+        if(this.personRepository.existsByUsernameIgnoreCase(username)){
+            return CreatePersonResult.fail("Username is already in use");
+        }
+
+        if (this.personRepository.existsByEmailAddressIgnoreCase(emailAddress)){
+            return CreatePersonResult.fail("Email address is already in use");
+        }
+
+        if (this.personRepository.existsByMobilePhoneNumber(mobilePhoneNumber)){
+            return CreatePersonResult.fail("Mobile phone number is already in use");
+        }
+
 
         // --------------------------------------------------
 
@@ -92,6 +106,16 @@ public final class PersonServiceImpl implements PersonService {
 
         // Persist person (save/insert to database)
         // --------------------------------------------------
+
+        final String content = String.format(
+                "You have successfully registered for StreetFoodGo application!" +
+                "Use your e-mail (%s) or username (%s) to log in.",emailAddress,username);
+        final boolean sent = this.smsNotificationPort.sendSms(mobilePhoneNumber, content);
+        if (!sent) {
+            LOGGER.warn("SMS sent to {} failed!", mobilePhoneNumber);
+        }
+        //TODO user external service to notify person.
+
 
         person = this.personRepository.save(person);
 
