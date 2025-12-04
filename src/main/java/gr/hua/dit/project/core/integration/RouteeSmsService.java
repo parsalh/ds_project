@@ -93,7 +93,7 @@ public class RouteeSmsService implements SmsService {
 //    }
 
     @Override
-    public void send(String e164, String content) { // <--- Δέχεται Strings, επιστρέφει void
+    public void send(String e164, String content) {
         LOGGER.info("Attempting to send SMS via Routee...");
 
         try {
@@ -110,10 +110,9 @@ public class RouteeSmsService implements SmsService {
 
             final HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, httpHeaders);
 
-            // Κλήση στο Routee
+
             final ResponseEntity<String> response = this.restTemplate.postForEntity(SMS_URL, entity, String.class);
 
-            // ΑΝ ΑΠΟΤΥΧΕΙ, ΠΕΤΑΜΕ EXCEPTION (γιατί δεν μπορούμε να επιστρέψουμε false)
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw new RuntimeException("Routee API returned error: " + response.getStatusCode());
             }
@@ -122,7 +121,6 @@ public class RouteeSmsService implements SmsService {
 
         } catch (Exception e) {
             LOGGER.error("Failed to send SMS via Routee", e);
-            // Ξαναπετάμε το exception για να το καταλάβει ο caller
             throw new RuntimeException(e);
         }
     }

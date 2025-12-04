@@ -108,7 +108,7 @@ public final class PersonServiceImpl implements PersonService {
         // --------------------------------------------------
 
         final String content = String.format(
-                "You have successfully registered for StreetFoodGo application!" +
+                "You have successfully registered for StreetFoodGo application! " +
                 "Use your e-mail (%s) or username (%s) to log in.",emailAddress,username);
         final boolean sent = this.smsNotificationPort.sendSms(mobilePhoneNumber, content);
         if (!sent) {
