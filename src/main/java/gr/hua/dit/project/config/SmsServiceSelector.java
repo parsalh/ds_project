@@ -22,7 +22,7 @@ public class SmsServiceSelector {
                                  final RouteeSmsService routeeSmsService,
                                  final MockSmsService mockSmsService) {
 
-        // --- DEBUG PRINTS ---
+        // --- DEBUG ---
         System.out.println("--------------------------------------------------");
         System.out.println("DEBUG: Routee App ID: '" + routeeProperties.getAppId() + "'");
         System.out.println("DEBUG: Routee Secret: '" + routeeProperties.getAppSecret() + "'");
