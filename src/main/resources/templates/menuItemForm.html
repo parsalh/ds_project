@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Item - StreetFoodGo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; display: flex; align-items: center; min-height: 100vh; }
+        .form-container {
+            max-width: 30rem;
+            width: 100%;
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="form-container">
+        <h3 class="mb-4 text-center" th:text="${menuItem.id == null} ? 'Add New Dish' : 'Edit Dish'">Dish</h3>
+
+        <form th:action="@{/owner/restaurant/{rid}/menu/save(rid=${restaurantId})}"
+              th:object="${menuItem}"
+              method="post">
+
+            <input type="hidden" th:field="*{id}">
+
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input type="text" th:field="*{name}" class="form-control" required autofocus>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea th:field="*{description}" class="form-control" rows="2"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Price (€)</label>
+                <input type="number" step="0.01" th:field="*{price}" class="form-control" required>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" role="switch" id="availSwitch" th:field="*{available}">
+                <label class="form-check-label" for="availSwitch">Available for order</label>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success">Save Item</button>
+                <a th:href="@{/owner/restaurant/{id}/edit(id=${restaurantId})}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

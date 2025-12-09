@@ -1,8 +1,9 @@
-package gr.hua.dit.project.core.security;
+package gr.hua.dit.project.security;
 
 import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.repository.PersonRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import gr.hua.dit.project.security.ApplicationUserDetails;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +25,12 @@ public class ApplicationUserDetailsService implements UserDetailsService {
                 .findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return new User(
+        return new ApplicationUserDetails(
+                person.getId(),
                 person.getUsername(),
-                person.getPasswordHash(), // ✅ already encoded
-                List.of(new SimpleGrantedAuthority("ROLE_" + person.getType().name()))
+                person.getPasswordHash(),
+                person.getType()
+//                List.of(new SimpleGrantedAuthority("ROLE_" + person.getType().name()))
         );
     }
 }

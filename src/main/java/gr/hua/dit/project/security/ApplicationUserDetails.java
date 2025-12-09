@@ -4,11 +4,9 @@ import gr.hua.dit.project.core.model.PersonType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.yaml.snakeyaml.events.Event;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public final class ApplicationUserDetails implements UserDetails {
 
@@ -48,7 +46,7 @@ public final class ApplicationUserDetails implements UserDetails {
         if (this.type == PersonType.OWNER) role = "OWNER";
         else if (this.type == PersonType.CUSTOMER) role = "CUSTOMER";
         else throw new RuntimeException("Invalid type: " + this.type);
-        return Collections.singletonList(new SimpleGrantedAuthority(role));
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + this.type.name()));
     }
 
 

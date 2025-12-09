@@ -54,9 +54,9 @@ public class SecurityConfig {
                                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_CUSTOMER"));
 
                             if (isOwner) {
-                                response.sendRedirect("/owner/profile");
+                                response.sendRedirect("/owner/dashboard"); // o owner παει στο dashboard του
                             } else if (isCustomer) {
-                                response.sendRedirect("/customer/profile");
+                                response.sendRedirect("/"); // ο customer παει στο homepage
                             } else {
                                 response.sendRedirect("/login");
                             }
