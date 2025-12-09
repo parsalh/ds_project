@@ -21,6 +21,6 @@ cd ds-project
 
 ---
 
-Open in browser: [http://localhost:8080/test //temp](http://localhost:8080/)
+Open in browser: [StreetFoodGo](http://localhost:8080/)
 
 ---
