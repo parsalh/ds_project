@@ -54,44 +54,6 @@ public class RouteeSmsService implements SmsService {
 
     }
 
-//    @Override
-//    public void send(String e164, String content) {
-//
-//        // Authenticate
-//        // ----------------------------------------------------
-//
-//        final String token = this.getAccessToken();
-//
-//        // Headers
-//        // ----------------------------------------------------
-//
-//        HttpHeaders httpHeaders = new HttpHeaders();
-//        httpHeaders.set("Authorization", "Bearer " + token);
-//        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-//
-//        // Payload
-//        // ----------------------------------------------------
-//
-//        Map<String, Object> body = Map.of(
-//                "body", content,
-//                "to", e164,
-//                "from", this.routeeProperties.getSender());
-//
-//        // Request
-//        // ----------------------------------------------------
-//
-//        final HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, httpHeaders);
-//        final ResponseEntity<String> response = this.restTemplate.postForEntity(SMS_URL, entity, String.class);
-//
-//        LOGGER.info("Routee response: {}", response);
-//
-//        if (!response.getStatusCode().is2xxSuccessful()) {
-//            throw new RuntimeException(String.format("SMS send to %s failed",e164));
-//        }
-//
-//        //TODO implement
-//    }
-
     @Override
     public void send(String e164, String content) {
         LOGGER.info("Attempting to send SMS via Routee...");

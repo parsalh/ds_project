@@ -2,6 +2,7 @@ package gr.hua.dit.project.core.service.impl;
 
 import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.model.Restaurant;
+import gr.hua.dit.project.core.port.GeocodingService;
 import gr.hua.dit.project.core.repository.PersonRepository;
 import gr.hua.dit.project.core.repository.RestaurantRepository;
 import gr.hua.dit.project.core.service.RestaurantService;
@@ -15,11 +16,14 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     private final RestaurantRepository restaurantRepository;
     private final PersonRepository personRepository;
+    private final GeocodingService geocodingService;
 
     public RestaurantServiceImpl(RestaurantRepository restaurantRepository,
-                                 PersonRepository personRepository) {
+                                 PersonRepository personRepository,
+                                 GeocodingService geocodingService) {
         this.restaurantRepository = restaurantRepository;
         this.personRepository = personRepository;
+        this.geocodingService = geocodingService;
     }
 
     @Override
@@ -44,6 +48,13 @@ public class RestaurantServiceImpl implements RestaurantService {
                 .orElseThrow(()-> new RuntimeException("Owner not found"));
 
         restaurant.setOwner(owner);
+
+        geocodingService.getCoordinates(restaurant.getAddress())
+                        .ifPresent(coords -> {
+                            restaurant.setLatitude(coords[0]);
+                            restaurant.setLongitude(coords[1]);
+                        });
+
         restaurantRepository.save(restaurant);
     }
 
@@ -59,6 +70,12 @@ public class RestaurantServiceImpl implements RestaurantService {
         existingRestaurant.setDeliveryFee(formData.getDeliveryFee());
         existingRestaurant.setServiceType(formData.getServiceType());
         existingRestaurant.setCuisines(formData.getCuisines());
+
+        geocodingService.getCoordinates(formData.getAddress())
+                        .ifPresent(coords -> {
+                            existingRestaurant.setLatitude(coords[0]);
+                            existingRestaurant.setLongitude(coords[1]);
+                        });
 
         restaurantRepository.save(existingRestaurant);
     }

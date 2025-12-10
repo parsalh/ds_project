@@ -16,6 +16,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
 debug: true
 
 logging:
@@ -30,3 +31,7 @@ routee:
   app-id: 5bba56ece4b0a43fbf239aae
   app-secret: kDsvtwHe3w
   sender: SFGo # δεν μπορω να γραψω ολοκληρο το StreetFoodGo :(
+
+nominatim:
+  url: "https://nominatim.openstreetmap.org/search"
+  user-agent: "StreetFoodGo-Project/1.0 (it2022088@hua.gr)"
