@@ -40,6 +40,10 @@ public class MenuItem {
     @Column(name = "description")
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, length = 20)
+    private ItemType type;
+
     //TODO image_url of menu item
 
     public MenuItem() {}
