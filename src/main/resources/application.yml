@@ -35,3 +35,7 @@ routee:
 nominatim:
   url: "https://nominatim.openstreetmap.org/search"
   user-agent: "StreetFoodGo-Project/1.0 (it2022088@hua.gr)"
+
+ors:
+  api-key: eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjJlNTMxMWIzOWRmODRjMDZhYjc1ZmJlYzU2ZDRjNGUxIiwiaCI6Im11cm11cjY0In0=
+  base-url: "https://api.openrouteservice.org/v2/directions/driving-car"
