@@ -103,8 +103,14 @@
                             <span class="fw-bold" th:text="${restaurant.menu.size()}">0</span>
                         </div>
                         <div class="col">
-                            <small class="d-block text-muted">Active</small>
-                            <span class="text-success"><i class="bi bi-check-circle-fill"></i> Yes</span>
+                            <small class="d-block text-muted">Status</small>
+
+                            <span th:if="${restaurant.isOpen()}" class="badge bg-success">
+                                <i class="bi bi-clock"></i> OPEN
+                            </span>
+                            <span th:unless="${restaurant.isOpen()}" class="badge bg-secondary">
+                                <i class="bi bi-clock-history"></i> CLOSED
+                            </span>
                         </div>
                     </div>
 

@@ -48,19 +48,21 @@ public class MenuItem {
 
     public MenuItem() {}
 
-    //TODO add Id to constructor
-    public MenuItem(
+    public MenuItem(Long id,
                     Restaurant restaurant,
                     String name,
                     BigDecimal price,
                     Boolean available,
-                    String description) {
+                    String description,
+                    ItemType type) {
 
+        this.id = id;
         this.restaurant = restaurant;
         this.name = name;
         this.price = price;
         this.available = available;
         this.description = description;
+        this.type = type;
 
     }
 

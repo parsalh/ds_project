@@ -83,6 +83,36 @@
                 </div>
             </div>
 
+            <div class="mb-4">
+                <h5 class="mb-3">Operating Hours</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm table-borderless align-middle">
+                        <thead>
+                        <tr>
+                            <th style="width: 150px;">Day</th>
+                            <th>Open Time</th>
+                            <th>Close Time</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="openHour, stat : *{openHours}">
+                            <td>
+                                <input type="hidden" th:field="*{openHours[__${stat.index}__].dayOfWeek}">
+                                <span class="fw-bold" th:text="*{openHours[__${stat.index}__].dayOfWeek}">MONDAY</span>
+                            </td>
+                            <td>
+                                <input type="time" class="form-control" th:field="*{openHours[__${stat.index}__].openTime}">
+                            </td>
+                            <td>
+                                <input type="time" class="form-control" th:field="*{openHours[__${stat.index}__].closeTime}">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="form-text text-muted">Leave times empty if the restaurant is closed on that day.</div>
+                </div>
+            </div>
+
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary-custom">Save Restaurant Details</button>
             </div>

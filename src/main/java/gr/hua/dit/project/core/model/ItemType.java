@@ -10,4 +10,5 @@ public enum ItemType {
     ALCOHOL,
     DEAL,
     DESSERT
+
 }

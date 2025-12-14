@@ -3,6 +3,7 @@ package gr.hua.dit.project.core.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -66,8 +67,8 @@ public class Restaurant {
 
     public Restaurant() {}
 
-    //TODO add Id to constructor
-    public Restaurant(Person owner,
+    public Restaurant(Long id,
+                      Person owner,
                       String name,
                       String address,
                       Double latitude,
@@ -79,6 +80,7 @@ public class Restaurant {
                       List<OpenHour> openHours,
                       Set<Cuisine> cuisines) {
 
+        this.id = id;
         this.owner = owner;
         this.name = name;
         this.address = address;
@@ -186,6 +188,35 @@ public class Restaurant {
 
     public void setCuisines(Set<Cuisine> cuisines) {
         this.cuisines = cuisines;
+    }
+
+    public boolean isOpen() {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        java.time.DayOfWeek currentDayJava = now.getDayOfWeek();
+        java.time.LocalTime currentTime = now.toLocalTime();
+
+        for (OpenHour oh : this.openHours) {
+            if (oh.getDayOfWeek() != null &&
+                    oh.getDayOfWeek().name().equals(currentDayJava.name())) {
+
+                if (oh.getOpenTime() != null && oh.getCloseTime() != null) {
+                    LocalTime open = oh.getOpenTime();
+                    LocalTime close = oh.getCloseTime();
+
+                    if (open.isBefore(close)) {
+                        if (currentTime.isAfter(open) && currentTime.isBefore(close)) {
+                            return true;
+                        }
+                    }
+                    else {
+                        if (currentTime.isAfter(open) || currentTime.isBefore(close)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override

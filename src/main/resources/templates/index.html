@@ -76,7 +76,7 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
                             <a class="dropdown-item" sec:authorize="hasRole('CUSTOMER')" th:href="@{/customer/profile}">My Profile</a>
-                            <a class="dropdown-item" sec:authorize="hasRole('OWNER')" th:href="@{/owner/profile}">My Business</a>
+                            <a class="dropdown-item" sec:authorize="hasRole('OWNER')" th:href="@{/owner/dashboard}">My Business</a>
                         </li>
 
                         <li><hr class="dropdown-divider"></li>
@@ -128,9 +128,18 @@
                 <img src="https://placehold.co/600x400?text=Restaurant+Image" class="card-img-top" alt="Restaurant Img">
 
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <h5 class="card-title fw-bold" th:text="${restaurant.name}">Name</h5>
-                        <span class="badge bg-success" th:text="${restaurant.serviceType}">TYPE</span>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h5 class="card-title fw-bold mb-1" th:text="${restaurant.name}">Name</h5>
+
+                            <span th:if="${restaurant.isOpen()}" class="badge bg-success" style="font-size: 0.75rem;">
+                                <i class="bi bi-check-circle"></i> OPEN
+                            </span>
+                            <span th:unless="${restaurant.isOpen()}" class="badge bg-secondary" style="font-size: 0.75rem;">
+                                <i class="bi bi-dash-circle"></i> CLOSED
+                            </span>
+                        </div>
+                        <span class="badge bg-primary" th:text="${restaurant.serviceType}">TYPE</span>
                     </div>
 
                     <p class="card-text text-muted small mb-2">
@@ -155,7 +164,7 @@
             </div>
         </div>
 
-        <div th:if="${restaurants.empty}" class="col-12 text-center py-5">
+        <div th:if="${restaurants.isEmpty()}" class="col-12 text-center py-5">
             <p class="text-muted fs-4">No restaurants found matching your criteria.</p>
         </div>
     </div>

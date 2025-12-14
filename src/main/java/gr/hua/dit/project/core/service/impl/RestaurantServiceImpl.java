@@ -1,5 +1,6 @@
 package gr.hua.dit.project.core.service.impl;
 
+import gr.hua.dit.project.core.model.OpenHour;
 import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.model.Restaurant;
 import gr.hua.dit.project.core.port.GeocodingService;
@@ -9,6 +10,7 @@ import gr.hua.dit.project.core.service.RestaurantService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -55,10 +57,22 @@ public class RestaurantServiceImpl implements RestaurantService {
                             restaurant.setLongitude(coords[1]);
                         });
 
+        List<OpenHour> validHours = new ArrayList<>();
+        if (restaurant.getOpenHours() != null) {
+            for (OpenHour hours : restaurant.getOpenHours()) {
+                if (hours.getOpenTime() != null && hours.getCloseTime() != null) {
+                    hours.setRestaurant(restaurant);
+                    validHours.add(hours);
+                }
+            }
+        }
+        restaurant.setOpenHours(validHours);
+
         restaurantRepository.save(restaurant);
     }
 
     @Override
+    @Transactional
     public void updateRestaurant(Long restaurantId,
                                  Restaurant formData,
                                  Long ownerId) {
@@ -76,6 +90,16 @@ public class RestaurantServiceImpl implements RestaurantService {
                             existingRestaurant.setLatitude(coords[0]);
                             existingRestaurant.setLongitude(coords[1]);
                         });
+
+        existingRestaurant.getOpenHours().clear();
+        if (formData.getOpenHours() != null) {
+            for (OpenHour hours : formData.getOpenHours()) {
+                if (hours.getOpenTime() != null && hours.getCloseTime() != null) {
+                    hours.setRestaurant(existingRestaurant);
+                    existingRestaurant.getOpenHours().add(hours);
+                }
+            }
+        }
 
         restaurantRepository.save(existingRestaurant);
     }

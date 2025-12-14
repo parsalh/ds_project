@@ -2,8 +2,6 @@ package gr.hua.dit.project.web.rest;
 
 import gr.hua.dit.project.core.model.*;
 import gr.hua.dit.project.core.repository.MenuItemRepository;
-import gr.hua.dit.project.core.repository.PersonRepository;
-import gr.hua.dit.project.core.repository.RestaurantRepository;
 import gr.hua.dit.project.core.service.RestaurantService;
 import gr.hua.dit.project.security.ApplicationUserDetails;
 import org.springframework.security.core.Authentication;
@@ -11,17 +9,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
 @RequestMapping("/owner")
-public class OwnerProfileController {
+public class OwnerDashboardController {
 
     private final RestaurantService restaurantService;
     private final MenuItemRepository menuItemRepository;
 
-    public OwnerProfileController(RestaurantService restaurantService,
-                                  MenuItemRepository menuItemRepository) {
+    public OwnerDashboardController(RestaurantService restaurantService,
+                                    MenuItemRepository menuItemRepository) {
 
         this.restaurantService = restaurantService;
         this.menuItemRepository = menuItemRepository;
@@ -45,6 +45,7 @@ public class OwnerProfileController {
     public String showAddRestaurantForm(Model model) {
 
         Restaurant restaurant = new Restaurant();
+        prepareOpenHours(restaurant);
 
         model.addAttribute("restaurant", restaurant);
         model.addAttribute("cuisines", Cuisine.values());
@@ -74,6 +75,7 @@ public class OwnerProfileController {
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
 
         Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(id, userDetails.personId());
+        prepareOpenHours(restaurant);
 
         model.addAttribute("restaurant", restaurant);
         model.addAttribute("cuisines", Cuisine.values());
@@ -154,6 +156,28 @@ public class OwnerProfileController {
         menuItemRepository.deleteById(menuId);
 
         return "redirect:/owner/restaurant/" + restaurantId + "/edit";
+    }
+
+    private void prepareOpenHours(Restaurant restaurant) {
+        if (restaurant.getOpenHours() == null) {
+            restaurant.setOpenHours(new ArrayList<>());
+        }
+
+        List<OpenHour> hours = restaurant.getOpenHours();
+
+        for (DayOfWeek day : DayOfWeek.values()) {
+            boolean exists = hours.stream().anyMatch(h -> h.getDayOfWeek() == day);
+
+            if (!exists) {
+                OpenHour newHour = new OpenHour();
+                newHour.setDayOfWeek(day);
+                newHour.setRestaurant(restaurant);
+                hours.add(newHour);
+            }
+        }
+
+        hours.sort(Comparator.comparing(OpenHour::getDayOfWeek));
+
     }
 
 }

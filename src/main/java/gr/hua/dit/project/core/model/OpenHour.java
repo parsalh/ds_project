@@ -36,13 +36,13 @@ public class OpenHour {
 
     public OpenHour() {}
 
-    //TODO add Id to constructor
-    public OpenHour(
+    public OpenHour(Long id,
                     Restaurant restaurant,
                     DayOfWeek dayOfWeek,
                     LocalTime openTime,
                     LocalTime closeTime) {
 
+        this.id = id;
         this.restaurant = restaurant;
         this.dayOfWeek = dayOfWeek;
         this.openTime = openTime;
