@@ -109,11 +109,16 @@
 
         <div class="mt-4 d-flex justify-content-center flex-wrap gap-2">
             <span class="text-white me-2 pt-1">Popular:</span>
+
             <a th:each="cuisine, stat : ${cuisines}"
                th:if="${stat.index < 5}"
-               href="#"
+               th:href="@{/(cuisine=${cuisine})}"
                class="badge bg-white text-dark text-decoration-none rounded-pill px-3 py-2">
                 <span th:text="${cuisine}">CUISINE</span>
+            </a>
+
+            <a th:href="@{/}" class="badge bg-dark text-white text-decoration-none rounded-pill px-3 py-2 border border-white">
+                All
             </a>
         </div>
     </div>

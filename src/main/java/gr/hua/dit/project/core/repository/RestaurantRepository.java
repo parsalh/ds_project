@@ -1,8 +1,10 @@
 package gr.hua.dit.project.core.repository;
 
+import gr.hua.dit.project.core.model.Cuisine;
 import gr.hua.dit.project.core.model.Restaurant;
 import gr.hua.dit.project.core.model.ServiceType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -26,6 +28,8 @@ public interface RestaurantRepository extends JpaRepository<Restaurant,Long> {
     List<Restaurant> findAllByServiceType(final ServiceType serviceType);
 
     List<Restaurant> findAllByDeliveryFeeLessThanEqual(final BigDecimal maxDeliveryFee);
+
+    List<Restaurant> findAllByCuisinesContaining(Cuisine cuisine);
 
     boolean existsByOwnerId(final Long ownerId);
 

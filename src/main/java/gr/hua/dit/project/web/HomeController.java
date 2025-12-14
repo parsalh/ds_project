@@ -19,12 +19,16 @@ public class HomeController {
     @GetMapping("/")
     public String index(
             @RequestParam(required = false) String query,
+            @RequestParam(required = false) Cuisine cuisine,
             Model model
-    ) { if (query != null && !query.isBlank()) {
-        model.addAttribute("restaurant", restaurantRepository.findByNameContainingIgnoreCase(query));
-    } else {
-        model.addAttribute("restaurants", restaurantRepository.findAll());
-    }
+    ) {
+        if (query != null && !query.isBlank()) {
+            model.addAttribute("restaurants", restaurantRepository.findByNameContainingIgnoreCase(query));
+        } else if (cuisine != null) {
+            model.addAttribute("restaurants", restaurantRepository.findAllByCuisinesContaining(cuisine));
+        } else {
+            model.addAttribute("restaurants", restaurantRepository.findAll());
+        }
 
     model.addAttribute("cuisines", Cuisine.values());
 
