@@ -22,24 +22,24 @@ public class TestController {
     /**
      * REST endpoint for testing.
      */
-    @GetMapping(value = "test", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String test(){
-        //Example 1: create Person
-        Person person = new Person();
-        person.setId(null); //auto-gen
-        person.setUsername("example_" + System.currentTimeMillis());
-        person.setType(PersonType.CUSTOMER);
-        person.setFirstName("Stavroula");
-        person.setLastName("Parsali");
-        person.setEmailAddress("ex" + System.currentTimeMillis() + "@test.com");
-        person.setMobilePhoneNumber("+3069" + (int)(Math.random() * 1_000_00000));
-        person.setAddress("Omirou 9");
-        person.setPasswordHash("<invalid>");
-        person.setCreatedAt(Instant.now());
-
-        person = this.personRepository.save(person);
-
-        return person.toString();
-    }
+//    @GetMapping(value = "test", produces = MediaType.TEXT_PLAIN_VALUE)
+//    public String test(){
+//        //Example 1: create Person
+//        Person person = new Person();
+//        person.setId(null); //auto-gen
+//        person.setUsername("example_" + System.currentTimeMillis());
+//        person.setType(PersonType.CUSTOMER);
+//        person.setFirstName("Stavroula");
+//        person.setLastName("Parsali");
+//        person.setEmailAddress("ex" + System.currentTimeMillis() + "@test.com");
+//        person.setMobilePhoneNumber("+3069" + (int)(Math.random() * 1_000_00000));
+//        person.setAddress("Omirou 9");
+//        person.setPasswordHash("<invalid>");
+//        person.setCreatedAt(Instant.now());
+//
+//        person = this.personRepository.save(person);
+//
+//        return person.toString();
+//    }
 
 }

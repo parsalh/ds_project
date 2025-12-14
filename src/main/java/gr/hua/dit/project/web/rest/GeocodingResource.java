@@ -19,10 +19,10 @@ public class GeocodingResource {
         this.geocodingService = geocodingService;
     }
 
-    record GeoResult(String address,double latitude,double longitude){}
+    public record GeoResult(String address,double latitude,double longitude){}
 
     @GetMapping("/search")
-    public ResponseEntity<?> getCoordinates(@RequestParam String address){
+    public ResponseEntity<GeoResult> getCoordinates(@RequestParam String address){
         Optional<double[]> coordinates =  geocodingService.getCoordinates(address);
 
         if (coordinates.isPresent()){
