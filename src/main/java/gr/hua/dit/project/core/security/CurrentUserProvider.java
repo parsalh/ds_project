@@ -1,4 +1,4 @@
-package gr.hua.dit.project.security;
+package gr.hua.dit.project.core.security;
 
 import gr.hua.dit.project.core.model.PersonType;
 import org.springframework.security.core.Authentication;

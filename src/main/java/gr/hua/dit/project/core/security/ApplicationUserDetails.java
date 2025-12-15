@@ -1,4 +1,4 @@
-package gr.hua.dit.project.security;
+package gr.hua.dit.project.core.security;
 
 import gr.hua.dit.project.core.model.PersonType;
 import org.springframework.security.core.GrantedAuthority;
@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-public final class ApplicationUserDetails implements UserDetails {
+public final class  ApplicationUserDetails implements UserDetails {
 
     private final long id;
     private final String username;

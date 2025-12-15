@@ -3,7 +3,7 @@ package gr.hua.dit.project.web.rest;
 import gr.hua.dit.project.core.model.*;
 import gr.hua.dit.project.core.repository.MenuItemRepository;
 import gr.hua.dit.project.core.service.RestaurantService;
-import gr.hua.dit.project.security.ApplicationUserDetails;
+import gr.hua.dit.project.core.security.ApplicationUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

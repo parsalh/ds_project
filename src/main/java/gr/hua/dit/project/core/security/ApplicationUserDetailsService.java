@@ -1,13 +1,9 @@
-package gr.hua.dit.project.security;
+package gr.hua.dit.project.core.security;
 
 import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.repository.PersonRepository;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import gr.hua.dit.project.security.ApplicationUserDetails;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ApplicationUserDetailsService implements UserDetailsService {
