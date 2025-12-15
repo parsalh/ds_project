@@ -6,6 +6,8 @@
     <title>Manage Restaurant - StreetFoodGo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
         body { background-color: #f8f9fa; min-height: 100vh; padding: 2rem 0; }
         .form-container {
@@ -25,6 +27,13 @@
         .btn-primary-custom:hover {
             background-color: #b91c1c;
             color: white;
+        }
+        #map {
+            height: 300px;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid #ced4da;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -58,6 +67,18 @@
                     <label class="form-label fw-bold">Zip Code</label>
                     <input type="text" th:field="*{zipCode}" class="form-control" placeholder="12345">
                 </div>
+            </div>
+
+            <input type="hidden" id="latitude" th:field="*{latitude}">
+            <input type="hidden" id="longitude" th:field="*{longitude}">
+
+            <div class="mb-4">
+                <label class="form-label fw-bold">Location on Map</label>
+                <div id="map"></div>
+                <div class="form-text text-muted">
+                    Click on the map to pinpoint the exact location. If skipped, we will find it based on the address.
+                </div>
+                <small class="text-muted">Selected: <span id="latDisplay">-</span>, <span id="lngDisplay">-</span></small>
             </div>
 
             <div class="row">
@@ -176,5 +197,50 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    var savedLat = document.getElementById('latitude').value;
+    var savedLng = document.getElementById('longitude').value;
+
+    var startPos = [37.9838, 23.7275]; // Default: Αθήνα
+    var zoomLevel = 12;
+
+    if (savedLat && savedLng) {
+        startPos = [savedLat, savedLng];
+        zoomLevel = 16;
+    }
+
+    var map = L.map('map').setView(startPos, zoomLevel);
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    var marker;
+
+    // Αν έχει ήδη συντεταγμένες, βάζουμε τον marker
+    if (savedLat && savedLng) {
+        marker = L.marker(startPos).addTo(map);
+        document.getElementById('latDisplay').innerText = parseFloat(savedLat).toFixed(5);
+        document.getElementById('lngDisplay').innerText = parseFloat(savedLng).toFixed(5);
+    }
+
+    map.on('click', function(e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
+        }
+
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+
+        document.getElementById('latDisplay').innerText = lat.toFixed(5);
+        document.getElementById('lngDisplay').innerText = lng.toFixed(5);
+    });
+</script>
 </body>
 </html>

@@ -30,6 +30,8 @@ public interface PersonRepository extends JpaRepository<Person,Long> {
 
     List<Person> findAllByTypeOrderByLastName(final PersonType type);
 
+    Optional<Person> findByUsernameOrEmailAddress(String username, String emailAddress);
+
     boolean existsByUsernameIgnoreCase(final String username);
 
     boolean existsByEmailAddressIgnoreCase(final String emailAddress);

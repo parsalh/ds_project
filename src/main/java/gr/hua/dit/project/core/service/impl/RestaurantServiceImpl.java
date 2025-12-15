@@ -51,12 +51,15 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         restaurant.setOwner(owner);
 
-        String fullAddress = getFullAddress(restaurant.getAddress(), restaurant.getZipCode());
-        geocodingService.getCoordinates(fullAddress)
-                .ifPresent(coords -> {
-                    restaurant.setLatitude(coords[0]);
-                    restaurant.setLongitude(coords[1]);
-                });
+        if (restaurant.getLatitude() == null || restaurant.getLongitude() == null) {
+            String fullAddress = getFullAddress(restaurant.getAddress(), restaurant.getZipCode());
+
+            geocodingService.getCoordinates(fullAddress)
+                    .ifPresent(coords -> {
+                        restaurant.setLatitude(coords[0]);
+                        restaurant.setLongitude(coords[1]);
+                    });
+        }
 
         List<OpenHour> validHours = new ArrayList<>();
         if (restaurant.getOpenHours() != null) {
@@ -87,12 +90,17 @@ public class RestaurantServiceImpl implements RestaurantService {
         existingRestaurant.setServiceType(formData.getServiceType());
         existingRestaurant.setCuisines(formData.getCuisines());
 
-        String fullAddress = getFullAddress(formData.getAddress(), formData.getZipCode());
-        geocodingService.getCoordinates(fullAddress)
-                .ifPresent(coords -> {
-                    existingRestaurant.setLatitude(coords[0]);
-                    existingRestaurant.setLongitude(coords[1]);
-                });
+        if (formData.getLatitude() != null && formData.getLongitude() != null) {
+            existingRestaurant.setLatitude(formData.getLatitude());
+            existingRestaurant.setLongitude(formData.getLongitude());
+        } else {
+            String fullAddress = getFullAddress(formData.getAddress(), formData.getZipCode());
+            geocodingService.getCoordinates(fullAddress)
+                    .ifPresent(coords -> {
+                        existingRestaurant.setLatitude(coords[0]);
+                        existingRestaurant.setLongitude(coords[1]);
+                    });
+        }
 
         existingRestaurant.getOpenHours().clear();
         if (formData.getOpenHours() != null) {

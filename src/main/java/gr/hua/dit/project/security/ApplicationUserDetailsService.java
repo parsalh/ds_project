@@ -22,7 +22,7 @@ public class ApplicationUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Person person = personRepository
-                .findByUsername(username)
+                .findByUsernameOrEmailAddress(username, username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return new ApplicationUserDetails(
@@ -30,7 +30,6 @@ public class ApplicationUserDetailsService implements UserDetailsService {
                 person.getUsername(),
                 person.getPasswordHash(),
                 person.getType()
-//                List.of(new SimpleGrantedAuthority("ROLE_" + person.getType().name()))
         );
     }
 }
