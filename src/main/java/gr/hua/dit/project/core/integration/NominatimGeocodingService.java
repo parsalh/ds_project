@@ -37,7 +37,7 @@ public class NominatimGeocodingService implements GeocodingService {
      * Annotation to prevent UnrecognizedPropertyException.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    private record NominatimResult(String lat, String lon) {}
+    record NominatimResult(String lat, String lon) {}
 
     /**
      * Retrieves the coordinates for a given address.

@@ -65,6 +65,9 @@ public class Restaurant {
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OpenHour> openHours = new ArrayList<>();
 
+    @Column(name = "zip_code", length = 10)
+    private String zipCode;
+
     public Restaurant() {}
 
     public Restaurant(Long id,
@@ -78,7 +81,8 @@ public class Restaurant {
                       BigDecimal deliveryFee,
                       ServiceType serviceType,
                       List<OpenHour> openHours,
-                      Set<Cuisine> cuisines) {
+                      Set<Cuisine> cuisines,
+                      String zipCode) {
 
         this.id = id;
         this.owner = owner;
@@ -92,6 +96,7 @@ public class Restaurant {
         this.serviceType = serviceType;
         this.openHours = (openHours != null ? openHours : new ArrayList<>());
         this.cuisines = (cuisines != null ? cuisines : new HashSet<>());
+        this.zipCode = zipCode;
 
     }
 
@@ -188,6 +193,14 @@ public class Restaurant {
 
     public void setCuisines(Set<Cuisine> cuisines) {
         this.cuisines = cuisines;
+    }
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
     }
 
     public boolean isOpen() {

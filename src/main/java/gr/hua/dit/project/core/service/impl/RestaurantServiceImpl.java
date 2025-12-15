@@ -51,11 +51,12 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         restaurant.setOwner(owner);
 
-        geocodingService.getCoordinates(restaurant.getAddress())
-                        .ifPresent(coords -> {
-                            restaurant.setLatitude(coords[0]);
-                            restaurant.setLongitude(coords[1]);
-                        });
+        String fullAddress = getFullAddress(restaurant.getAddress(), restaurant.getZipCode());
+        geocodingService.getCoordinates(fullAddress)
+                .ifPresent(coords -> {
+                    restaurant.setLatitude(coords[0]);
+                    restaurant.setLongitude(coords[1]);
+                });
 
         List<OpenHour> validHours = new ArrayList<>();
         if (restaurant.getOpenHours() != null) {
@@ -80,16 +81,18 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         existingRestaurant.setName(formData.getName());
         existingRestaurant.setAddress(formData.getAddress());
+        existingRestaurant.setZipCode(formData.getZipCode());
         existingRestaurant.setMinimumOrderAmount(formData.getMinimumOrderAmount());
         existingRestaurant.setDeliveryFee(formData.getDeliveryFee());
         existingRestaurant.setServiceType(formData.getServiceType());
         existingRestaurant.setCuisines(formData.getCuisines());
 
-        geocodingService.getCoordinates(formData.getAddress())
-                        .ifPresent(coords -> {
-                            existingRestaurant.setLatitude(coords[0]);
-                            existingRestaurant.setLongitude(coords[1]);
-                        });
+        String fullAddress = getFullAddress(formData.getAddress(), formData.getZipCode());
+        geocodingService.getCoordinates(fullAddress)
+                .ifPresent(coords -> {
+                    existingRestaurant.setLatitude(coords[0]);
+                    existingRestaurant.setLongitude(coords[1]);
+                });
 
         existingRestaurant.getOpenHours().clear();
         if (formData.getOpenHours() != null) {
@@ -102,6 +105,13 @@ public class RestaurantServiceImpl implements RestaurantService {
         }
 
         restaurantRepository.save(existingRestaurant);
+    }
+
+    private String getFullAddress(String address, String zipCode) {
+        if (zipCode != null && !zipCode.isBlank()) {
+            return address + ", " + zipCode;
+        }
+        return address;
     }
 
 }

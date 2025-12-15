@@ -102,6 +102,8 @@ public class OwnerDashboardController {
         MenuItem menuItem = new MenuItem();
         model.addAttribute("menuItem", menuItem);
         model.addAttribute("restaurantId", restaurantId);
+        model.addAttribute("itemTypes", ItemType.values());
+
         return "menuItemForm";
     }
 
@@ -115,6 +117,7 @@ public class OwnerDashboardController {
 
         model.addAttribute("menuItem", menuItem);
         model.addAttribute("restaurantId", restaurantId);
+        model.addAttribute("itemTypes", ItemType.values());
 
         return "menuItemForm";
 
@@ -123,7 +126,7 @@ public class OwnerDashboardController {
     @PostMapping("/restaurant/{restaurantId}/menu/save")
     public String saveMenuItem(@PathVariable Long restaurantId,
                                @ModelAttribute("menuItem") MenuItem menuItem,
-                               Authentication authentication) { // <-- Πρόσθεσε το Authentication
+                               Authentication authentication) {
 
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
 
@@ -135,6 +138,7 @@ public class OwnerDashboardController {
             existing.setPrice(menuItem.getPrice());
             existing.setDescription(menuItem.getDescription());
             existing.setAvailable(menuItem.getAvailable());
+            existing.setType(menuItem.getType());
             menuItemRepository.save(existing);
         } else {
             menuItem.setRestaurant(restaurant);
