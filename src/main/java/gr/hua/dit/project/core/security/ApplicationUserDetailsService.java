@@ -5,21 +5,29 @@ import gr.hua.dit.project.core.repository.PersonRepository;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of Spring's {@link UserDetailsService} for providing application users.
+ */
 @Service
 public class ApplicationUserDetailsService implements UserDetailsService {
 
     private final PersonRepository personRepository;
 
     public ApplicationUserDetailsService(PersonRepository personRepository) {
+        if (personRepository == null) throw new NullPointerException();
         this.personRepository = personRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        Person person = personRepository
-                .findByUsernameOrEmailAddress(username, username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if (username == null) throw new NullPointerException();
+        if (username.isBlank()) throw new IllegalArgumentException();
+
+        final Person person = this.personRepository
+                .findByUsernameIgnoreCase(username)
+                .orElse(null);
+        if (person == null) throw new UsernameNotFoundException("Person with username" + username + " does not exist");
 
         return new ApplicationUserDetails(
                 person.getId(),

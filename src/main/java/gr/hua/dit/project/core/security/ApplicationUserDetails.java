@@ -8,6 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * Immutable view implementing Spring's {@link UserDetails} for representing a user in runtime.
+ */
+
 public final class  ApplicationUserDetails implements UserDetails {
 
     private final long id;

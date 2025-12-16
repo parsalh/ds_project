@@ -7,6 +7,7 @@ import gr.hua.dit.project.core.service.PersonService;
 import gr.hua.dit.project.core.service.model.CreatePersonRequest;
 import gr.hua.dit.project.core.service.model.CreatePersonResult;
 import gr.hua.dit.project.core.service.model.PersonView;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +31,11 @@ public class RegistrationController {
      * Serves the registration form (HTML)
      */
     @GetMapping("/register")
-    public String showRegistrationForm(final Model model){
-        // TODO if user is authenticated,redirect to tickets
+    public String showRegistrationForm(final Authentication authentication, Model model){
+        if (AuthController.isAuthenticated(authentication)) {
+            return "redirect:/";
+        }
+
         //Initial data for the form
         model.addAttribute("createPersonRequest", new CreatePersonRequest(PersonType.CUSTOMER,"","","","","","",""));
 
@@ -43,13 +47,16 @@ public class RegistrationController {
      */
     @PostMapping("/register")
     public String handleRegistrationFormSubmission(
+            final Authentication authentication,
             @ModelAttribute("createPersonRequest") CreatePersonRequest createPersonRequest,
             final Model model
     ) {
-        // TODO if user is authenticated, redirect to tickets
-        // TODO validate form (email format, size, blank, etc)
-        // TODO if form has errors, show the form (with pre-filled data)
-        // TODO otherwise, persist person, then, redirect to login
+
+        if (AuthController.isAuthenticated(authentication)){
+            return "redirect:/"; // already logged in
+        }
+
+        //TODO Form validation + UI errors.
 
         final CreatePersonResult createPersonResult = this.personService.createPerson(createPersonRequest);
         if (createPersonResult.created()) {
