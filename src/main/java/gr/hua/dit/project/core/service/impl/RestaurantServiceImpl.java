@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RestaurantServiceImpl implements RestaurantService {
@@ -122,4 +123,13 @@ public class RestaurantServiceImpl implements RestaurantService {
         return address;
     }
 
+    @Override
+    public Optional<Restaurant> findById(Long id) {
+        return restaurantRepository.findById(id);
+    }
+
+    @Override
+    public List<Restaurant> findAll() {
+        return restaurantRepository.findAll();
+    }
 }

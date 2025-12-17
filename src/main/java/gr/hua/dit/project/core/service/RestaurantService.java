@@ -3,6 +3,7 @@ package gr.hua.dit.project.core.service;
 import gr.hua.dit.project.core.model.Restaurant;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RestaurantService {
 
@@ -17,5 +18,7 @@ public interface RestaurantService {
                           Restaurant formData,
                           Long ownerId);
 
+    Optional<Restaurant> findById(Long restaurantId);
 
+    List<Restaurant> findAll();
 }
