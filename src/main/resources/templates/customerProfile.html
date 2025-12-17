@@ -54,9 +54,14 @@
 
     <form action="/ViewProfile" method="post">
 
-        <!-- Username -->
         <div class="mb-3 d-flex align-items-center">
             <p>Welcome, <span th:text="${username}">User</span>!</p>
+        </div>
+        <div>
+            <ul>
+                <li>Email <span th:text="${me.emailAddress()}"></span></li>
+                <li>Type <span th:text="${me.type()}"></span></li>
+            </ul>
         </div>
     </form>
 </body>
