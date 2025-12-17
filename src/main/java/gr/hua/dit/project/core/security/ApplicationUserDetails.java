@@ -18,22 +18,27 @@ public final class  ApplicationUserDetails implements UserDetails {
     private final String username;
     private final String passwordHash;
     private final PersonType type;
+    private final String email;
 
     public ApplicationUserDetails(final long id,
                                   final String username,
                                   final String passwordHash,
-                                  final PersonType type) {
+                                  final PersonType type,final String email)
+    {
         if (id <= 0) throw new IllegalArgumentException();
         if (username == null) throw new NullPointerException();
         if (username.isBlank()) throw new IllegalArgumentException();
         if (passwordHash == null) throw new NullPointerException();
         if (passwordHash.isBlank()) throw new IllegalArgumentException();
         if (type == null) throw new NullPointerException();
+        if (email == null) throw new NullPointerException();
+        if (email.isBlank()) throw new IllegalArgumentException();
 
         this.id = id;
         this.username = username;
         this.passwordHash = passwordHash;
         this.type = type;
+        this.email = email;
     }
 
     public long personId() {
@@ -63,6 +68,8 @@ public final class  ApplicationUserDetails implements UserDetails {
     public String getUsername() {
         return this.username;
     }
+
+    public String getEmail() { return this.email; }
 
     @Override
     public boolean isAccountNonExpired() {

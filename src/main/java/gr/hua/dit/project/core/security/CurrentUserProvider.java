@@ -20,13 +20,16 @@ public final class CurrentUserProvider {
             return Optional.empty();
         }
         if (authentication.getPrincipal() instanceof ApplicationUserDetails userDetails){
-            return Optional.of(new CurrentUser(userDetails.personId(), userDetails.getUsername(), userDetails.type()));
+            return Optional.of(new CurrentUser(userDetails.personId(),
+                    userDetails.getUsername(),
+                    userDetails.getEmail(),
+                    userDetails.type()));
         }
         return Optional.empty();
     }
 
     public CurrentUser requireCurrentUser() {
-        return this.getCurrentUser().orElseThrow(() -> new SecurityException("not authenticated"));
+        return this.getCurrentUser().orElseThrow(() -> new SecurityException("Not authenticated"));
     }
 
     public long requiredStudentId() {

@@ -33,7 +33,8 @@ public class ApplicationUserDetailsService implements UserDetailsService {
                 person.getId(),
                 person.getUsername(),
                 person.getPasswordHash(),
-                person.getType()
+                person.getType(),
+                person.getEmailAddress()
         );
     }
 }
