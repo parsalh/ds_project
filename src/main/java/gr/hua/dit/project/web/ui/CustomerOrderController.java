@@ -1,4 +1,4 @@
-package gr.hua.dit.project.web.rest;
+package gr.hua.dit.project.web.ui;
 
 import gr.hua.dit.project.core.model.ItemType;
 import gr.hua.dit.project.core.model.MenuItem;

@@ -8,7 +8,7 @@ public interface DistanceService {
      * Calculates distances between two locations.
      * @return Distance and duration item.
      */
-    Optional<RouteMetrics> getDistanceAndDuration(double startLat,
+    public Optional<RouteMetrics> getDistanceAndDuration(double startLat,
                                                   double startLon,
                                                   double endLat,
                                                   double endLon);

@@ -1,12 +1,9 @@
-package gr.hua.dit.project.web.rest;
+package gr.hua.dit.project.web.ui;
 
-import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.model.PersonType;
-import gr.hua.dit.project.core.repository.PersonRepository;
 import gr.hua.dit.project.core.service.PersonService;
 import gr.hua.dit.project.core.service.model.CreatePersonRequest;
 import gr.hua.dit.project.core.service.model.CreatePersonResult;
-import gr.hua.dit.project.core.service.model.PersonView;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

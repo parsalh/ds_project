@@ -2,8 +2,6 @@ package gr.hua.dit.project.web.ui;
 
 import gr.hua.dit.project.core.security.CurrentUser;
 import gr.hua.dit.project.core.security.CurrentUserProvider;
-import gr.hua.dit.project.web.rest.CustomerProfileController;
-import gr.hua.dit.project.web.rest.OwnerDashboardController;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 

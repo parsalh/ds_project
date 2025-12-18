@@ -2,7 +2,7 @@ package gr.hua.dit.project.web;
 
 import gr.hua.dit.project.core.model.Cuisine;
 import gr.hua.dit.project.core.repository.RestaurantRepository;
-import gr.hua.dit.project.web.rest.AuthController;
+import gr.hua.dit.project.web.ui.AuthController;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

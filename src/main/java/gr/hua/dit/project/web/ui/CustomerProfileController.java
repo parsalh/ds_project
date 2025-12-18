@@ -1,4 +1,4 @@
-package gr.hua.dit.project.web.rest;
+package gr.hua.dit.project.web.ui;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;

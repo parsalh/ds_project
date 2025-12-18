@@ -6,71 +6,49 @@ import gr.hua.dit.project.core.port.SmsService;
 import gr.hua.dit.project.core.port.impl.dto.SendSmsRequest;
 import gr.hua.dit.project.core.port.impl.dto.SendSmsResult;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestTemplate;
+import gr.hua.dit.project.core.port.SmsService;
+
+import java.sql.SQLOutput;
 
 
 /**
- * Default implementation of {@link SmsNotificationPort}, It uses the NOC external service.
+ * Default implementation of {@link SmsNotificationPort}, It uses the SMS external service.
  */
 @Service
+@Primary
 public class SmsNotificationPortImpl implements SmsNotificationPort {
 
-//    private final RestTemplate restTemplate;
-    private final SmsService smsService;
+    private final RestClient restClient;
 
-    public SmsNotificationPortImpl(final SmsService smsService) {
-        this.smsService = smsService;
+    private record ExternalSmsRequest(String to, String message){}
+
+    public SmsNotificationPortImpl(RestClient.Builder builder) {
+        this.restClient = builder.baseUrl("http://localhost:8081").build();
     }
 
-//    @Override
-//    public boolean sendSms(final String e164, final String content) {
-//        if (e164 == null) throw new NullPointerException();
-//        if (e164.isBlank()) throw new IllegalArgumentException();
-//        if (content == null) throw new NullPointerException();
-//        if (content.isBlank()) throw new IllegalArgumentException();
-//
-//        // HTTP Headers
-//        // ---------------------------------------------------------
-//
-//        final HttpHeaders httpHeaders = new HttpHeaders();
-//        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
-//
-//        // ---------------------------------------------------------
-//
-//        final SendSmsRequest body = new SendSmsRequest(e164, content);
-//
-//        // Alternative ???
-//        // Map<String, Object> body = Map.of("e164",e164,"content",content);
-//
-//        // ---------------------------------------------------------
-//
-//        final String baseUrl = RestApiClientConfig.BASE_URL;
-//        final String url = baseUrl + "/api/v1/sms";
-//        final HttpEntity<SendSmsRequest> entity = new HttpEntity<>(body, httpHeaders); // request
-//        final ResponseEntity<SendSmsResult> response = this.restTemplate.postForEntity(url, entity, SendSmsResult.class);
-//
-//        if (response.getStatusCode().is2xxSuccessful()) {
-//            final SendSmsResult sendSmsResult = response.getBody();
-//            if (sendSmsResult == null) throw new NullPointerException();
-//            return sendSmsResult.sent();
-//        }
-//
-//        throw new RuntimeException("External service responded with " + response.getStatusCode());
-//
-//    }
-
     @Override
-    public boolean sendSms(final String e164, final String content) {
+    public boolean sendSms(String e164, String content) {
         try {
-            this.smsService.send(e164, content);
+            restClient.post()
+                    .uri("api/external/sms/send")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(new ExternalSmsRequest(e164,content))
+                    .retrieve()
+                    .toBodilessEntity();
+            System.out.println("Main Project: SMS forwarded to Microservice for: " + e164);
             return true;
         } catch (Exception e) {
+            System.err.println("Main Project: Failed to send SMS via Microservice: " + e.getMessage());
             return false;
         }
     }
+
 }

@@ -1,4 +1,4 @@
-package gr.hua.dit.project.web.rest;
+package gr.hua.dit.project.web.ui;
 
 import gr.hua.dit.project.core.model.*;
 import gr.hua.dit.project.core.repository.MenuItemRepository;
@@ -30,13 +30,14 @@ public class OwnerDashboardController {
 
     @GetMapping("/dashboard")
     public String ownerDashboard(Authentication authentication, Model model) {
+
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
         Long ownerId = userDetails.personId();
 
         List<Restaurant> myRestaurants = restaurantService.getRestaurantsByOwner(ownerId);
 
         model.addAttribute("restaurants", myRestaurants);
-        model.addAttribute("username", userDetails.getUsername());
+
 
         return "ownerDashboard";
     }
