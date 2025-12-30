@@ -9,4 +9,6 @@ public interface GeocodingService {
 
     Optional<double[]> getCoordinates(String address);
 
+    Optional<String> getAddress(double lat, double lon);
+
 }

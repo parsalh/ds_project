@@ -32,4 +32,12 @@ public class GeocodingResource {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/reverse")
+    public ResponseEntity<GeoResult> getAddressFromCoords(@RequestParam double lat,
+                                                          @RequestParam double lon){
+        Optional<String> address = geocodingService.getAddress(lat,lon);
+
+        return address.map(s -> ResponseEntity.ok(new GeoResult(s, lat, lon))).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

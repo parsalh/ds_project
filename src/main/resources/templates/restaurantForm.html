@@ -65,7 +65,7 @@
                 </div>
                 <div class="col-md-2 mb-3">
                     <label class="form-label fw-bold">Zip Code</label>
-                    <input type="text" th:field="*{zipCode}" class="form-control" placeholder="12345">
+                    <input type="text" th:field="*{address}" id="address" class="form-control" required>
                 </div>
             </div>
 
@@ -218,7 +218,6 @@
 
     var marker;
 
-    // Αν έχει ήδη συντεταγμένες, βάζουμε τον marker
     if (savedLat && savedLng) {
         marker = L.marker(startPos).addTo(map);
         document.getElementById('latDisplay').innerText = parseFloat(savedLat).toFixed(5);
@@ -240,6 +239,18 @@
 
         document.getElementById('latDisplay').innerText = lat.toFixed(5);
         document.getElementById('lngDisplay').innerText = lng.toFixed(5);
+
+        fetch(`/api/v1/geocoding/reverse?lat=${lat}&lon=${lng}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Not found');
+                return response.json();
+            })
+            .then(data => {
+                if (data.address) {
+                    document.getElementById('address').value = data.address;
+                }
+            })
+            .catch(error => console.log('Could not fetch address:', error));
     });
 </script>
 </body>
