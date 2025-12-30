@@ -1,9 +1,17 @@
 StreetFoodGo - Εργασία D.S.
 ===
 
+## Prerequisites / Microservices Setup
+
+This application relies on an external microservice for SMS, Geocoding, and Routing.
+Before running this application, please ensure the External Microservices application is running on port `8081`.
+
+You can find the code and setup instructions here:
+[External Microservices Repository](https://github.com/parsalh/external-microservices)
+
 ---
 
-Clone the repository:
+**Clone the repository:**
 
 ```shell
 git clone https://github.com/parsalh/ds_project.git
@@ -11,7 +19,7 @@ git clone https://github.com/parsalh/ds_project.git
 
 ---
 
-Run the project:
+**Run the project:**
 
 ```shell
 cd ds-project
@@ -21,6 +29,6 @@ cd ds-project
 
 ---
 
-Open in browser: [StreetFoodGo](http://localhost:8080/)
+**Open in browser:** [StreetFoodGo](http://localhost:8080/)
 
 ---
