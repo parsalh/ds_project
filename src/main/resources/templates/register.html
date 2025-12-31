@@ -5,7 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - StreetFoodGo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
     <style>
+        .select2-container .select2-selection--single {
+            height: 38px;
+            padding-top: 5px;
+            border: 1px solid #ced4da;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            top: 6px;
+        }
         body {
             min-height: 100vh;
             display: flex;
@@ -59,69 +69,88 @@
     <!-- Registration Form -->
     <form th:action="@{/register}" method="POST" th:object="${createPersonRequest}">
 
-        <!-- Error Handling -->
-        <div th:if="${errorMessage != null}">
-            <p style="color: red" th:text="${errorMessage}"></p>
+        <div th:if="${errorMessage != null}" class="alert alert-danger text-center mb-3" role="alert">
+            <p th:text="${errorMessage}" class="m-0"></p>
         </div>
 
-        <!-- Role -->
-        <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-2 mb-0">Role:</label>
-            <select th:field="*{type}" type="radio" class="form-control" required autofocus>
-                <option value="CUSTOMER">Customer</option>
-                <option value="OWNER">Owner</option>
-            </select>
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Register as:</label>
+            <div class="col-sm-8">
+                <select th:field="*{type}" class="form-select" required autofocus>
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="OWNER">Restaurant Owner</option>
+                </select>
+            </div>
         </div>
 
-        <!--  Username -->
-        <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-2 mb-0">Username:</label>
-            <input th:field="*{username}" type="text" class="form-control" required/>
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Username:</label>
+            <div class="col-sm-8">
+                <input th:field="*{username}" type="text" class="form-control" required/>
+            </div>
         </div>
 
-        <!-- Password -->
-        <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-2 mb-0">Password:</label>
-            <input th:field="*{rawPassword}" type="password" class="form-control" required/>
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Password:</label>
+            <div class="col-sm-8">
+                <input th:field="*{rawPassword}" type="password" class="form-control" required/>
+            </div>
         </div>
 
-        <!-- First Name -->
-        <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-2 mb-0">First Name:</label>
-            <input th:field="*{firstName}" type="text" class="form-control" required/>
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">First Name:</label>
+            <div class="col-sm-8">
+                <input th:field="*{firstName}" type="text" class="form-control" required/>
+            </div>
         </div>
 
-        <!-- Last Name -->
-        <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-2 mb-0">Last Name:</label>
-            <input th:field="*{lastName}" type="text" class="form-control" required/>
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Last Name:</label>
+            <div class="col-sm-8">
+                <input th:field="*{lastName}" type="text" class="form-control" required/>
+            </div>
         </div>
 
-        <!-- Address -->
-        <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-2 mb-0">Address:</label>
-            <input th:field="*{address}" type="text" class="form-control" required/>
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Address:</label>
+            <div class="col-sm-8">
+                <input th:field="*{address}" type="text" class="form-control" required/>
+            </div>
         </div>
 
-        <!-- Email Address -->
-        <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-2 mb-0">Email Address:</label>
-            <input th:field="*{emailAddress}" type="email" class="form-control" required/>
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">E-mail Address:</label>
+            <div class="col-sm-8">
+                <input th:field="*{emailAddress}" type="email" class="form-control" required/>
+            </div>
         </div>
 
-        <!-- Mobile Phone Number -->
-        <div class="mb-3 d-flex align-items-center">
-            <label class="form-label me-2 mb-0">Mobile Phone Number:</label>
-            <input th:field="*{mobilePhoneNumber}" type="tel" class="form-control" required/>
+        <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label">Phone Number:</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <select id="country-select" name="countryPrefix" class="form-select">
+                        <option th:each="option : ${countryCodes}"
+                                th:value="${option.code}"
+                                th:data-iso="${option.isoCode}"
+                                th:text="${option.label}"
+                                th:selected="${option.code == '+30' and option.isoCode == 'gr'}">
+                        </option>
+                    </select>
+
+                    <input name="localPhoneNumber"
+                           type="tel"
+                           class="form-control"
+                           required/>
+                </div>
+            </div>
         </div>
 
-        <!-- Register Button -->
-        <div class="mb-4">
+        <div class="mb-4 d-grid">
             <button type="submit" class="btn btn-primary">Finalize Registration</button>
         </div>
 
-        <!-- Login Link -->
-        <p><a href="/login">Already have an account? Login</a></p>
+        <p class="text-center"><a href="/login">Already have an account? Login</a></p>
 
     </form>
 
@@ -129,5 +158,52 @@
 
 <!--dk what dis is-->
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+
+<!-- για το κωδικο χωρας -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+
+        // συνάρτηση που φτιάχνει το HTML για κάθε επιλογή
+        function formatState (state) {
+            if (!state.id) {
+                return state.text;
+            }
+
+            var isoCode = $(state.element).data('iso');
+
+            if(!isoCode) {
+                return state.text;
+            }
+
+            // flag icons library
+            var $state = $(
+                '<span><span class="fi fi-' + isoCode + '"></span> ' + state.text + '</span>'
+            );
+            return $state;
+        };
+
+        // συνάρτηση για το τι θα δείχνει όταν εχει επιλεγεί
+        function formatSelection (state) {
+            if (!state.id) return state.text;
+            var isoCode = $(state.element).data('iso');
+
+            var codeOnly = state.id;
+
+            var $state = $(
+                '<span><span class="fi fi-' + isoCode + '"></span> ' + codeOnly + '</span>'
+            );
+            return $state;
+        }
+
+        $('#country-select').select2({
+            width: '90px',
+            templateResult: formatState,
+            templateSelection: formatSelection
+        });
+    });
+</script>
 </body>
 </html>

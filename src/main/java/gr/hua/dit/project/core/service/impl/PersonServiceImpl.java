@@ -71,23 +71,12 @@ public final class PersonServiceImpl implements PersonService {
         }
 
         if (this.personRepository.existsByEmailAddressIgnoreCase(emailAddress)){
-            return CreatePersonResult.fail("Email address is already in use");
+            return CreatePersonResult.fail("E-mail address is already in use");
         }
 
         if (this.personRepository.existsByMobilePhoneNumber(mobilePhoneNumber)){
             return CreatePersonResult.fail("Mobile phone number is already in use");
         }
-
-
-        // --------------------------------------------------
-
-        // TODO use external service to ... ?
-        // TODO find out what we need it for...????
-
-        // --------------------------------------------------
-
-        // TODO encode password! raw to hash!
-        //final String hashedPassword = rawPassword; // TODO BUG! Encode.
 
         // Instantiate person.
         // --------------------------------------------------
@@ -114,7 +103,6 @@ public final class PersonServiceImpl implements PersonService {
         if (!sent) {
             LOGGER.warn("SMS sent to {} failed!", mobilePhoneNumber);
         }
-        //TODO user external service to notify person.
 
 
         person = this.personRepository.save(person);

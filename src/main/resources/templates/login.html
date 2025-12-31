@@ -63,8 +63,12 @@
         </div>
 
         <!-- ERROR MESSAGE -->
-        <div class="text-center mb-3" id="error" style="display: none;">
-            <p class="text-danger"></p>
+        <div th:if="${message}" class="alert alert-success text-center mb-3" role="alert">
+            <p th:text="${message}" class="m-0"></p>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger text-center mb-3" role="alert">
+            <p th:text="${error}" class="m-0"></p>
         </div>
 
         <!-- EMAIL -->
