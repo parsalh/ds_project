@@ -47,17 +47,14 @@ public class OwnerDashboardController {
         return "ownerDashboard";
     }
 
-    // --- NEW: View Orders for a specific Restaurant ---
     @GetMapping("/restaurant/{id}/orders")
     public String viewRestaurantOrders(@PathVariable Long id,
                                        Authentication authentication,
                                        Model model) {
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
 
-        // Ensure owner owns this restaurant
         Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(id, userDetails.personId());
 
-        // Fetch all orders for this restaurant, sorted by Date Descending
         List<CustomerOrder> orders = customerOrderRepository.findAllByRestaurantIdOrderByCreatedAtDesc(id);
 
         model.addAttribute("restaurant", restaurant);
@@ -66,7 +63,6 @@ public class OwnerDashboardController {
         return "ownerDashboardOrders";
     }
 
-    // --- NEW: Update Order Status ---
     @PostMapping("/restaurant/{rid}/orders/{oid}/status")
     public String updateOrderStatus(@PathVariable Long rid,
                                     @PathVariable Long oid,
@@ -76,8 +72,6 @@ public class OwnerDashboardController {
 
         return "redirect:/owner/restaurant/" + rid + "/orders";
     }
-
-    // --- Existing Methods (Restaurant & Menu CRUD) ---
 
     @GetMapping("/restaurant/new")
     public String showAddRestaurantForm(Model model) {

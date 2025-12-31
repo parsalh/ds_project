@@ -2,7 +2,6 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Complete Order - StreetFoodGo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -29,10 +28,6 @@
       border-color: #dc2626;
       color: white;
     }
-    .btn-primary-custom:hover {
-      background-color: #b91c1c;
-      color: white;
-    }
   </style>
 </head>
 <body>
@@ -40,27 +35,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
   <div class="container">
     <a class="navbar-brand fw-bold" href="/">StreetFoodGo</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto align-items-center">
-        <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-            Hi, <span sec:authentication="name">User</span>
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" th:href="@{/customer/profile}">My Profile</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
-              <form th:action="@{/logout}" method="post">
-                <button class="dropdown-item text-danger" type="submit">Logout</button>
-              </form>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
   </div>
 </nav>
 
@@ -76,14 +50,17 @@
     <div class="col-lg-8 mb-4">
       <div class="card order-card h-100">
         <h4 class="mb-4 text-secondary">Order Summary</h4>
-        <h5 class="fw-bold mb-3" th:text="${restaurant.name}">Restaurant</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold m-0" th:text="${restaurant.name}">Restaurant</h5>
+          <span class="badge bg-dark" id="serviceTypeBadge">DELIVERY</span>
+        </div>
 
         <div class="table-responsive">
           <table class="table align-middle">
             <thead class="table-light">
             <tr>
               <th>Item</th>
-              <th class="text-center">Quantity</th>
+              <th class="text-center">Qty</th>
               <th class="text-end">Price</th>
               <th class="text-end">Total</th>
             </tr>
@@ -91,7 +68,7 @@
             <tbody id="orderItemsTableBody">
             </tbody>
             <tfoot class="table-group-divider">
-            <tr>
+            <tr id="deliveryFeeRow">
               <td colspan="3" class="text-end text-muted">Delivery Fee:</td>
               <td class="text-end text-muted" th:text="${restaurant.deliveryFee} + ' €'">0.00 €</td>
             </tr>
@@ -112,31 +89,33 @@
 
     <div class="col-lg-4 mb-4">
       <div class="card order-card h-100">
-        <h4 class="mb-4 text-secondary">Delivery Details</h4>
+        <h4 class="mb-4 text-secondary">Details</h4>
 
         <form th:action="@{/restaurants/{id}/order(id=${restaurant.id})}" method="post" id="checkoutForm">
 
           <input type="hidden" name="restaurantId" th:value="${restaurant.id}">
+          <input type="hidden" name="serviceType" id="inputServiceType">
+
           <div id="hiddenItemsContainer"></div>
 
-          <div class="mb-4">
-            <label class="form-label text-muted small text-uppercase fw-bold">Delivering to</label>
-            <div class="d-flex align-items-center">
-              <i class="bi bi-geo-alt-fill text-danger fs-4 me-2"></i>
+          <div class="mb-4" id="addressSection">
+            <label class="form-label text-muted small text-uppercase fw-bold" id="addressLabel">Delivering to</label>
+            <div class="d-flex align-items-center p-3 bg-light rounded border">
+              <i class="bi bi-geo-alt-fill text-danger fs-4 me-3"></i>
               <div>
-                <span class="fw-bold d-block" th:text="${user.firstName} + ' ' + ${user.lastName}">Name</span>
-                <span th:text="${user.address}">User Address</span>
+                <div id="deliveryAddressBlock">
+                  <span class="fw-bold d-block" th:text="${user.firstName} + ' ' + ${user.lastName}">Name</span>
+                  <span th:text="${user.address}">User Address</span>
+                  <input type="hidden" name="deliveryAddress" th:value="${user.address}">
+                </div>
+                <div id="pickupAddressBlock" style="display:none;">
+                  <span class="fw-bold d-block">Pick up at Restaurant:</span>
+                  <span th:text="${restaurant.address}">Rest Address</span>
+                  <input type="hidden" name="deliveryAddress" value="PICKUP">
+                </div>
               </div>
             </div>
-            <input type="hidden" name="deliveryAddress" th:value="${user.address}">
           </div>
-
-          <div class="alert alert-info small">
-            <i class="bi bi-info-circle me-1"></i>
-            Payment is collected upon delivery (Cash/Card).
-          </div>
-
-          <hr class="my-4">
 
           <div class="d-grid">
             <button type="submit" class="btn btn-primary-custom btn-lg">
@@ -156,12 +135,45 @@
   /*]]>*/
 
   function loadOrder() {
+    // 1. Get Cart
     const storedCart = localStorage.getItem('streetfoodgo_cart_' + restaurantId);
 
+    // 2. Get Service Type Choice
+    let serviceType = localStorage.getItem('streetfoodgo_service_type_' + restaurantId);
+    if (!serviceType) serviceType = 'DELIVERY'; // Fallback
+
+    // Update UI based on Service Type
+    const isPickup = (serviceType === 'PICKUP');
+
+    document.getElementById('serviceTypeBadge').innerText = serviceType;
+    document.getElementById('serviceTypeBadge').className = isPickup ? 'badge bg-info text-dark' : 'badge bg-primary';
+    document.getElementById('inputServiceType').value = serviceType;
+
+    // Toggle Fee and Address
+    if (isPickup) {
+      document.getElementById('deliveryFeeRow').style.display = 'none';
+      document.getElementById('addressLabel').innerText = "PICKUP LOCATION";
+      document.getElementById('deliveryAddressBlock').style.display = 'none';
+      document.getElementById('pickupAddressBlock').style.display = 'block';
+
+      // Disable the delivery address input so it doesn't submit user address for pickup
+      document.querySelector('#deliveryAddressBlock input').disabled = true;
+      document.querySelector('#pickupAddressBlock input').disabled = false;
+    } else {
+      document.getElementById('deliveryFeeRow').style.display = 'table-row';
+      document.getElementById('addressLabel').innerText = "DELIVERING TO";
+      document.getElementById('deliveryAddressBlock').style.display = 'block';
+      document.getElementById('pickupAddressBlock').style.display = 'none';
+
+      document.querySelector('#deliveryAddressBlock input').disabled = false;
+      document.querySelector('#pickupAddressBlock input').disabled = true;
+    }
+
+    // 3. Render Items
     const tbody = document.getElementById('orderItemsTableBody');
     const hiddenContainer = document.getElementById('hiddenItemsContainer');
 
-    let grandTotal = 0; // Start with 0
+    let subTotal = 0;
     let index = 0;
 
     tbody.innerHTML = '';
@@ -169,8 +181,6 @@
 
     if (!storedCart) {
       tbody.innerHTML = '<tr><td colspan="4" class="text-center">No items found.</td></tr>';
-      // Even if empty, show fee
-      document.getElementById('grandTotalDisplay').innerText = deliveryFee.toFixed(2) + ' €';
       return;
     }
 
@@ -179,19 +189,19 @@
     for (let itemId in cart) {
       const item = cart[itemId];
       const itemTotal = item.price * item.quantity;
-      grandTotal += itemTotal;
+      subTotal += itemTotal;
 
-      // 1. Create Table Row
+      // Row
       const tr = document.createElement('tr');
       tr.innerHTML = `
                 <td><span class="fw-bold">${item.name}</span></td>
-                <td class="text-center"><span class="badge bg-light text-dark border">${item.quantity}</span></td>
+                <td class="text-center">${item.quantity}</td>
                 <td class="text-end text-muted">${item.price} €</td>
                 <td class="text-end fw-bold">${itemTotal.toFixed(2)} €</td>
             `;
       tbody.appendChild(tr);
 
-      // 2. Hidden Inputs
+      // Hidden Inputs
       const inputId = document.createElement('input');
       inputId.type = 'hidden';
       inputId.name = `items[${index}].menuItemId`;
@@ -207,8 +217,11 @@
       index++;
     }
 
-    // Add Delivery Fee to Grand Total
-    grandTotal += parseFloat(deliveryFee);
+    // 4. Calculate Final Total
+    let grandTotal = subTotal;
+    if (!isPickup) {
+      grandTotal += parseFloat(deliveryFee);
+    }
 
     document.getElementById('grandTotalDisplay').innerText = grandTotal.toFixed(2) + ' €';
   }

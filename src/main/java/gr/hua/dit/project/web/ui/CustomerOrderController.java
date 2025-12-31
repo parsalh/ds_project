@@ -56,7 +56,7 @@ public class CustomerOrderController {
         model.addAttribute("restaurant", restaurant);
         model.addAttribute("groupedMenuItems", groupedItems);
 
-        return "RestaurantMenuView";
+        return "restaurantMenuView";
     }
 
     @GetMapping("/{restaurantId}/order/finalize")
