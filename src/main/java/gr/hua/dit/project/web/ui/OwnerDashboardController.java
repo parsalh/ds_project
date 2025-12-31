@@ -1,6 +1,7 @@
 package gr.hua.dit.project.web.ui;
 
 import gr.hua.dit.project.core.model.*;
+import gr.hua.dit.project.core.repository.CustomerOrderRepository;
 import gr.hua.dit.project.core.repository.MenuItemRepository;
 import gr.hua.dit.project.core.service.RestaurantService;
 import gr.hua.dit.project.core.security.ApplicationUserDetails;
@@ -19,12 +20,15 @@ public class OwnerDashboardController {
 
     private final RestaurantService restaurantService;
     private final MenuItemRepository menuItemRepository;
+    private final CustomerOrderRepository customerOrderRepository;
 
     public OwnerDashboardController(RestaurantService restaurantService,
-                                    MenuItemRepository menuItemRepository) {
+                                    MenuItemRepository menuItemRepository,
+                                    CustomerOrderRepository customerOrderRepository) {
 
         this.restaurantService = restaurantService;
         this.menuItemRepository = menuItemRepository;
+        this.customerOrderRepository = customerOrderRepository;
 
     }
 
@@ -38,8 +42,46 @@ public class OwnerDashboardController {
 
         model.addAttribute("restaurants", myRestaurants);
 
-
         return "ownerDashboard";
+    }
+
+    @GetMapping("/restaurant/{restaurantId}/orders")
+    public String manageOrders(@PathVariable Long restaurantId,
+                               Model model,
+                               Authentication authentication) {
+
+        ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
+
+        Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(restaurantId, userDetails.personId());
+
+        List<CustomerOrder> orders = customerOrderRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
+
+        model.addAttribute("orders", orders);
+        model.addAttribute("restaurant", restaurant);
+
+        return "ordersDashboard";
+    }
+
+    @GetMapping("/restaurant/{restaurantId}/orders/{orderId}/status")
+    public String updateOrderStatus(@PathVariable Long restaurantId,
+                                    @PathVariable Long orderId,
+                                    @RequestParam("status") OrderStatus newStatus,
+                                    Authentication authentication) {
+        ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
+
+        restaurantService.getRestaurantIfAuthorized(restaurantId, userDetails.personId());
+
+        CustomerOrder order = customerOrderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!order.getRestaurant().getId().equals(restaurantId)) {
+            throw new RuntimeException("Wrong restaurant id");
+        }
+
+        order.setOrderStatus(newStatus);
+        customerOrderRepository.save(order);
+
+        return "redirect:/owner/restaurant/" + restaurantId + "/orders";
     }
 
     @GetMapping("/restaurant/new")

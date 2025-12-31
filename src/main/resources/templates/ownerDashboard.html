@@ -114,10 +114,17 @@
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2">
-                        <a th:href="@{/owner/restaurant/{id}/edit(id=${restaurant.id})}" class="btn btn-outline-dark">
-                            <i class="bi bi-pencil-square me-2"></i>Manage / Edit
+                    <div class="d-flex gap-2 mt-3">
+
+                        <a th:href="@{/owner/restaurant/{id}/orders(id=${restaurant.id})}"
+                           class="btn btn-success flex-grow-1">
+                            <i class="bi bi-receipt"></i> Manage Orders
                         </a>
+                        <a th:href="@{/owner/restaurant/{id}/edit(id=${restaurant.id})}"
+                           class="btn btn-outline-dark">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+
                     </div>
                 </div>
             </div>
