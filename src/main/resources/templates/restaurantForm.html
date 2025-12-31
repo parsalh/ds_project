@@ -61,11 +61,11 @@
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Address</label>
-                    <input type="text" th:field="*{address}" class="form-control" required>
+                    <input type="text" th:field="*{address}" id="address" class="form-control" required>
                 </div>
                 <div class="col-md-2 mb-3">
                     <label class="form-label fw-bold">Zip Code</label>
-                    <input type="text" th:field="*{address}" id="address" class="form-control" required>
+                    <input type="text" th:field="*{zipCode}" id="zipcode" class="form-control" required>
                 </div>
             </div>
 
@@ -198,14 +198,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    var savedLat = document.getElementById('latitude').value;
-    var savedLng = document.getElementById('longitude').value;
+    var latInput = document.getElementById('latitude');
+    var lngInput = document.getElementById('longitude');
 
-    var startPos = [37.9838, 23.7275]; // Default: Αθήνα
+    var startPos = [37.9838, 23.7275];
     var zoomLevel = 12;
 
-    if (savedLat && savedLng) {
-        startPos = [savedLat, savedLng];
+    if (latInput.value && lngInput.value) {
+        startPos = [latInput.value, lngInput.value];
         zoomLevel = 16;
     }
 
@@ -218,39 +218,77 @@
 
     var marker;
 
-    if (savedLat && savedLng) {
+    if (latInput.value && lngInput.value) {
         marker = L.marker(startPos).addTo(map);
-        document.getElementById('latDisplay').innerText = parseFloat(savedLat).toFixed(5);
-        document.getElementById('lngDisplay').innerText = parseFloat(savedLng).toFixed(5);
+        document.getElementById('latDisplay').innerText = parseFloat(latInput.value).toFixed(5);
+        document.getElementById('lngDisplay').innerText = parseFloat(lngInput.value).toFixed(5);
     }
 
     map.on('click', function(e) {
         var lat = e.latlng.lat;
-        var lng = e.latlng.lng;
+        var lon = e.latlng.lng;
 
         if (marker) {
-            marker.setLatLng(e.latlng);
-        } else {
-            marker = L.marker(e.latlng).addTo(map);
+            map.removeLayer(marker);
         }
+        marker = L.marker([lat, lon]).addTo(map);
 
-        document.getElementById('latitude').value = lat;
-        document.getElementById('longitude').value = lng;
+        latInput.value = lat;
+        lngInput.value = lon;
 
         document.getElementById('latDisplay').innerText = lat.toFixed(5);
-        document.getElementById('lngDisplay').innerText = lng.toFixed(5);
+        document.getElementById('lngDisplay').innerText = lon.toFixed(5);
 
-        fetch(`/api/v1/geocoding/reverse?lat=${lat}&lon=${lng}`)
-            .then(response => {
-                if (!response.ok) throw new Error('Not found');
-                return response.json();
-            })
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&accept-language=en`;
+
+        fetch(url)
+            .then(response => response.json())
             .then(data => {
-                if (data.address) {
-                    document.getElementById('address').value = data.address;
+                if (data && data.address) {
+                    const address = data.address;
+
+                    let streetName = address.road || address.pedestrian || address.street || address.suburb || "";
+
+                    let streetNumber = address.house_number || "";
+
+                    let postalCode = address.postcode || "";
+
+                    let finalAddress = streetName;
+                    if (streetNumber) {
+                        finalAddress += " " + streetNumber;
+                    }
+
+                    var zipInput = document.getElementById('zipcode');
+                    if (zipInput) zipInput.value = postalCode;
+
+                    var addressInput = document.getElementById('address');
+
+                    if (addressInput) {
+                        addressInput.value = finalAddress;
+
+                        if (!streetNumber) {
+                            addressInput.focus();
+
+                            var len = addressInput.value.length;
+                            addressInput.setSelectionRange(len, len);
+
+                            addressInput.setCustomValidity("Please add the street number.");
+                            addressInput.reportValidity();
+
+                            addressInput.oninput = function() {
+                                this.setCustomValidity("");
+                            };
+                        } else {
+                            addressInput.setCustomValidity("");
+                            addressInput.oninput = null;
+                        }
+                    }
+
+                } else {
+                    console.log("No address found.");
                 }
             })
-            .catch(error => console.log('Could not fetch address:', error));
+            .catch(error => console.error('API Error:', error));
     });
 </script>
 </body>
