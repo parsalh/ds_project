@@ -32,7 +32,7 @@ public class Restaurant {
     private String name;
 
     @Embedded
-    private Address addressInfo;
+    private Address addressInfo = new Address();
 
     @ElementCollection(targetClass = Cuisine.class)
     @CollectionTable(

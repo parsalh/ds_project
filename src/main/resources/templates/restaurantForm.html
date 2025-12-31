@@ -55,22 +55,31 @@
             <input type="hidden" th:field="*{id}">
 
             <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-12 mb-3">
                     <label class="form-label fw-bold">Name</label>
                     <input type="text" th:field="*{name}" class="form-control" required>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label class="form-label fw-bold">Address</label>
-                    <input type="text" th:field="*{address}" id="address" class="form-control" required>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Street</label>
+                    <input type="text" th:field="*{addressInfo.street}" id="addressStreet" class="form-control" required>
                 </div>
-                <div class="col-md-2 mb-3">
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label fw-bold">Number</label>
+                    <input type="text" th:field="*{addressInfo.number}" id="addressNumber" class="form-control" required>
+                </div>
+
+                <div class="col-md-3 mb-3">
                     <label class="form-label fw-bold">Zip Code</label>
-                    <input type="text" th:field="*{zipCode}" id="zipcode" class="form-control" required>
+                    <input type="text" th:field="*{addressInfo.zipCode}" id="zipcode" class="form-control" required>
                 </div>
             </div>
 
-            <input type="hidden" id="latitude" th:field="*{latitude}">
-            <input type="hidden" id="longitude" th:field="*{longitude}">
+            <input type="hidden" id="latitude" th:field="*{addressInfo.latitude}">
+            <input type="hidden" id="longitude" th:field="*{addressInfo.longitude}">
 
             <div class="mb-4">
                 <label class="form-label fw-bold">Location on Map</label>
@@ -239,49 +248,41 @@
         document.getElementById('latDisplay').innerText = lat.toFixed(5);
         document.getElementById('lngDisplay').innerText = lon.toFixed(5);
 
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&accept-language=en`;
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
 
         fetch(url)
             .then(response => response.json())
             .then(data => {
                 if (data && data.address) {
-                    const address = data.address;
+                    const addressData = data.address;
 
-                    let streetName = address.road || address.pedestrian || address.street || address.suburb || "";
+                    let streetName = addressData.road || addressData.pedestrian || addressData.street || addressData.suburb || "";
+                    let streetNumber = addressData.house_number || "";
+                    let postalCode = addressData.postcode || "";
 
-                    let streetNumber = address.house_number || "";
+                    var streetInput = document.getElementById('addressStreet');
+                    if (streetInput) {
+                        streetInput.value = streetName;
+                    }
 
-                    let postalCode = address.postcode || "";
-
-                    let finalAddress = streetName;
-                    if (streetNumber) {
-                        finalAddress += " " + streetNumber;
+                    var numberInput = document.getElementById('addressNumber');
+                    if (numberInput) {
+                        numberInput.value = streetNumber;
                     }
 
                     var zipInput = document.getElementById('zipcode');
-                    if (zipInput) zipInput.value = postalCode;
+                    if (zipInput) {
+                        zipInput.value = postalCode;
+                    }
 
-                    var addressInput = document.getElementById('address');
+                    if (!streetNumber && numberInput) {
+                        numberInput.focus();
+                        numberInput.setCustomValidity("Please add the street number.");
+                        numberInput.reportValidity();
 
-                    if (addressInput) {
-                        addressInput.value = finalAddress;
-
-                        if (!streetNumber) {
-                            addressInput.focus();
-
-                            var len = addressInput.value.length;
-                            addressInput.setSelectionRange(len, len);
-
-                            addressInput.setCustomValidity("Please add the street number.");
-                            addressInput.reportValidity();
-
-                            addressInput.oninput = function() {
-                                this.setCustomValidity("");
-                            };
-                        } else {
-                            addressInput.setCustomValidity("");
-                            addressInput.oninput = null;
-                        }
+                        numberInput.oninput = function() {
+                            this.setCustomValidity("");
+                        };
                     }
 
                 } else {
