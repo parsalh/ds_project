@@ -111,10 +111,20 @@
             </div>
         </div>
 
-        <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label">Address:</label>
-            <div class="col-sm-8">
-                <input th:field="*{address}" type="text" class="form-control" required/>
+        <div class="mb-3">
+            <label for="street" class="form-label">Street Address</label>
+            <input type="text" class="form-control" id="street" name="street" required>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="addressNumber" class="form-label">Number</label>
+                <input type="text" class="form-control" id="addressNumber" name="addressNumber" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="zipCode" class="form-label">Zip Code</label>
+                <input type="text" class="form-control" id="zipCode" name="zipCode" required>
             </div>
         </div>
 

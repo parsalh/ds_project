@@ -31,14 +31,8 @@ public class Restaurant {
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @Column(name = "address", nullable = false, length = 100)
-    private String address;
-
-    @Column(name = "latitude")
-    private Double latitude;
-
-    @Column(name = "longitude")
-    private Double longitude;
+    @Embedded
+    private Address addressInfo;
 
     @ElementCollection(targetClass = Cuisine.class)
     @CollectionTable(
@@ -65,39 +59,28 @@ public class Restaurant {
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OpenHour> openHours = new ArrayList<>();
 
-    @Column(name = "zip_code", length = 10)
-    private String zipCode;
-
     public Restaurant() {}
 
     public Restaurant(Long id,
                       Person owner,
                       String name,
-                      String address,
-                      Double latitude,
-                      Double longitude,
+                      Address addressInfo,
+                      Set<Cuisine> cuisines,
                       List<MenuItem> menu,
                       BigDecimal minimumOrderAmount,
                       BigDecimal deliveryFee,
                       ServiceType serviceType,
-                      List<OpenHour> openHours,
-                      Set<Cuisine> cuisines,
-                      String zipCode) {
-
+                      List<OpenHour> openHours) {
         this.id = id;
         this.owner = owner;
         this.name = name;
-        this.address = address;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.menu = (menu != null ? menu : new ArrayList<>());
+        this.addressInfo = addressInfo;
+        this.cuisines = cuisines;
+        this.menu = menu;
         this.minimumOrderAmount = minimumOrderAmount;
         this.deliveryFee = deliveryFee;
         this.serviceType = serviceType;
-        this.openHours = (openHours != null ? openHours : new ArrayList<>());
-        this.cuisines = (cuisines != null ? cuisines : new HashSet<>());
-        this.zipCode = zipCode;
-
+        this.openHours = openHours;
     }
 
     public Long getId() {
@@ -122,30 +105,6 @@ public class Restaurant {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
     }
 
     public BigDecimal getMinimumOrderAmount() {
@@ -195,12 +154,12 @@ public class Restaurant {
         this.cuisines = cuisines;
     }
 
-    public String getZipCode() {
-        return zipCode;
+    public Address getAddressInfo() {
+        return addressInfo;
     }
 
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
+    public void setAddressInfo(Address addressInfo) {
+        this.addressInfo = addressInfo;
     }
 
     public boolean isOpen() {
@@ -236,7 +195,7 @@ public class Restaurant {
     public String toString() {
         return "Restaurant{" +
                 "name='" + name + '\'' +
-                ", address='" + address + '\'' +
+                ", address='" + addressInfo + '\'' +
                 ", cuisines=" + cuisines +
                 ", serviceType=" + serviceType +
                 '}';

@@ -1,5 +1,6 @@
 package gr.hua.dit.project.core.service.impl;
 
+import gr.hua.dit.project.core.model.Address;
 import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.model.PersonType;
 import gr.hua.dit.project.core.port.SmsNotificationPort;
@@ -59,7 +60,9 @@ public final class PersonServiceImpl implements PersonService {
         final String lastName = createPersonRequest.lastName().strip();
         final String emailAddress = createPersonRequest.emailAddress().strip();
         final String mobilePhoneNumber = createPersonRequest.mobilePhoneNumber().strip();
-        final String address = createPersonRequest.address().strip();
+        final String street = createPersonRequest.street().strip();
+        final String number = createPersonRequest.addressNumber().strip();
+        final String zip = createPersonRequest.zipCode().strip();
         final String rawPassword = createPersonRequest.rawPassword();
 
         final String hashedPassword = passwordEncoder.encode(rawPassword);
@@ -89,7 +92,13 @@ public final class PersonServiceImpl implements PersonService {
         person.setLastName(lastName);
         person.setEmailAddress(emailAddress);
         person.setMobilePhoneNumber(mobilePhoneNumber);
-        person.setAddress(address);
+
+        Address newAddress = new Address();
+        newAddress.setStreet(street);
+        newAddress.setNumber(number);
+        newAddress.setZipCode(zip);
+        person.getAddresses().add(newAddress);
+
         person.setPasswordHash(hashedPassword);
         person.setCreatedAt(null); //auto-generated
 

@@ -79,7 +79,16 @@ public class CustomerOrderController {
     public String placeOrder(@PathVariable Long restaurantId,
                              @ModelAttribute CreateOrderRequest createOrderRequest) {
 
-        customerOrderService.createOrder(createOrderRequest);
-        return "redirect:/customer/profile";
+        var view = customerOrderService.createOrder(createOrderRequest);
+        return "redirect:/restaurants/order/" + view.id() + "/track";
+    }
+
+    @GetMapping("/order/{orderId}/track")
+    public String trackOrderPage(@PathVariable Long orderId, Model model) {
+        customerOrderService.getCustomerOrder(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        model.addAttribute("orderId", orderId);
+        return "orderTracker";
     }
 }

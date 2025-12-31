@@ -62,12 +62,16 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         order.setCustomer(customer);
         order.setRestaurant(restaurant);
         order.setOrderStatus(OrderStatus.PENDING);
-        order.setDeliveryAddress(request.deliveryAddress());
+
+        Address deliveryAddr = new Address();
+        deliveryAddr.setStreet(request.deliveryAddress());
+        order.setDeliveryAddress(deliveryAddr);
         order.setServiceType(ServiceType.DELIVERY);
-        order.setTotalPrice(restaurant.getDeliveryFee()); // Basic calculation
+
+        order.setTotalPrice(restaurant.getDeliveryFee());
 
         final CustomerOrder savedOrder = customerOrderRepository.save(order);
-        // Item saving logic would go here
+
 
         return customerOrderMapper.toView(savedOrder);
     }

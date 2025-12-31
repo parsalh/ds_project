@@ -63,7 +63,12 @@ public class RegistrationController {
         model.addAttribute("defaultCountryCode","+30"); // proepilogh ellada
 
         //Initial data for the form
-        model.addAttribute("createPersonRequest", new CreatePersonRequest(PersonType.CUSTOMER,"","","","","","",""));
+        model.addAttribute("createPersonRequest", new CreatePersonRequest(
+                PersonType.CUSTOMER,
+                "","","","","",
+                "","","",
+                ""
+        ));
 
         return "register"; // the name of the thymeleaf/HTML template
     }
@@ -93,7 +98,9 @@ public class RegistrationController {
                 createPersonRequest.lastName(),
                 createPersonRequest.emailAddress(),
                 fullPhoneNumber,
-                createPersonRequest.address(),
+                createPersonRequest.street(),
+                createPersonRequest.addressNumber(),
+                createPersonRequest.zipCode(),
                 createPersonRequest.rawPassword()
         );
 

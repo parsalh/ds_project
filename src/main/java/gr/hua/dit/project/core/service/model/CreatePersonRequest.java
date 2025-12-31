@@ -12,6 +12,8 @@ public record CreatePersonRequest(
         String lastName,
         String emailAddress,
         String mobilePhoneNumber,
-        String address,
+        String street,
+        String addressNumber,
+        String zipCode,
         String rawPassword
 ) {}

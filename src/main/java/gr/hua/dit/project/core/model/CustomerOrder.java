@@ -32,8 +32,13 @@ public class CustomerOrder {
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
-    @Column(name = "delivery_address", length = 100)
-    private String deliveryAddress; //null για pickup
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "street", column = @Column(name = "delivery_street")),
+            @AttributeOverride(name = "zipCode", column = @Column(name = "delivery_zip"))
+            // κλπ...
+    })
+    private Address deliveryAddress; //null για pickup
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
@@ -63,7 +68,7 @@ public class CustomerOrder {
     public CustomerOrder(
                  Person customer,
                  Restaurant restaurant,
-                 String deliveryAddress,
+                 Address deliveryAddress,
                  List<OrderItem> orderItems,
                  OrderStatus orderStatus,
                  ServiceType serviceType,
@@ -107,11 +112,11 @@ public class CustomerOrder {
         this.restaurant = restaurant;
     }
 
-    public String getDeliveryAddress() {
+    public Address getDeliveryAddress() {
         return deliveryAddress;
     }
 
-    public void setDeliveryAddress(String deliveryAddress) {
+    public void setDeliveryAddress(Address deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
 

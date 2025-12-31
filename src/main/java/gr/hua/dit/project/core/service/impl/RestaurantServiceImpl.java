@@ -1,5 +1,6 @@
 package gr.hua.dit.project.core.service.impl;
 
+import gr.hua.dit.project.core.model.Address;
 import gr.hua.dit.project.core.model.OpenHour;
 import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.model.Restaurant;
@@ -52,14 +53,24 @@ public class RestaurantServiceImpl implements RestaurantService {
 
         restaurant.setOwner(owner);
 
-        if (restaurant.getLatitude() == null || restaurant.getLongitude() == null) {
-            String fullAddress = getFullAddress(restaurant.getAddress(), restaurant.getZipCode());
+        Address address = restaurant.getAddressInfo();
+        if (address == null) {
+            address = new Address();
+            restaurant.setAddressInfo(address);
+        }
 
-            geocodingService.getCoordinates(fullAddress)
-                    .ifPresent(coords -> {
-                        restaurant.setLatitude(coords[0]);
-                        restaurant.setLongitude(coords[1]);
-                    });
+        if (address.getLatitude() == null || address.getLongitude() == null) {
+            String fullAddress = getFullAddress(address); // Helper method updated
+
+            // Αν η διεύθυνση έχει περιεχόμενο, ψάχνουμε συντεταγμένες
+            if (!fullAddress.isBlank()) {
+                Address finalAddress = address; // Variable used in lambda should be final
+                geocodingService.getCoordinates(fullAddress)
+                        .ifPresent(coords -> {
+                            finalAddress.setLatitude(coords[0]);
+                            finalAddress.setLongitude(coords[1]);
+                        });
+            }
         }
 
         List<OpenHour> validHours = new ArrayList<>();
@@ -84,23 +95,27 @@ public class RestaurantServiceImpl implements RestaurantService {
         Restaurant existingRestaurant = getRestaurantIfAuthorized(restaurantId, ownerId);
 
         existingRestaurant.setName(formData.getName());
-        existingRestaurant.setAddress(formData.getAddress());
-        existingRestaurant.setZipCode(formData.getZipCode());
         existingRestaurant.setMinimumOrderAmount(formData.getMinimumOrderAmount());
         existingRestaurant.setDeliveryFee(formData.getDeliveryFee());
         existingRestaurant.setServiceType(formData.getServiceType());
         existingRestaurant.setCuisines(formData.getCuisines());
 
-        if (formData.getLatitude() != null && formData.getLongitude() != null) {
-            existingRestaurant.setLatitude(formData.getLatitude());
-            existingRestaurant.setLongitude(formData.getLongitude());
-        } else {
-            String fullAddress = getFullAddress(formData.getAddress(), formData.getZipCode());
-            geocodingService.getCoordinates(fullAddress)
-                    .ifPresent(coords -> {
-                        existingRestaurant.setLatitude(coords[0]);
-                        existingRestaurant.setLongitude(coords[1]);
-                    });
+        Address newAddress = formData.getAddressInfo();
+
+        if (newAddress != null) {
+            // Αν έχουν έρθει έτοιμες συντεταγμένες (σπάνιο σε update από φόρμα, αλλά πιθανό)
+            if (newAddress.getLatitude() != null && newAddress.getLongitude() != null) {
+                existingRestaurant.setAddressInfo(newAddress);
+            } else {
+                // Αν δεν έχουν συντεταγμένες, κάνουμε Geocoding
+                String fullAddress = getFullAddress(newAddress);
+                geocodingService.getCoordinates(fullAddress)
+                        .ifPresent(coords -> {
+                            newAddress.setLatitude(coords[0]);
+                            newAddress.setLongitude(coords[1]);
+                        });
+                existingRestaurant.setAddressInfo(newAddress);
+            }
         }
 
         existingRestaurant.getOpenHours().clear();
@@ -116,11 +131,14 @@ public class RestaurantServiceImpl implements RestaurantService {
         restaurantRepository.save(existingRestaurant);
     }
 
-    private String getFullAddress(String address, String zipCode) {
-        if (zipCode != null && !zipCode.isBlank()) {
-            return address + ", " + zipCode;
-        }
-        return address;
+    private String getFullAddress(Address address) {
+        if (address == null) return "";
+
+        String street = address.getStreet() != null ? address.getStreet() : "";
+        String number = address.getNumber() != null ? " " + address.getNumber() : "";
+        String zip = address.getZipCode() != null ? ", " + address.getZipCode() : "";
+
+        return (street + number + zip).trim();
     }
 
     @Override

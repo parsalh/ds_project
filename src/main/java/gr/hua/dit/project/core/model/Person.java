@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(
@@ -42,8 +44,12 @@ public class Person {
     @Column(name = "email_address", nullable = false, length = 100)
     private String emailAddress;
 
-    @Column(name = "address", nullable = false, length = 100)
-    private String address; //ισως να το κανω list idk
+    @ElementCollection
+    @CollectionTable(
+            name = "person_addresses",
+            joinColumns = @JoinColumn(name = "person_id")
+    )
+    private List<Address> addresses = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)
@@ -64,7 +70,7 @@ public class Person {
                   String lastName,
                   String mobilePhoneNumber,
                   String emailAddress,
-                  String address,
+                  List<Address> addresses,
                   PersonType type,
                   String passwordHash,
                   Instant createdAt) {
@@ -74,7 +80,7 @@ public class Person {
         this.lastName = lastName;
         this.mobilePhoneNumber = mobilePhoneNumber;
         this.emailAddress = emailAddress;
-        this.address = address;
+        this.addresses = addresses;
         this.type = type;
         this.passwordHash = passwordHash;
         this.createdAt = createdAt; // not sure αν πρέπει να υπάρχει αυτό εδώ
@@ -129,12 +135,12 @@ public class Person {
         this.emailAddress = emailAddress;
     }
 
-    public String getAddress() {
-        return address;
+    public List<Address> getAddresses() {
+        return addresses;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setAddresses(List<Address> addresses) {
+        this.addresses = addresses;
     }
 
     public PersonType getType() {
@@ -170,11 +176,8 @@ public class Person {
                 ", lastName='" + lastName + '\'' +
                 ", mobilePhoneNumber='" + mobilePhoneNumber + '\'' +
                 ", emailAddress='" + emailAddress + '\'' +
-                ", address='" + address + '\'' +
+                ", addresses=" + addresses +
                 ", type=" + type +
-                ", passwordHash='" + passwordHash + '\'' +
-                ", createdAt=" + createdAt +
                 '}';
     }
-
 }

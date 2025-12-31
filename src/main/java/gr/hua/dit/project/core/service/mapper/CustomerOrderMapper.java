@@ -33,12 +33,17 @@ public class CustomerOrderMapper {
             items = Collections.emptyList();
         }
 
+        String deliveryAddressStr = null;
+        if (order.getDeliveryAddress() != null) {
+            deliveryAddressStr = order.getDeliveryAddress().toString();
+        }
+
         return new CustomerOrderView(
                 order.getId(),
                 personMapper.convertPersonToPersonView(order.getCustomer()),
                 order.getRestaurant() != null ? order.getRestaurant().getId() : null,
                 order.getRestaurant() != null ? order.getRestaurant().getName() : null,
-                order.getDeliveryAddress(),
+                deliveryAddressStr,
                 items,
                 order.getOrderStatus(),
                 order.getServiceType(),

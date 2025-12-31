@@ -15,6 +15,13 @@ public class PersonMapper {
         if (person==null){
             return null;
         }
+
+        String addressStr = "";
+        if (person.getAddresses() != null && !person.getAddresses().isEmpty()) {
+            //πρωτη διευθυνση ειναι main
+            addressStr = person.getAddresses().get(0).getStreet();
+        }
+
         final PersonView personView = new PersonView(
                 person.getId(),
                 person.getUsername(),
@@ -22,7 +29,7 @@ public class PersonMapper {
                 person.getLastName(),
                 person.getMobilePhoneNumber(),
                 person.getEmailAddress(),
-                person.getAddress(),
+                addressStr,
                 person.getType()
         );
         return personView;
