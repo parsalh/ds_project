@@ -44,71 +44,67 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
     @Override
     public CustomerOrderView createOrder(final CreateOrderRequest request) {
-        // 1. Get current authenticated user
-        final CurrentUser currentUser = currentUserProvider.requireCurrentUser(); // Fixed: added ()
+        final CurrentUser currentUser = currentUserProvider.requireCurrentUser();
 
-        // 2. Security Check: Only customers can create orders
         if (currentUser.type() != PersonType.CUSTOMER) {
             throw new SecurityException("Only customers can create orders");
         }
 
-        // 3. Fetch the Customer (Person entity)
         final Person customer = personRepository
                 .findById(currentUser.id())
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
 
-        // 4. Fetch the Restaurant (Use RestaurantRepository, not OwnerRepository)
-        // Assuming request.restaurantId() exists. If you had 'ownerId' before, change it to restaurantId.
         final Restaurant restaurant = restaurantRepository
                 .findById(request.restaurantId())
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant not found"));
 
-        // 5. Create the Order
-        final CustomerOrder order = new CustomerOrder(); // Fixed: Order -> CustomerOrder
+        final CustomerOrder order = new CustomerOrder();
         order.setCustomer(customer);
-        order.setRestaurant(restaurant); // Fixed: setRestaurant instead of setOwner
+        order.setRestaurant(restaurant);
         order.setOrderStatus(OrderStatus.PENDING);
-        // Initialize other fields if necessary (e.g., totalPrice, items, address)
-        // order.setDeliveryAddress(customer.getAddress());
+        order.setDeliveryAddress(request.deliveryAddress());
+        order.setServiceType(ServiceType.DELIVERY);
+        order.setTotalPrice(restaurant.getDeliveryFee()); // Basic calculation
 
-        // 6. Save and Return
         final CustomerOrder savedOrder = customerOrderRepository.save(order);
+        // Item saving logic would go here
+
         return customerOrderMapper.toView(savedOrder);
     }
 
     @Override
     public Optional<CustomerOrderView> getCustomerOrder(final Long id) {
-        if (id == null) throw new NullPointerException();
-        if (id <= 0) throw new IllegalArgumentException();
+        final CurrentUser currentUser = this.currentUserProvider.requireCurrentUser();
+        final CustomerOrder customerOrder = this.customerOrderRepository.findById(id).orElse(null);
 
-        final CurrentUser currentUser = this.currentUserProvider.requireCurrentUser(); // Fixed typo
+        if (customerOrder == null) return Optional.empty();
 
-        // 1. Fetch Order
-        final CustomerOrder customerOrder;
-        try {
-            // Using findById is safer than getReferenceById if you plan to access properties immediately
-            customerOrder = this.customerOrderRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        } catch (EntityNotFoundException ignored) {
-            return Optional.empty();
-        }
-
-        // 2. Security: Check if the user owns this order
-        final long customerOrderPersonId;
-
+        long customerOrderPersonId;
         if (currentUser.type() == PersonType.OWNER) {
-            // If Owner: Check if they own the restaurant associated with this order
-            customerOrderPersonId = customerOrder.getRestaurant().getOwner().getId(); // Fixed path to Owner
+            customerOrderPersonId = customerOrder.getRestaurant().getOwner().getId();
         } else {
-            // If Customer: Check if they placed the order
             customerOrderPersonId = customerOrder.getCustomer().getId();
         }
 
         if (currentUser.id() != customerOrderPersonId) {
-            // Return empty or throw SecurityException if they try to view someone else's order
             return Optional.empty();
         }
 
-        // 3. Convert to View
         return Optional.of(customerOrderMapper.toView(customerOrder));
+    }
+
+    @Override
+    public void updateOrderStatus(Long orderId, OrderStatus status) {
+        CurrentUser currentUser = currentUserProvider.requireCurrentUser();
+        CustomerOrder order = customerOrderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+
+        // Security: Ensure the current user owns the restaurant
+        if (!order.getRestaurant().getOwner().getId().equals(currentUser.id())) {
+            throw new SecurityException("You are not the owner of this order");
+        }
+
+        order.setOrderStatus(status);
+        customerOrderRepository.save(order);
     }
 }

@@ -3,6 +3,7 @@ package gr.hua.dit.project.web.ui;
 import gr.hua.dit.project.core.model.*;
 import gr.hua.dit.project.core.repository.CustomerOrderRepository;
 import gr.hua.dit.project.core.repository.MenuItemRepository;
+import gr.hua.dit.project.core.service.CustomerOrderService;
 import gr.hua.dit.project.core.service.RestaurantService;
 import gr.hua.dit.project.core.security.ApplicationUserDetails;
 import org.springframework.security.core.Authentication;
@@ -21,72 +22,65 @@ public class OwnerDashboardController {
     private final RestaurantService restaurantService;
     private final MenuItemRepository menuItemRepository;
     private final CustomerOrderRepository customerOrderRepository;
+    private final CustomerOrderService customerOrderService;
 
     public OwnerDashboardController(RestaurantService restaurantService,
                                     MenuItemRepository menuItemRepository,
-                                    CustomerOrderRepository customerOrderRepository) {
+                                    CustomerOrderRepository customerOrderRepository,
+                                    CustomerOrderService customerOrderService) {
 
         this.restaurantService = restaurantService;
         this.menuItemRepository = menuItemRepository;
         this.customerOrderRepository = customerOrderRepository;
-
+        this.customerOrderService = customerOrderService;
     }
 
     @GetMapping("/dashboard")
     public String ownerDashboard(Authentication authentication, Model model) {
-
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
         Long ownerId = userDetails.personId();
 
         List<Restaurant> myRestaurants = restaurantService.getRestaurantsByOwner(ownerId);
-
         model.addAttribute("restaurants", myRestaurants);
+        model.addAttribute("me", userDetails);
 
         return "ownerDashboard";
     }
 
-    @GetMapping("/restaurant/{restaurantId}/orders")
-    public String manageOrders(@PathVariable Long restaurantId,
-                               Model model,
-                               Authentication authentication) {
-
+    // --- NEW: View Orders for a specific Restaurant ---
+    @GetMapping("/restaurant/{id}/orders")
+    public String viewRestaurantOrders(@PathVariable Long id,
+                                       Authentication authentication,
+                                       Model model) {
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
 
-        Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(restaurantId, userDetails.personId());
+        // Ensure owner owns this restaurant
+        Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(id, userDetails.personId());
 
-        List<CustomerOrder> orders = customerOrderRepository.findAllByRestaurantIdOrderByCreatedAtDesc(restaurantId);
+        // Fetch all orders for this restaurant, sorted by Date Descending
+        List<CustomerOrder> orders = customerOrderRepository.findAllByRestaurantIdOrderByCreatedAtDesc(id);
 
-        model.addAttribute("orders", orders);
         model.addAttribute("restaurant", restaurant);
+        model.addAttribute("orders", orders);
 
-        return "ordersDashboard";
+        return "ownerDashboardOrders";
     }
 
-    @GetMapping("/restaurant/{restaurantId}/orders/{orderId}/status")
-    public String updateOrderStatus(@PathVariable Long restaurantId,
-                                    @PathVariable Long orderId,
-                                    @RequestParam("status") OrderStatus newStatus,
-                                    Authentication authentication) {
-        ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
+    // --- NEW: Update Order Status ---
+    @PostMapping("/restaurant/{rid}/orders/{oid}/status")
+    public String updateOrderStatus(@PathVariable Long rid,
+                                    @PathVariable Long oid,
+                                    @RequestParam("status") OrderStatus status) {
 
-        restaurantService.getRestaurantIfAuthorized(restaurantId, userDetails.personId());
+        customerOrderService.updateOrderStatus(oid, status);
 
-        CustomerOrder order = customerOrderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
-
-        if (!order.getRestaurant().getId().equals(restaurantId)) {
-            throw new RuntimeException("Wrong restaurant id");
-        }
-
-        order.setOrderStatus(newStatus);
-        customerOrderRepository.save(order);
-
-        return "redirect:/owner/restaurant/" + restaurantId + "/orders";
+        return "redirect:/owner/restaurant/" + rid + "/orders";
     }
+
+    // --- Existing Methods (Restaurant & Menu CRUD) ---
 
     @GetMapping("/restaurant/new")
     public String showAddRestaurantForm(Model model) {
-
         Restaurant restaurant = new Restaurant();
         prepareOpenHours(restaurant);
 
@@ -95,28 +89,21 @@ public class OwnerDashboardController {
         model.addAttribute("serviceTypes", ServiceType.values());
 
         return "restaurantForm";
-
     }
 
     @PostMapping("/restaurant/new")
     public String saveRestaurant(@ModelAttribute("restaurant") Restaurant restaurant,
                                  Authentication authentication) {
-
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
-
         restaurantService.createRestaurant(restaurant, userDetails.personId());
-
         return "redirect:/owner/dashboard";
-
     }
 
     @GetMapping("/restaurant/{id}/edit")
     public String showEditRestaurantForm(@PathVariable Long id,
                                          Model model,
                                          Authentication authentication) {
-
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
-
         Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(id, userDetails.personId());
         prepareOpenHours(restaurant);
 
@@ -125,7 +112,6 @@ public class OwnerDashboardController {
         model.addAttribute("serviceTypes", ServiceType.values());
 
         return "restaurantForm";
-
     }
 
     @PostMapping("/restaurant/{id}/edit")
@@ -133,20 +119,16 @@ public class OwnerDashboardController {
                                    @ModelAttribute("restaurant") Restaurant formData,
                                    Authentication authentication) {
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
-
         restaurantService.updateRestaurant(id, formData, userDetails.personId());
-
         return "redirect:/owner/dashboard";
     }
 
     @GetMapping("/restaurant/{restaurantId}/menu/new")
-    public String showAddMenuItemForm(@PathVariable Long restaurantId,
-                                      Model model) {
+    public String showAddMenuItemForm(@PathVariable Long restaurantId, Model model) {
         MenuItem menuItem = new MenuItem();
         model.addAttribute("menuItem", menuItem);
         model.addAttribute("restaurantId", restaurantId);
         model.addAttribute("itemTypes", ItemType.values());
-
         return "menuItemForm";
     }
 
@@ -154,25 +136,19 @@ public class OwnerDashboardController {
     public String showEditMenuItemForm(@PathVariable Long restaurantId,
                                        @PathVariable Long menuId,
                                        Model model) {
-
         MenuItem menuItem = menuItemRepository.findById(menuId)
                 .orElseThrow(()-> new RuntimeException("Item not found"));
-
         model.addAttribute("menuItem", menuItem);
         model.addAttribute("restaurantId", restaurantId);
         model.addAttribute("itemTypes", ItemType.values());
-
         return "menuItemForm";
-
     }
 
     @PostMapping("/restaurant/{restaurantId}/menu/save")
     public String saveMenuItem(@PathVariable Long restaurantId,
                                @ModelAttribute("menuItem") MenuItem menuItem,
                                Authentication authentication) {
-
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
-
         Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(restaurantId, userDetails.personId());
 
         if (menuItem.getId() != null) {
@@ -195,13 +171,9 @@ public class OwnerDashboardController {
     public String deleteMenuItem(@PathVariable Long restaurantId,
                                  @PathVariable Long menuId,
                                  Authentication authentication) {
-
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
-
         restaurantService.getRestaurantIfAuthorized(restaurantId, userDetails.personId());
-
         menuItemRepository.deleteById(menuId);
-
         return "redirect:/owner/restaurant/" + restaurantId + "/edit";
     }
 
@@ -209,12 +181,9 @@ public class OwnerDashboardController {
         if (restaurant.getOpenHours() == null) {
             restaurant.setOpenHours(new ArrayList<>());
         }
-
         List<OpenHour> hours = restaurant.getOpenHours();
-
         for (DayOfWeek day : DayOfWeek.values()) {
             boolean exists = hours.stream().anyMatch(h -> h.getDayOfWeek() == day);
-
             if (!exists) {
                 OpenHour newHour = new OpenHour();
                 newHour.setDayOfWeek(day);
@@ -222,9 +191,6 @@ public class OwnerDashboardController {
                 hours.add(newHour);
             }
         }
-
         hours.sort(Comparator.comparing(OpenHour::getDayOfWeek));
-
     }
-
 }
