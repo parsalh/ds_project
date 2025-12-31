@@ -54,13 +54,11 @@
             border-color: #dc2626;
             color: white;
         }
-
         .btn-primary-custom:hover {
             background-color: #b91c1c;
             color: white;
         }
 
-        /* New styles for quantity controls */
         .quantity-controls {
             display: flex;
             align-items: center;
@@ -94,9 +92,6 @@
                 <li class="nav-item" sec:authorize="!isAuthenticated()">
                     <a class="nav-link" th:href="@{/login}">Login</a>
                 </li>
-                <li class="nav-item" sec:authorize="!isAuthenticated()">
-                    <a class="btn btn-primary ms-2" th:href="@{/register}">Register</a>
-                </li>
                 <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                         Hi, <span sec:authentication="name">User</span>
@@ -124,7 +119,24 @@
 <header class="hero-section mb-4">
     <div class="container">
         <h1 class="display-5 fw-bold" th:text="${restaurant.name}">Restaurant Name</h1>
-        <p class="lead mb-0">Browse the menu & build your order</p>
+
+        <div class="d-inline-flex bg-white rounded-pill p-1 mt-3 shadow-sm text-dark">
+            <div class="btn-group" role="group" aria-label="Service Type">
+
+                <input type="radio" class="btn-check" name="serviceType" id="stDelivery" value="DELIVERY"
+                       autocomplete="off" onchange="updateServiceType('DELIVERY')">
+                <label class="btn btn-outline-danger rounded-pill px-4 border-0 fw-bold" for="stDelivery">
+                    <i class="bi bi-bicycle"></i> Delivery
+                </label>
+
+                <input type="radio" class="btn-check" name="serviceType" id="stPickup" value="PICKUP"
+                       autocomplete="off" onchange="updateServiceType('PICKUP')">
+                <label class="btn btn-outline-danger rounded-pill px-4 border-0 fw-bold" for="stPickup">
+                    <i class="bi bi-bag"></i> Pickup
+                </label>
+            </div>
+        </div>
+
     </div>
 </header>
 
@@ -183,23 +195,60 @@
     /*<![CDATA[*/
     const restaurantId = [[${restaurant.id}]];
     const restaurantName = [[${restaurant.name}]];
+    // This is what the restaurant supports natively (e.g. DELIVERY or PICKUP)
+    const supportedService = [[${restaurant.serviceType}]];
     /*]]>*/
 
-    // Cart Structure: { "itemId": { id, name, price, quantity } }
     let cart = {};
+    let currentServiceType = 'DELIVERY'; // Default
 
-    // Load cart from Local Storage on startup
     function loadCart() {
+        // 1. Load Cart Logic
         const storedCart = localStorage.getItem('streetfoodgo_cart_' + restaurantId);
         if (storedCart) {
             cart = JSON.parse(storedCart);
         }
+
+        // 2. Initialize Service Type Selector
+        // If restaurant ONLY supports PICKUP, lock it.
+        // If restaurant supports DELIVERY, we assume they also allow PICKUP.
+        const stKey = 'streetfoodgo_service_type_' + restaurantId;
+        const storedType = localStorage.getItem(stKey);
+
+        const btnDelivery = document.getElementById('stDelivery');
+        const btnPickup = document.getElementById('stPickup');
+
+        if (supportedService === 'PICKUP') {
+            // Force Pickup
+            currentServiceType = 'PICKUP';
+            btnPickup.checked = true;
+            btnDelivery.disabled = true; // Lock Delivery
+            btnDelivery.parentElement.title = "This restaurant is Pickup only";
+        } else {
+            // Restaurant supports Delivery (and usually Pickup)
+            if (storedType) {
+                currentServiceType = storedType;
+            } else {
+                currentServiceType = 'DELIVERY'; // Default preference
+            }
+
+            if (currentServiceType === 'DELIVERY') btnDelivery.checked = true;
+            else btnPickup.checked = true;
+        }
+
+        // Save initial state to be sure
+        localStorage.setItem(stKey, currentServiceType);
+
         updateUI();
+    }
+
+    function updateServiceType(type) {
+        currentServiceType = type;
+        localStorage.setItem('streetfoodgo_service_type_' + restaurantId, type);
     }
 
     function saveCart() {
         localStorage.setItem('streetfoodgo_cart_' + restaurantId, JSON.stringify(cart));
-        // Also save restaurant metadata for the next page
         localStorage.setItem('streetfoodgo_current_restaurant_name', restaurantName);
     }
 
@@ -228,17 +277,12 @@
         let total = 0;
         let count = 0;
 
-        // Update Buttons for each item
-        // Note: This iterates over items present in the HTML.
-        // If you have pagination, this logic needs adjustment, but for a single page menu it works.
         const actionDivs = document.querySelectorAll('[id^="item-action-"]');
 
         actionDivs.forEach(div => {
             const itemId = div.id.replace('item-action-', '');
-            // Convert strings to number for comparison or matching
 
             if (cart[itemId]) {
-                // Item is in cart -> Show Quantity Controls
                 const item = cart[itemId];
                 div.innerHTML = `
                     <div class="quantity-controls">
@@ -248,44 +292,21 @@
                     </div>
                 `;
             } else {
-                // Item not in cart -> Show Add Button (We need to reconstruct the original button to keep params)
-                // We use a data attribute approach or simple onclick restoration
-                // To keep it simple, we grab the name/price from the cart logic or the DOM if possible.
-                // A cleaner way is to simply reset the HTML if we knew the original params.
-                // Since we passed params in the initial Thymeleaf render, we can just reload the page OR
-                // smarter: we only need to render the "Add" button if we know the params.
-                // Hack: The initial HTML had the params. We can just use text matching or helper data attributes.
-                // IMPROVEMENT: Let's assume the button logic is consistent. We need the name/price again.
-                // To fix this without complex DOM traversal, let's look at how we called addToCart initially.
-                // Actually, if we remove it from cart, we can just reload the original button if we stored the props.
-                // Instead of complexity, let's just use a simple "Add" text and retrieve props from DOM if needed,
-                // BUT we need the specific values.
-
-                // Better approach: Check if the button is ALREADY in "Add" state, do nothing.
-                // If it is in "Quantity" state but should be "Add", revert it.
-                if (div.querySelector('.quantity-controls')) {
-                    // It was a quantity control, we need to revert.
-                    // We can refresh the page, OR store the initial HTML in a data attribute on load.
-                    if (div.dataset.originalHtml) {
-                        div.innerHTML = div.dataset.originalHtml;
-                    }
+                if (div.dataset.originalHtml) {
+                    div.innerHTML = div.dataset.originalHtml;
                 } else {
-                    // First time seeing this div, save its HTML
-                    if (!div.dataset.originalHtml) {
-                        div.dataset.originalHtml = div.innerHTML;
-                    }
+                    div.dataset.originalHtml = div.innerHTML;
                 }
             }
         });
 
-        // Initialize original HTML for buttons that haven't been touched yet
+        // Initial snapshot for those not yet clicked
         actionDivs.forEach(div => {
             if (!div.dataset.originalHtml && !div.querySelector('.quantity-controls')) {
                 div.dataset.originalHtml = div.innerHTML;
             }
         });
 
-        // Calculate Totals
         for (let id in cart) {
             total += cart[id].price * cart[id].quantity;
             count += cart[id].quantity;
@@ -303,7 +324,6 @@
         window.location.href = '/restaurants/' + restaurantId + '/order/finalize';
     }
 
-    // Initialize
     window.onload = loadCart;
 </script>
 </body>
