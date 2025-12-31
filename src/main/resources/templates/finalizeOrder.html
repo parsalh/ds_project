@@ -103,16 +103,25 @@
             <div class="d-flex align-items-center p-3 bg-light rounded border">
               <i class="bi bi-geo-alt-fill text-danger fs-4 me-3"></i>
               <div>
-                <div id="deliveryAddressBlock">
-                  <span class="fw-bold d-block" th:text="${user.firstName} + ' ' + ${user.lastName}">Name</span>
-                  <span th:text="${user.address}">User Address</span>
-                  <input type="hidden" name="deliveryAddress" th:value="${user.address}">
-                </div>
-                <div id="pickupAddressBlock" style="display:none;">
-                  <span class="fw-bold d-block">Pick up at Restaurant:</span>
-                  <span th:text="${restaurant.address}">Rest Address</span>
-                  <input type="hidden" name="deliveryAddress" value="PICKUP">
-                </div>
+                  <div id="deliveryAddressBlock">
+                      <span class="fw-bold d-block mb-2" th:text="${user.firstName} + ' ' + ${user.lastName}">Name</span>
+
+                      <div th:if="${not #lists.isEmpty(user.addresses)}">
+                          <select class="form-select" name="deliveryAddress" id="deliveryAddressSelect">
+                              <option th:each="addr : ${user.addresses}"
+                                      th:value="${addr.street} + ' ' + (${addr.number} ?: '') + ', ' + ${addr.zipCode}"
+                                      th:text="${addr.street} + ' ' + (${addr.number} ?: '') + ', ' + ${addr.zipCode}">
+                                  Street 12, 12345
+                              </option>
+                          </select>
+                          <div class="form-text text-muted mt-1">Select one of your saved addresses.</div>
+                      </div>
+
+                      <div th:if="${#lists.isEmpty(user.addresses)}" class="alert alert-warning p-2 mt-2">
+                          <i class="bi bi-exclamation-triangle-fill me-1"></i> No address found.
+                          <a th:href="@{/customer/profile}" class="alert-link">Add one in your profile</a>
+                      </div>
+                  </div>
               </div>
             </div>
           </div>
@@ -150,24 +159,29 @@
     document.getElementById('inputServiceType').value = serviceType;
 
     // Toggle Fee and Address
-    if (isPickup) {
-      document.getElementById('deliveryFeeRow').style.display = 'none';
-      document.getElementById('addressLabel').innerText = "PICKUP LOCATION";
-      document.getElementById('deliveryAddressBlock').style.display = 'none';
-      document.getElementById('pickupAddressBlock').style.display = 'block';
+      if (isPickup) {
+          document.getElementById('deliveryFeeRow').style.display = 'none';
+          document.getElementById('addressLabel').innerText = "PICKUP LOCATION";
+          document.getElementById('deliveryAddressBlock').style.display = 'none';
+          document.getElementById('pickupAddressBlock').style.display = 'block';
 
-      // Disable the delivery address input so it doesn't submit user address for pickup
-      document.querySelector('#deliveryAddressBlock input').disabled = true;
-      document.querySelector('#pickupAddressBlock input').disabled = false;
-    } else {
-      document.getElementById('deliveryFeeRow').style.display = 'table-row';
-      document.getElementById('addressLabel').innerText = "DELIVERING TO";
-      document.getElementById('deliveryAddressBlock').style.display = 'block';
-      document.getElementById('pickupAddressBlock').style.display = 'none';
+          // --- ΑΛΛΑΓΗ ΕΔΩ: Απενεργοποίηση του Select ---
+          const selectMenu = document.getElementById('deliveryAddressSelect');
+          if (selectMenu) selectMenu.disabled = true;
 
-      document.querySelector('#deliveryAddressBlock input').disabled = false;
-      document.querySelector('#pickupAddressBlock input').disabled = true;
-    }
+          document.querySelector('#pickupAddressBlock input').disabled = false;
+      } else {
+          document.getElementById('deliveryFeeRow').style.display = 'table-row';
+          document.getElementById('addressLabel').innerText = "DELIVERING TO";
+          document.getElementById('deliveryAddressBlock').style.display = 'block';
+          document.getElementById('pickupAddressBlock').style.display = 'none';
+
+          // --- ΑΛΛΑΓΗ ΕΔΩ: Ενεργοποίηση του Select ---
+          const selectMenu = document.getElementById('deliveryAddressSelect');
+          if (selectMenu) selectMenu.disabled = false;
+
+          document.querySelector('#pickupAddressBlock input').disabled = true;
+      }
 
     // 3. Render Items
     const tbody = document.getElementById('orderItemsTableBody');

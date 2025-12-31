@@ -148,7 +148,10 @@
                     </div>
 
                     <p class="card-text text-muted small mb-2">
-                        <i class="bi bi-geo-alt-fill"></i> <span th:text="${restaurant.address}">Address</span>
+                        <small class="text-muted"
+                               th:text="${restaurant.addressInfo.street} + ' ' + (${restaurant.addressInfo.number} ?: '') + ', ' + ${restaurant.addressInfo.zipCode}">
+                            Address
+                        </small>
                     </p>
 
                     <div class="mb-3">
