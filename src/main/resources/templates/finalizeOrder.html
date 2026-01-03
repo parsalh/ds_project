@@ -1,278 +1,343 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <meta charset="UTF-8">
-  <title>Complete Order - StreetFoodGo</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <style>
-    body { background-color: #f8f9fa; min-height: 100vh; padding-bottom: 2rem; }
-    .hero-section {
-      background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
-      padding: 3rem 1rem;
-      color: white;
-      text-align: center;
-      border-bottom-left-radius: 20px;
-      border-bottom-right-radius: 20px;
-      margin-bottom: 2rem;
-    }
-    .order-card {
-      background: white;
-      border-radius: 0.5rem;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
-      border: none;
-    }
-    .btn-primary-custom {
-      background-color: #dc2626;
-      border-color: #dc2626;
-      color: white;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Complete Order - StreetFoodGo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { background-color: #f8f9fa; min-height: 100vh; padding-bottom: 2rem; }
+        .hero-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
+            padding: 3rem 1rem;
+            color: white;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            margin-bottom: 2rem;
+        }
+        .order-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            border: none;
+        }
+        .btn-primary-custom {
+            background-color: #dc2626;
+            border-color: #dc2626;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="/">StreetFoodGo</a>
-  </div>
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">StreetFoodGo</a>
+    </div>
 </nav>
 
 <header class="hero-section">
-  <div class="container">
-    <h1 class="display-5 fw-bold">Complete Your Order</h1>
-    <p class="lead mb-0">Review items and confirm</p>
-  </div>
+    <div class="container">
+        <h1 class="display-5 fw-bold">Complete Your Order</h1>
+        <p class="lead mb-0">Review items and confirm</p>
+    </div>
 </header>
 
 <div class="container">
-  <div class="row">
-    <div class="col-lg-8 mb-4">
-      <div class="card order-card h-100">
-        <h4 class="mb-4 text-secondary">Order Summary</h4>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="fw-bold m-0" th:text="${restaurant.name}">Restaurant</h5>
-          <span class="badge bg-dark" id="serviceTypeBadge">DELIVERY</span>
-        </div>
 
-        <div class="table-responsive">
-          <table class="table align-middle">
-            <thead class="table-light">
-            <tr>
-              <th>Item</th>
-              <th class="text-center">Qty</th>
-              <th class="text-end">Price</th>
-              <th class="text-end">Total</th>
-            </tr>
-            </thead>
-            <tbody id="orderItemsTableBody">
-            </tbody>
-            <tfoot class="table-group-divider">
-            <tr id="deliveryFeeRow">
-              <td colspan="3" class="text-end text-muted">Delivery Fee:</td>
-              <td class="text-end text-muted" th:text="${restaurant.deliveryFee} + ' €'">0.00 €</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="text-end fw-bold fs-5">Grand Total:</td>
-              <td class="text-end fw-bold fs-5 text-danger" id="grandTotalDisplay">0.00 €</td>
-            </tr>
-            </tfoot>
-          </table>
-        </div>
-        <div class="mt-3">
-          <a th:href="@{/restaurants/{id}/menu(id=${restaurant.id})}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Menu
-          </a>
-        </div>
-      </div>
+    <div th:if="${errorMessage}" class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}">Minimum order amount not reached.</span>
     </div>
 
-    <div class="col-lg-4 mb-4">
-      <div class="card order-card h-100">
-        <h4 class="mb-4 text-secondary">Details</h4>
+    <div class="row">
+        <div class="col-lg-8 mb-4">
+            <div class="card order-card h-100">
+                <h4 class="mb-4 text-secondary">Order Summary</h4>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold m-0" th:text="${restaurant.name}">Restaurant</h5>
+                    <span class="badge bg-dark" id="serviceTypeBadge">DELIVERY</span>
+                </div>
 
-        <form th:action="@{/restaurants/{id}/order(id=${restaurant.id})}" method="post" id="checkoutForm">
-
-          <input type="hidden" name="restaurantId" th:value="${restaurant.id}">
-          <input type="hidden" name="serviceType" id="inputServiceType">
-
-          <div id="hiddenItemsContainer"></div>
-
-            <div class="mb-4" id="addressSection">
-                <label class="form-label text-muted small text-uppercase fw-bold" id="addressLabel">Delivering to</label>
-
-                <div class="d-flex align-items-center p-3 bg-light rounded border">
-                    <i class="bi bi-geo-alt-fill text-danger fs-4 me-3"></i>
-
-                    <div class="w-100">
-                        <div id="deliveryAddressBlock">
-                            <span class="fw-bold d-block mb-2" th:text="${user.firstName} + ' ' + ${user.lastName}">Name</span>
-
-                            <div th:if="${not #lists.isEmpty(user.addresses)}">
-                                <select class="form-select" name="deliveryAddress" id="deliveryAddressSelect">
-                                    <option th:each="addr : ${user.addresses}"
-                                            th:value="${addr.street} + ' ' + (${addr.number} ?: '') + ', ' + ${addr.zipCode}"
-                                            th:text="${addr.street} + ' ' + (${addr.number} ?: '') + ', ' + ${addr.zipCode}">
-                                        Street 12, 12345
-                                    </option>
-                                </select>
-                                <div class="form-text text-muted mt-1">Select one of your saved addresses.</div>
-                            </div>
-
-                            <div th:if="${#lists.isEmpty(user.addresses)}" class="alert alert-warning p-2 mt-2">
-                                <i class="bi bi-exclamation-triangle-fill me-1"></i> No address found.
-                                <a th:href="@{/customer/profile}" class="alert-link">Add one in your profile</a>
-                            </div>
-                        </div>
-
-                        <div id="pickupAddressBlock" style="display: none;">
-                            <span class="text-muted small d-block mb-1">You will pick up your order at:</span>
-                            <h6 class="fw-bold mb-0" th:text="${restaurant.name}">Restaurant Name</h6>
-                            <p class="mb-0"
-                               th:text="${restaurant.addressInfo.street} + ' ' + (${restaurant.addressInfo.number} ?: '') + ', ' + ${restaurant.addressInfo.zipCode}">
-                                Restaurant Address 123
-                            </p>
-
-                            <input type="hidden" name="deliveryAddress" value="PICKUP_FROM_STORE" disabled>
-                        </div>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Item</th>
+                            <th class="text-center">Qty</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                        </thead>
+                        <tbody id="orderItemsTableBody">
+                        </tbody>
+                        <tfoot class="table-group-divider">
+                        <tr id="deliveryFeeRow">
+                            <td colspan="3" class="text-end text-muted">Delivery Fee:</td>
+                            <td class="text-end text-muted" th:text="${restaurant.deliveryFee} + ' €'">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold fs-5">Grand Total:</td>
+                            <td class="text-end fw-bold fs-5 text-danger" id="grandTotalDisplay">0.00 €</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="mt-3">
+                    <a th:href="@{/restaurants/{id}/menu(id=${restaurant.id})}"
+                       class="btn btn-outline-secondary"
+                       id="btnBackToMenu">
+                        <i class="bi bi-arrow-left"></i> Back to Menu
+                    </a>
                 </div>
             </div>
+        </div>
 
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary-custom btn-lg">
-              Confirm Order
-            </button>
-          </div>
-        </form>
-      </div>
+        <div class="col-lg-4 mb-4">
+            <div class="card order-card h-100">
+                <h4 class="mb-4 text-secondary">Details</h4>
+
+                <form th:action="@{/restaurants/{id}/order(id=${restaurant.id})}" method="post" id="checkoutForm">
+
+                    <input type="hidden" name="restaurantId" th:value="${restaurant.id}">
+                    <input type="hidden" name="serviceType" id="inputServiceType">
+
+                    <div id="hiddenItemsContainer"></div>
+
+                    <div class="mb-4" id="addressSection">
+                        <label class="form-label text-muted small text-uppercase fw-bold" id="addressLabel">Delivering to</label>
+
+                        <div class="d-flex align-items-center p-3 bg-light rounded border">
+                            <i class="bi bi-geo-alt-fill text-danger fs-4 me-3"></i>
+
+                            <div class="w-100">
+                                <div id="deliveryAddressBlock">
+                                    <span class="fw-bold d-block mb-2" th:text="${user.firstName} + ' ' + ${user.lastName}">Name</span>
+
+                                    <div th:if="${not #lists.isEmpty(user.addresses)}">
+                                        <select class="form-select" name="deliveryAddress" id="deliveryAddressSelect">
+                                            <option th:each="addr : ${user.addresses}"
+                                                    th:value="${addr.street} + ' ' + (${addr.number} ?: '') + ' ' + (${addr.zipCode} ?: '')"
+                                                    th:text="${addr.street} + ' ' + (${addr.number} ?: '') + ' ' + (${addr.zipCode} ?: '')">
+                                                Street 12 12345
+                                            </option>
+                                        </select>
+                                        <div class="form-text text-muted mt-1">Select one of your saved addresses.</div>
+                                    </div>
+
+                                    <div th:if="${#lists.isEmpty(user.addresses)}" class="alert alert-warning p-2 mt-2">
+                                        <i class="bi bi-exclamation-triangle-fill me-1"></i> No address found.
+                                        <a th:href="@{/customer/profile}" class="alert-link">Add one in your profile</a>
+                                    </div>
+                                </div>
+
+                                <div id="pickupAddressBlock" style="display: none;">
+                                    <span class="text-muted small d-block mb-1">You will pick up your order at:</span>
+                                    <h6 class="fw-bold mb-0" th:text="${restaurant.name}">Restaurant Name</h6>
+                                    <p class="mb-0"
+                                       th:text="${restaurant.addressInfo.street} + ' ' + (${restaurant.addressInfo.number} ?: '') + ' ' + (${restaurant.addressInfo.zipCode} ?: '')">
+                                        Restaurant Address 123
+                                    </p>
+
+                                    <input type="hidden" name="deliveryAddress" value="PICKUP_FROM_STORE" disabled>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small text-uppercase fw-bold">Payment Method</label>
+                        <div class="d-flex align-items-center p-3 bg-light rounded border">
+                            <i class="bi bi-wallet2 text-success fs-4 me-3"></i>
+                            <div>
+                                <small class="text-muted">Payment will be collected upon delivery or pickup.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" id="btnConfirmOrder" class="btn btn-primary-custom btn-lg">
+                            Confirm Order
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
     const restaurantId = [[${restaurant.id}]];
-    // Ασφαλής μετατροπή Delivery Fee (αν είναι null, βάζουμε 0)
+
+    // Ασφαλής ανάγνωση Delivery Fee
     const rawFee = [[${restaurant.deliveryFee}]];
-    const deliveryFee = rawFee ? Number(rawFee.toString().replace(',', '.')) : 0;
+    const deliveryFee = rawFee ? Number(String(rawFee).replace(',', '.')) : 0;
+
+    // Ασφαλής ανάγνωση Minimum Order Amount
+    const rawMinOrder = [[${restaurant.minimumOrderAmount}]];
+    const minOrderAmount = rawMinOrder ? Number(String(rawMinOrder).replace(',', '.')) : 0;
     /*]]>*/
 
     function loadOrder() {
-        // 1. Get Cart
+        // 1. Ανάκτηση Καλαθιού
         const storedCart = localStorage.getItem('streetfoodgo_cart_' + restaurantId);
-        const submitBtn = document.querySelector('button[type="submit"]');
+        const submitBtn = document.getElementById('btnConfirmOrder');
+        const alertBox = document.getElementById('minOrderAlert');
+        const amountNeededSpan = document.getElementById('amountNeededDisplay');
 
+        // Αν το καλάθι είναι άδειο
         if (!storedCart || storedCart === '{}') {
-            document.getElementById('orderItemsTableBody').innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Your cart is empty. <a href="/restaurants/' + restaurantId + '/menu">Go to menu</a></td></tr>';
-            document.getElementById('grandTotalDisplay').innerText = '0.00 €';
+            const tbody = document.getElementById('orderItemsTableBody');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">Your cart is empty. <a href="/restaurants/' + restaurantId + '/menu">Go to menu</a></td></tr>';
+            }
+            const grandTotalDisplay = document.getElementById('grandTotalDisplay');
+            if (grandTotalDisplay) {
+                grandTotalDisplay.innerText = '0.00 €';
+            }
+
             if(submitBtn) submitBtn.disabled = true;
             return;
         }
 
-        if(submitBtn) submitBtn.disabled = false;
-
-        // 2. Get Service Type Choice
+        // 2. Ανάκτηση Τύπου Εξυπηρέτησης
         let serviceType = localStorage.getItem('streetfoodgo_service_type_' + restaurantId);
         if (!serviceType) serviceType = 'DELIVERY';
 
         const isPickup = (serviceType === 'PICKUP');
 
-        // Ενημέρωση UI για Service Type
+        // UI Updates for Service Type
         const badge = document.getElementById('serviceTypeBadge');
-        badge.innerText = isPickup ? 'PICKUP' : 'DELIVERY';
-        badge.className = isPickup ? 'badge bg-warning text-dark' : 'badge bg-primary';
+        if (badge) {
+            badge.innerText = isPickup ? 'PICKUP' : 'DELIVERY';
+            badge.className = isPickup ? 'badge bg-warning text-dark' : 'badge bg-primary';
+        }
+        const inputServiceType = document.getElementById('inputServiceType');
+        if (inputServiceType) inputServiceType.value = serviceType;
 
-        document.getElementById('inputServiceType').value = serviceType;
-
-        // 3. Toggle Address Blocks
+        // 3. UI Updates for Addresses
         const delivBlock = document.getElementById('deliveryAddressBlock');
         const pickupBlock = document.getElementById('pickupAddressBlock');
         const selectMenu = document.getElementById('deliveryAddressSelect');
         const pickupInput = document.querySelector('#pickupAddressBlock input');
+        const feeRow = document.getElementById('deliveryFeeRow');
+        const addressLabel = document.getElementById('addressLabel');
 
         if (isPickup) {
-            document.getElementById('deliveryFeeRow').style.display = 'none';
-            document.getElementById('addressLabel').innerText = "PICKUP LOCATION";
-
+            if (feeRow) feeRow.style.display = 'none';
+            if (addressLabel) addressLabel.innerText = "PICKUP LOCATION";
             if (delivBlock) delivBlock.style.display = 'none';
             if (pickupBlock) pickupBlock.style.display = 'block';
-
             if (selectMenu) selectMenu.disabled = true;
             if (pickupInput) pickupInput.disabled = false;
-
         } else {
-            document.getElementById('deliveryFeeRow').style.display = 'table-row';
-            document.getElementById('addressLabel').innerText = "DELIVERING TO";
-
+            if (feeRow) feeRow.style.display = 'table-row';
+            if (addressLabel) addressLabel.innerText = "DELIVERING TO";
             if (delivBlock) delivBlock.style.display = 'block';
             if (pickupBlock) pickupBlock.style.display = 'none';
-
             if (selectMenu) selectMenu.disabled = false;
             if (pickupInput) pickupInput.disabled = true;
         }
 
-        // 4. Render Items
+        // 4. Render Items & Calculation
         const tbody = document.getElementById('orderItemsTableBody');
         const hiddenContainer = document.getElementById('hiddenItemsContainer');
 
         let subTotal = 0;
         let index = 0;
 
-        tbody.innerHTML = '';
-        hiddenContainer.innerHTML = '';
+        if (tbody) tbody.innerHTML = '';
+        if (hiddenContainer) hiddenContainer.innerHTML = '';
 
         const cart = JSON.parse(storedCart);
 
         for (let itemId in cart) {
             const item = cart[itemId];
 
-            // --- Η ΔΙΟΡΘΩΣΗ ΕΙΝΑΙ ΕΔΩ ---
-            // Μετατρέπουμε το price σε Αριθμό (Number) για να μην κρασάρει το toFixed()
-            const price = Number(item.price);
-            const itemTotal = price * item.quantity;
+            // Ασφαλής μετατροπή τιμής
+            const priceStr = String(item.price).replace(',', '.');
+            const price = Number(priceStr);
+            const safePrice = isNaN(price) ? 0 : price;
+
+            const itemTotal = safePrice * item.quantity;
             subTotal += itemTotal;
 
             // Table Row
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td><span class="fw-bold">${item.name}</span></td>
-                <td class="text-center">${item.quantity}</td>
-                <td class="text-end text-muted">${price.toFixed(2)} €</td>
-                <td class="text-end fw-bold">${itemTotal.toFixed(2)} €</td>
-            `;
-            tbody.appendChild(tr);
+            if (tbody) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="fw-bold">${item.name}</span></td>
+                    <td class="text-center">${item.quantity}</td>
+                    <td class="text-end text-muted">${safePrice.toFixed(2)} €</td>
+                    <td class="text-end fw-bold">${itemTotal.toFixed(2)} €</td>
+                `;
+                tbody.appendChild(tr);
+            }
 
             // Hidden Inputs
-            const inputId = document.createElement('input');
-            inputId.type = 'hidden';
-            inputId.name = `items[${index}].menuItemId`;
-            inputId.value = item.id;
-            hiddenContainer.appendChild(inputId);
+            if (hiddenContainer) {
+                const inputId = document.createElement('input');
+                inputId.type = 'hidden';
+                inputId.name = `items[${index}].menuItemId`;
+                inputId.value = item.id;
+                hiddenContainer.appendChild(inputId);
 
-            const inputQty = document.createElement('input');
-            inputQty.type = 'hidden';
-            inputQty.name = `items[${index}].quantity`;
-            inputQty.value = item.quantity;
-            hiddenContainer.appendChild(inputQty);
+                const inputQty = document.createElement('input');
+                inputQty.type = 'hidden';
+                inputQty.name = `items[${index}].quantity`;
+                inputQty.value = item.quantity;
+                hiddenContainer.appendChild(inputQty);
+            }
 
             index++;
         }
 
-        // 5. Calculate Final Total
+        // 5. Grand Total Calculation (ΠΡΙΝ τον έλεγχο Minimum)
         let grandTotal = subTotal;
         if (!isPickup) {
             grandTotal += deliveryFee;
         }
 
-        document.getElementById('grandTotalDisplay').innerText = grandTotal.toFixed(2) + ' €';
+        const grandTotalDisplay = document.getElementById('grandTotalDisplay');
+        if (grandTotalDisplay) {
+            grandTotalDisplay.innerText = grandTotal.toFixed(2) + ' €';
+        }
+
+        // 6. Minimum Order Check (Βάσει Grand Total)
+        // Χρησιμοποιούμε μια μικρή ανοχή για τα float comparisons (αν χρειαστεί),
+        // εδώ απλή σύγκριση αρκεί συνήθως.
+        if (grandTotal < minOrderAmount) {
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('btn-secondary');
+                submitBtn.classList.remove('btn-primary-custom');
+            }
+
+            if (alertBox) {
+                alertBox.classList.remove('d-none');
+                const diff = minOrderAmount - grandTotal;
+                if (amountNeededSpan) amountNeededSpan.innerText = diff.toFixed(2) + ' €';
+            }
+        } else {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('btn-secondary');
+                submitBtn.classList.add('btn-primary-custom');
+            }
+            if (alertBox) alertBox.classList.add('d-none');
+        }
     }
 
-    // Καθαρισμός καλαθιού ΜΟΝΟ μετά από επιτυχή υποβολή
-    // (Μπορείς να το βάλεις και στην επόμενη σελίδα, αλλά εδώ είναι οκ)
-    document.getElementById('checkoutForm').addEventListener('submit', function() {
-        localStorage.removeItem('streetfoodgo_cart_' + restaurantId);
-    });
+    // --- Event Listener για το κουμπί Back to Menu ---
+    const backBtn = document.getElementById('btnBackToMenu');
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            localStorage.removeItem('streetfoodgo_cart_' + restaurantId);
+        });
+    }
 
     window.onload = loadOrder;
 </script>

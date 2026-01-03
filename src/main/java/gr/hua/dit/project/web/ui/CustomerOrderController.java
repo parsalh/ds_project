@@ -1,19 +1,20 @@
 package gr.hua.dit.project.web.ui;
 
 import gr.hua.dit.project.core.model.*;
-import gr.hua.dit.project.core.repository.PersonRepository; // Added
+import gr.hua.dit.project.core.repository.PersonRepository;
 import gr.hua.dit.project.core.service.CustomerOrderService;
 import gr.hua.dit.project.core.service.MenuItemService;
 import gr.hua.dit.project.core.service.RestaurantService;
 import gr.hua.dit.project.core.service.model.CreateOrderItemRequest;
 import gr.hua.dit.project.core.service.model.CreateOrderRequest;
-import gr.hua.dit.project.core.security.CurrentUser;       // Added
-import gr.hua.dit.project.core.security.CurrentUserProvider; // Added
+import gr.hua.dit.project.core.security.CurrentUser;
+import gr.hua.dit.project.core.security.CurrentUserProvider;
 import gr.hua.dit.project.web.rest.dto.Cart;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -134,15 +135,15 @@ public class CustomerOrderController {
     public String placeOrder(@PathVariable Long restaurantId,
                              @RequestParam(value = "deliveryAddress", required = false) String deliveryAddress,
                              @RequestParam(value = "serviceType", defaultValue = "DELIVERY") String serviceTypeStr,
-                             @ModelAttribute OrderForm orderForm, // <--- ΕΔΩ Η ΑΛΛΑΓΗ: Διαβάζουμε τη φόρμα
-                             HttpSession session) {
+                             @ModelAttribute OrderForm orderForm,
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
 
-        // 1. Έλεγχος αν η φόρμα έστειλε αντικείμενα
         if (orderForm.getItems() == null || orderForm.getItems().isEmpty()) {
             throw new RuntimeException("Cart is empty (No items received)");
         }
 
-        // 2. Μετατροπή των δεδομένων της φόρμας στη μορφή που θέλει το Service
+        // Μετατροπή δεδομένων
         List<CreateOrderItemRequest> itemRequests = orderForm.getItems().stream()
                 .filter(i -> i.getQuantity() != null && i.getQuantity() > 0)
                 .map(formItem -> new CreateOrderItemRequest(
@@ -157,46 +158,72 @@ public class CustomerOrderController {
 
         ServiceType serviceType = ServiceType.valueOf(serviceTypeStr);
 
-        // 3. Δημιουργία του αιτήματος παραγγελίας
         CreateOrderRequest orderRequest = new CreateOrderRequest(
-                restaurantId,
-                deliveryAddress,
-                serviceType,
+                        restaurantId,
+                deliveryAddress, // Προσοχή: Η σειρά ορισμάτων πρέπει να ταιριάζει με τον constructor του Record σου
+                        serviceType,
                 itemRequests
-        );
+                );
 
-        // 4. Αποθήκευση
-        var view = customerOrderService.createOrder(orderRequest);
+        try {
+            var view = customerOrderService.createOrder(orderRequest);
 
-        // 5. Καθαρισμός του session cart (τυπικά)
-        getCart(session).clear();
+            // Καθαρισμός session
+            getCart(session).clear();
 
-        return "redirect:/restaurants/order/"+view.id()+"/track";
+            // --- ΔΙΟΡΘΩΣΗ: Redirect στο σωστό URL (/restaurants/order/{id}/track) ---
+            return "redirect:/restaurants/order/" + view.id() + "/track";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/restaurants/" + restaurantId + "/order/finalize";
+        }
     }
 
     @GetMapping("/order/{orderId}/track")
     public String trackOrderPage(@PathVariable Long orderId, Model model) {
-        customerOrderService.getCustomerOrder(orderId)
+        // Ανάκτηση της παραγγελίας
+        var order = customerOrderService.getCustomerOrder(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Πέρασμα δεδομένων στο HTML
         model.addAttribute("orderId", orderId);
+        model.addAttribute("order", order); // <--- ΑΥΤΟ ΕΛΕΙΠΕ και χρειάζεται για το script του καλαθιού
+
         return "orderTracker";
     }
 
     public static class OrderForm {
-        private List<OrderItemForm> items = new ArrayList<>();
+        private List<OrderFormItem> items = new ArrayList<>();
 
-        public List<OrderItemForm> getItems() { return items; }
-        public void setItems(List<OrderItemForm> items) { this.items = items; }
+        public List<OrderFormItem> getItems() {
+            return items;
+        }
+
+        public void setItems(List<OrderFormItem> items) {
+            this.items = items;
+        }
     }
 
-    public static class OrderItemForm {
+    public static class OrderFormItem {
         private Long menuItemId;
         private Integer quantity;
 
-        public Long getMenuItemId() { return menuItemId; }
-        public void setMenuItemId(Long menuItemId) { this.menuItemId = menuItemId; }
-        public Integer getQuantity() { return quantity; }
-        public void setQuantity(Integer quantity) { this.quantity = quantity; }
+        public Long getMenuItemId() {
+            return menuItemId;
+        }
+
+        public void setMenuItemId(Long menuItemId) {
+            this.menuItemId = menuItemId;
+        }
+
+        public Integer getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(Integer quantity) {
+            this.quantity = quantity;
+        }
     }
 
 }

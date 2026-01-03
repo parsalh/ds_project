@@ -16,8 +16,8 @@
             padding-bottom: 90px;
         }
 
-        h3[id] {
-            scroll-margin-top: 140px;
+        html {
+            scroll-behavior: smooth;
         }
 
         .hero-section {
@@ -122,11 +122,14 @@
 
 <header class="hero-section mb-4">
     <div class="container">
-        <h1 class="display-5 fw-bold" th:text="${restaurant.name}">Restaurant Name</h1>
+        <h1 class="display-5 fw-bold">
+            <span th:text="${restaurant.name}">Restaurant Name</span>
+            <span th:unless="${restaurant.isOpen()}" class="badge bg-danger fs-6 align-middle ms-2">CLOSED</span>
+            <span th:if="${restaurant.isOpen()}" class="badge bg-success fs-6 align-middle ms-2">OPEN</span>
+        </h1>
 
         <div class="d-inline-flex bg-white rounded-pill p-1 mt-3 shadow-sm text-dark">
             <div class="btn-group" role="group" aria-label="Service Type">
-
                 <input type="radio" class="btn-check" name="serviceType" id="stDelivery" value="DELIVERY"
                        autocomplete="off" onchange="updateServiceType('DELIVERY')">
                 <label class="btn btn-outline-danger rounded-pill px-4 border-0 fw-bold" for="stDelivery">
@@ -146,16 +149,26 @@
 
 <div class="category-nav py-3 mb-4">
     <div class="container d-flex gap-2 overflow-auto">
-        <a th:each="entry : ${groupedMenuItems}"
-           th:href="'#' + ${entry.key}"
-           class="badge rounded-pill bg-light text-dark border px-3 py-2 text-decoration-none">
+        <button onclick="filterCategory('ALL', this)"
+                class="btn rounded-pill bg-dark text-white border px-3 py-2 fw-bold filter-btn active-filter">
+            ALL
+        </button>
+
+        <button th:each="entry : ${groupedMenuItems}"
+                th:data-cat="${entry.key}"
+                onclick="filterCategory(this.getAttribute('data-cat'), this)"
+                class="btn rounded-pill bg-light text-dark border px-3 py-2 filter-btn">
             <span th:text="${entry.key}">CATEGORY</span>
-        </a>
+        </button>
     </div>
 </div>
 
 <div class="container">
-    <div th:each="entry : ${groupedMenuItems}" th:id="${entry.key}" class="mb-5">
+    <div th:each="entry : ${groupedMenuItems}"
+         th:id="${entry.key.name()}"
+         th:attr="data-category=${entry.key}"
+         class="mb-5 menu-category-section">
+
         <h3 class="mb-4 text-secondary fw-bold" th:text="${entry.key}">CATEGORY</h3>
 
         <div class="row row-cols-1 row-cols-md-2 g-4">
@@ -176,23 +189,28 @@
                     </div>
 
                     <div class="card-footer bg-white border-top-0">
-                        <button class="btn btn-primary-custom w-100 add-btn"
+                        <button class="btn w-100 add-btn"
+                                th:classappend="${restaurant.isOpen()} ? 'btn-primary-custom' : 'btn-secondary'"
+                                th:disabled="${!restaurant.isOpen()}"
                                 th:id="'btn-add-' + ${item.id}"
                                 th:data-id="${item.id}"
                                 th:data-name="${item.name}"
                                 th:data-price="${item.price}"
-                                onclick="addToCart(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-price'))">
+                                onclick="addToCart(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-price'))"
+                                th:text="${restaurant.isOpen()} ? 'Add to Order' : 'Closed'">
                             Add to Order
                         </button>
 
                         <div class="quantity-controls d-none" th:id="'controls-' + ${item.id}">
                             <button class="btn btn-sm btn-outline-danger"
-                                    th:onclick="'updateQuantity(' + ${item.id} + ', -1)'">
+                                    th:data-id="${item.id}"
+                                    onclick="updateQuantity(this.getAttribute('data-id'), -1)">
                                 <i class="bi bi-dash"></i>
                             </button>
                             <span class="fw-bold mx-3" th:id="'qty-display-' + ${item.id}">1</span>
                             <button class="btn btn-sm btn-outline-success"
-                                    th:onclick="'updateQuantity(' + ${item.id} + ', 1)'">
+                                    th:data-id="${item.id}"
+                                    onclick="updateQuantity(this.getAttribute('data-id'), 1)">
                                 <i class="bi bi-plus"></i>
                             </button>
                         </div>
@@ -204,7 +222,8 @@
 </div>
 
 <input type="hidden" id="restaurantServiceType" th:value="${restaurant.serviceType}">
-<div class="order-total-bar" id="orderTotalBar">
+
+<div class="order-total-bar" id="orderTotalBar" th:if="${restaurant.isOpen()}">
     <div class="container d-flex justify-content-between align-items-center">
         <span class="fw-bold fs-5" id="totalPriceDisplay">Total: 0.00 €</span>
         <button class="btn btn-success fw-bold" onclick="goToFinalize()">
@@ -218,16 +237,37 @@
     /*<![CDATA[*/
     const restaurantId = [[${restaurant.id}]];
     const restaurantName = [[${restaurant.name}]];
-    // This is what the restaurant supports natively (e.g. DELIVERY or PICKUP)
-    // Διαβάζουμε την τιμή από το κρυφό πεδίο
     const supportedService = document.getElementById('restaurantServiceType').value || 'DELIVERY';
     /*]]>*/
 
     let cart = {};
     let currentServiceType = 'DELIVERY'; // Default
 
+    function filterCategory(categoryName, btnElement) {
+        const sections = document.querySelectorAll('.menu-category-section');
+
+        sections.forEach(section => {
+            const sectionCat = section.getAttribute('data-category');
+            if (categoryName === 'ALL' || sectionCat === categoryName) {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        });
+
+        const buttons = document.querySelectorAll('.filter-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('bg-dark', 'text-white', 'active-filter');
+            btn.classList.add('bg-light', 'text-dark');
+        });
+
+        if (btnElement) {
+            btnElement.classList.remove('bg-light', 'text-dark');
+            btnElement.classList.add('bg-dark', 'text-white', 'active-filter');
+        }
+    }
+
     function loadCart() {
-        // 1. Load Cart Logic
         const storedCart = localStorage.getItem('streetfoodgo_cart_' + restaurantId);
         if (storedCart) {
             cart = JSON.parse(storedCart);
@@ -240,7 +280,6 @@
         const btnPickup = document.getElementById('stPickup');
 
         if (supportedService === 'PICKUP') {
-            // Force Pickup
             currentServiceType = 'PICKUP';
             btnPickup.checked = true;
             btnDelivery.disabled = true;
@@ -272,6 +311,7 @@
     }
 
     function addToCart(id, name, price) {
+        id = String(id);
         if (!cart[id]) {
             cart[id] = { id: id, name: name, price: price, quantity: 1 };
         } else {
@@ -282,6 +322,7 @@
     }
 
     function updateQuantity(id, change) {
+        id = String(id);
         if (cart[id]) {
             cart[id].quantity += change;
             if (cart[id].quantity <= 0) {
@@ -299,9 +340,11 @@
         const addButtons = document.querySelectorAll('.add-btn');
 
         addButtons.forEach(btn => {
-            const id = btn.dataset.id;
+            const id = String(btn.dataset.id);
             const controlsDiv = document.getElementById('controls-' + id);
             const qtyDisplay = document.getElementById('qty-display-' + id);
+
+            if (btn.disabled) return;
 
             if (cart[id]) {
                 btn.classList.add('d-none');
@@ -329,7 +372,6 @@
             alert("Your cart is empty! Please add items first.");
             return;
         }
-
         window.location.href = '/restaurants/' + restaurantId + '/order/finalize';
     }
 

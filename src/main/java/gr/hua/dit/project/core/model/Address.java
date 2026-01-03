@@ -90,6 +90,8 @@ public class Address {
 
     @Override
     public String toString() {
-        return street + (number != null ? " " + number : "") + ", " + zipCode;
+        return street +
+                (number != null ? " " + number : "") +
+                (zipCode != null ? " " + zipCode : "");
     }
 }

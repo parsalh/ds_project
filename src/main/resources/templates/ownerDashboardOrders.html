@@ -108,7 +108,7 @@
                 </div>
                 <h5 class="fw-bold mb-1">
                     <i class="bi bi-person-circle text-secondary me-1"></i>
-                    <span th:text="${order.customer.firstName} + ' ' + ${order.customer.lastName}">Name</span>
+                    <span th:text="${order.customer.firstName} + ' ' + (${order.customer.lastName} ?: '')">Name</span>
                 </h5>
                 <div class="text-muted small">
                     <i class="bi bi-telephone-fill me-1"></i>
@@ -128,7 +128,7 @@
 
                     <div th:if="${order.serviceType.name() == 'DELIVERY'}">
                         <small class="text-muted d-block text-uppercase" style="font-size: 0.7rem;">Delivery Address</small>
-                        <strong th:text="${order.deliveryAddress}" class="text-dark">Address</strong>
+                        <strong th:text="${#strings.replace(order.deliveryAddress, ' null', '')}" class="text-dark">Address</strong>
                     </div>
                 </div>
 
@@ -170,6 +170,15 @@
                         </form>
                     </div>
 
+                    <div th:if="${order.orderStatus.name() == 'ACCEPTED'}" class="w-100">
+                        <form th:action="@{/owner/restaurant/{rid}/orders/{oid}/status(rid=${restaurant.id}, oid=${order.id})}" method="post">
+                            <input type="hidden" name="status" value="IN_PROGRESS">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-fire me-1"></i> Start Cooking
+                            </button>
+                        </form>
+                    </div>
+
                     <div th:if="${order.orderStatus.name() == 'IN_PROGRESS'}" class="w-100">
 
                         <form th:if="${order.serviceType.name() == 'PICKUP'}"
@@ -185,15 +194,6 @@
                             <input type="hidden" name="status" value="OUT_FOR_DELIVERY">
                             <button type="submit" class="btn btn-info w-100 text-white">
                                 <i class="bi bi-bicycle me-1"></i> Dispatch Driver
-                            </button>
-                        </form>
-                    </div>
-
-                    <div th:if="${order.orderStatus.name() == 'IN_PROGRESS'}" class="w-100">
-                        <form th:action="@{/owner/restaurant/{rid}/orders/{oid}/status(rid=${restaurant.id}, oid=${order.id})}" method="post">
-                            <input type="hidden" name="status" value="READY_FOR_PICKUP">
-                            <button type="submit" class="btn btn-warning w-100 text-dark">
-                                <i class="bi bi-box-seam me-1"></i> Mark Ready
                             </button>
                         </form>
                     </div>

@@ -149,7 +149,7 @@
 
                     <p class="card-text text-muted small mb-2">
                         <small class="text-muted"
-                               th:text="${restaurant.addressInfo.street} + ' ' + (${restaurant.addressInfo.number} ?: '') + ', ' + ${restaurant.addressInfo.zipCode}">
+                               th:text="${restaurant.addressInfo.street} + ' ' + (${restaurant.addressInfo.number} ?: '') + ' ' + (${restaurant.addressInfo.zipCode} ?: '')">
                             Address
                         </small>
                     </p>

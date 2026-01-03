@@ -3,6 +3,8 @@ package gr.hua.dit.project.core.model;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -163,9 +165,9 @@ public class Restaurant {
     }
 
     public boolean isOpen() {
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        java.time.DayOfWeek currentDayJava = now.getDayOfWeek();
-        java.time.LocalTime currentTime = now.toLocalTime();
+        LocalDateTime now = LocalDateTime.now();
+        DayOfWeek currentDayJava = now.getDayOfWeek();
+        LocalTime currentTime = now.toLocalTime();
 
         for (OpenHour oh : this.openHours) {
             if (oh.getDayOfWeek() != null &&
