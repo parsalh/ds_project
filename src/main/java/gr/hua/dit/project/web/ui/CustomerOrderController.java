@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -133,34 +134,44 @@ public class CustomerOrderController {
     public String placeOrder(@PathVariable Long restaurantId,
                              @RequestParam(value = "deliveryAddress", required = false) String deliveryAddress,
                              @RequestParam(value = "serviceType", defaultValue = "DELIVERY") String serviceTypeStr,
+                             @ModelAttribute OrderForm orderForm, // <--- ΕΔΩ Η ΑΛΛΑΓΗ: Διαβάζουμε τη φόρμα
                              HttpSession session) {
 
-        Cart cart = getCart(session);
-        if (cart.getTotalQuantity() == 0){
-            throw new RuntimeException("Cart is empty");
+        // 1. Έλεγχος αν η φόρμα έστειλε αντικείμενα
+        if (orderForm.getItems() == null || orderForm.getItems().isEmpty()) {
+            throw new RuntimeException("Cart is empty (No items received)");
         }
 
-        List<CreateOrderItemRequest> itemRequests = cart.getItems().stream()
-                .map(cartItem -> new CreateOrderItemRequest(
-                        cartItem.getMenuItem().getId(),
-                        cartItem.getQuantity()
+        // 2. Μετατροπή των δεδομένων της φόρμας στη μορφή που θέλει το Service
+        List<CreateOrderItemRequest> itemRequests = orderForm.getItems().stream()
+                .filter(i -> i.getQuantity() != null && i.getQuantity() > 0)
+                .map(formItem -> new CreateOrderItemRequest(
+                        formItem.getMenuItemId(),
+                        formItem.getQuantity()
                 ))
                 .collect(Collectors.toList());
 
+        if (itemRequests.isEmpty()) {
+            throw new RuntimeException("Cart is empty (All items had 0 quantity)");
+        }
+
         ServiceType serviceType = ServiceType.valueOf(serviceTypeStr);
 
+        // 3. Δημιουργία του αιτήματος παραγγελίας
         CreateOrderRequest orderRequest = new CreateOrderRequest(
-               restaurantId,
-               deliveryAddress,
-               serviceType,
-               itemRequests
+                restaurantId,
+                deliveryAddress,
+                serviceType,
+                itemRequests
         );
 
+        // 4. Αποθήκευση
         var view = customerOrderService.createOrder(orderRequest);
-        cart.clear();
+
+        // 5. Καθαρισμός του session cart (τυπικά)
+        getCart(session).clear();
 
         return "redirect:/restaurants/order/"+view.id()+"/track";
-
     }
 
     @GetMapping("/order/{orderId}/track")
@@ -170,4 +181,22 @@ public class CustomerOrderController {
         model.addAttribute("orderId", orderId);
         return "orderTracker";
     }
+
+    public static class OrderForm {
+        private List<OrderItemForm> items = new ArrayList<>();
+
+        public List<OrderItemForm> getItems() { return items; }
+        public void setItems(List<OrderItemForm> items) { this.items = items; }
+    }
+
+    public static class OrderItemForm {
+        private Long menuItemId;
+        private Integer quantity;
+
+        public Long getMenuItemId() { return menuItemId; }
+        public void setMenuItemId(Long menuItemId) { this.menuItemId = menuItemId; }
+        public Integer getQuantity() { return quantity; }
+        public void setQuantity(Integer quantity) { this.quantity = quantity; }
+    }
+
 }
