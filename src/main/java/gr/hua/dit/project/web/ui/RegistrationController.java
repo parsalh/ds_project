@@ -45,7 +45,6 @@ public class RegistrationController {
         if (AuthController.isAuthenticated(authentication)) return "redirect:/";
 
         model.addAttribute("countryCodes", getCountryCodes());
-        // Initialize with null lat/lon
         model.addAttribute("createPersonRequest", new CreatePersonRequest(
                 PersonType.CUSTOMER, "", "", "", "", "", "", "", "", "", null, null
         ));
@@ -64,7 +63,6 @@ public class RegistrationController {
 
         String fullPhoneNumber = countryPrefix + localPhoneNumber.trim();
 
-        // Pass all fields, including latitude and longitude, to the new request
         CreatePersonRequest finalRequest = new CreatePersonRequest(
                 createPersonRequest.type(),
                 createPersonRequest.username(),
@@ -76,8 +74,8 @@ public class RegistrationController {
                 createPersonRequest.addressNumber(),
                 createPersonRequest.zipCode(),
                 createPersonRequest.rawPassword(),
-                createPersonRequest.latitude(),  // Pass Latitude
-                createPersonRequest.longitude()  // Pass Longitude
+                createPersonRequest.latitude(),
+                createPersonRequest.longitude()
         );
 
         final CreatePersonResult createPersonResult = this.personService.createPerson(finalRequest);

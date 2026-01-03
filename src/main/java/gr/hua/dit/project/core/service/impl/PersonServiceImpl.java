@@ -87,11 +87,9 @@ public class PersonServiceImpl implements PersonService {
             newAddress.setNumber(number);
             newAddress.setZipCode(zip);
 
-            // Set coordinates from request if available
             newAddress.setLatitude(createPersonRequest.latitude());
             newAddress.setLongitude(createPersonRequest.longitude());
 
-            // If coordinates are missing, try geocoding
             if (newAddress.getLatitude() == null || newAddress.getLongitude() == null) {
                 enrichAddressWithCoordinates(newAddress);
             }
