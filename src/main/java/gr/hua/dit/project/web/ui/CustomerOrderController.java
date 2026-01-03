@@ -1,20 +1,21 @@
 package gr.hua.dit.project.web.ui;
 
-import gr.hua.dit.project.core.model.ItemType;
-import gr.hua.dit.project.core.model.MenuItem;
-import gr.hua.dit.project.core.model.Person;
-import gr.hua.dit.project.core.model.Restaurant;
+import gr.hua.dit.project.core.model.*;
 import gr.hua.dit.project.core.repository.PersonRepository; // Added
 import gr.hua.dit.project.core.service.CustomerOrderService;
 import gr.hua.dit.project.core.service.MenuItemService;
 import gr.hua.dit.project.core.service.RestaurantService;
+import gr.hua.dit.project.core.service.model.CreateOrderItemRequest;
 import gr.hua.dit.project.core.service.model.CreateOrderRequest;
 import gr.hua.dit.project.core.security.CurrentUser;       // Added
 import gr.hua.dit.project.core.security.CurrentUserProvider; // Added
+import gr.hua.dit.project.web.rest.dto.Cart;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,8 +42,19 @@ public class CustomerOrderController {
         this.personRepository = personRepository;
     }
 
+    private Cart getCart(HttpSession session){
+        Cart cart = (Cart) session.getAttribute("cart");
+        if (cart == null){
+            cart = new Cart();
+            session.setAttribute("cart",cart);
+        }
+        return cart;
+    }
+
     @GetMapping("/{restaurantId}/menu")
-    public String viewMenu(@PathVariable Long restaurantId, Model model) {
+    public String viewMenu(@PathVariable Long restaurantId,
+                           Model model,
+                           HttpSession session) {
         Restaurant restaurant = restaurantService.findById(restaurantId)
                 .orElseThrow(() -> new RuntimeException("Restaurant not found"));
 
@@ -53,14 +65,45 @@ public class CustomerOrderController {
                         .filter(MenuItem::getAvailable)
                         .collect(Collectors.groupingBy(MenuItem::getType));
 
+        Cart cart = getCart(session);
+
         model.addAttribute("restaurant", restaurant);
         model.addAttribute("groupedMenuItems", groupedItems);
+        model.addAttribute("cart", cart);
+        model.addAttribute("totalPrice", cart.getTotalPrice());
+        model.addAttribute("totalQuantity", cart.getTotalQuantity());
 
         return "restaurantMenuView";
     }
 
+    @PostMapping("/{restaurantId}/cart/add")
+    public String addToCart(@PathVariable Long restaurantId,
+                            @RequestParam Long menuItemId,
+                            HttpSession session){
+        MenuItem item = menuItemService.findById(menuItemId)
+                .orElseThrow(() -> new RuntimeException("Menu item not found"));
+
+        Cart cart = getCart(session);
+        cart.addItem(item);
+
+        return "redirect:/restaurants/"+restaurantId+"/menu";
+    }
+
+    @PostMapping("/{restaurantId}/cart/remove")
+    public String removeFromCart(@PathVariable Long restaurantId,
+                                 @RequestParam Long menuItemId,
+                                 HttpSession session){
+        Cart cart = getCart(session);
+        cart.removeItem(menuItemId);
+
+        return "redirect:/restaurants/"+restaurantId+"/menu";
+    }
+
     @GetMapping("/{restaurantId}/order/finalize")
-    public String finalizeOrder(@PathVariable Long restaurantId, Model model) {
+    public String finalizeOrder(@PathVariable Long restaurantId,
+                                Model model,
+                                HttpSession session) {
+
         CurrentUser currentUser = currentUserProvider.requireCurrentUser();
 
         Restaurant restaurant = restaurantService.findById(restaurantId)
@@ -69,25 +112,61 @@ public class CustomerOrderController {
         Person customer = personRepository.findById(currentUser.id())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        Cart cart = getCart(session);
+//        if (cart.getTotalQuantity() == 0){
+//            return "redirect:/restaurants/"+restaurantId+"/menu";
+//        }
+
+        BigDecimal deliveryFee = restaurant.getDeliveryFee() != null ? restaurant.getDeliveryFee() : BigDecimal.ZERO;
+        BigDecimal cartTotal = cart.getTotalPrice() != null ? cart.getTotalPrice() : BigDecimal.ZERO;
+        BigDecimal grandTotal = cartTotal.add(deliveryFee);
+
         model.addAttribute("restaurant", restaurant);
-        model.addAttribute("user", customer); // Pass user to get address
+        model.addAttribute("user", customer);
+        model.addAttribute("cart", cart);
+        model.addAttribute("grandTotal", grandTotal);
 
         return "finalizeOrder";
     }
 
     @PostMapping("/{restaurantId}/order")
     public String placeOrder(@PathVariable Long restaurantId,
-                             @ModelAttribute CreateOrderRequest createOrderRequest) {
+                             @RequestParam(value = "deliveryAddress", required = false) String deliveryAddress,
+                             @RequestParam(value = "serviceType", defaultValue = "DELIVERY") String serviceTypeStr,
+                             HttpSession session) {
 
-        var view = customerOrderService.createOrder(createOrderRequest);
-        return "redirect:/restaurants/order/" + view.id() + "/track";
+        Cart cart = getCart(session);
+        if (cart.getTotalQuantity() == 0){
+            throw new RuntimeException("Cart is empty");
+        }
+
+        List<CreateOrderItemRequest> itemRequests = cart.getItems().stream()
+                .map(cartItem -> new CreateOrderItemRequest(
+                        cartItem.getMenuItem().getId(),
+                        cartItem.getQuantity()
+                ))
+                .collect(Collectors.toList());
+
+        ServiceType serviceType = ServiceType.valueOf(serviceTypeStr);
+
+        CreateOrderRequest orderRequest = new CreateOrderRequest(
+               restaurantId,
+               deliveryAddress,
+               serviceType,
+               itemRequests
+        );
+
+        var view = customerOrderService.createOrder(orderRequest);
+        cart.clear();
+
+        return "redirect:/restaurants/order/"+view.id()+"/track";
+
     }
 
     @GetMapping("/order/{orderId}/track")
     public String trackOrderPage(@PathVariable Long orderId, Model model) {
         customerOrderService.getCustomerOrder(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-
         model.addAttribute("orderId", orderId);
         return "orderTracker";
     }

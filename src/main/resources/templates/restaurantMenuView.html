@@ -16,6 +16,10 @@
             padding-bottom: 90px;
         }
 
+        h3[id] {
+            scroll-margin-top: 140px;
+        }
+
         .hero-section {
             background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
             padding: 3rem 1rem;
@@ -161,7 +165,9 @@
                         <div class="d-flex justify-content-between">
                             <h5 class="card-title fw-bold" th:text="${item.name}">Item Name</h5>
                             <span class="fw-bold text-danger"
-                                  th:text="${item.price} + ' €'">0.00 €</span>
+                                  th:text="${#numbers.formatDecimal(item.price, 1, 'DEFAULT', 2, 'DEFAULT')} + ' €'">
+                                  0.00 €
+                            </span>
                         </div>
                         <p class="card-text text-muted small"
                            th:text="${item.description}">
@@ -169,11 +175,27 @@
                         </p>
                     </div>
 
-                    <div class="card-footer bg-white border-top-0" th:id="'item-action-' + ${item.id}">
-                        <button class="btn btn-primary-custom w-100"
-                                th:onclick="addToCart([[${item.id}]], [[${item.name}]], [[${item.price}]])">
+                    <div class="card-footer bg-white border-top-0">
+                        <button class="btn btn-primary-custom w-100 add-btn"
+                                th:id="'btn-add-' + ${item.id}"
+                                th:data-id="${item.id}"
+                                th:data-name="${item.name}"
+                                th:data-price="${item.price}"
+                                onclick="addToCart(this.getAttribute('data-id'), this.getAttribute('data-name'), this.getAttribute('data-price'))">
                             Add to Order
                         </button>
+
+                        <div class="quantity-controls d-none" th:id="'controls-' + ${item.id}">
+                            <button class="btn btn-sm btn-outline-danger"
+                                    th:onclick="'updateQuantity(' + ${item.id} + ', -1)'">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <span class="fw-bold mx-3" th:id="'qty-display-' + ${item.id}">1</span>
+                            <button class="btn btn-sm btn-outline-success"
+                                    th:onclick="'updateQuantity(' + ${item.id} + ', 1)'">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -181,6 +203,7 @@
     </div>
 </div>
 
+<input type="hidden" id="restaurantServiceType" th:value="${restaurant.serviceType}">
 <div class="order-total-bar" id="orderTotalBar">
     <div class="container d-flex justify-content-between align-items-center">
         <span class="fw-bold fs-5" id="totalPriceDisplay">Total: 0.00 €</span>
@@ -196,7 +219,8 @@
     const restaurantId = [[${restaurant.id}]];
     const restaurantName = [[${restaurant.name}]];
     // This is what the restaurant supports natively (e.g. DELIVERY or PICKUP)
-    const supportedService = [[${restaurant.serviceType}]];
+    // Διαβάζουμε την τιμή από το κρυφό πεδίο
+    const supportedService = document.getElementById('restaurantServiceType').value || 'DELIVERY';
     /*]]>*/
 
     let cart = {};
@@ -277,33 +301,25 @@
         let total = 0;
         let count = 0;
 
-        const actionDivs = document.querySelectorAll('[id^="item-action-"]');
+        // Παίρνουμε όλα τα κουμπιά add και τα controls
+        const addButtons = document.querySelectorAll('.add-btn');
 
-        actionDivs.forEach(div => {
-            const itemId = div.id.replace('item-action-', '');
+        addButtons.forEach(btn => {
+            const id = btn.dataset.id;
+            const controlsDiv = document.getElementById('controls-' + id);
+            const qtyDisplay = document.getElementById('qty-display-' + id);
 
-            if (cart[itemId]) {
-                const item = cart[itemId];
-                div.innerHTML = `
-                    <div class="quantity-controls">
-                        <button class="btn btn-sm btn-outline-danger" onclick="updateQuantity(${itemId}, -1)"><i class="bi bi-dash"></i></button>
-                        <span class="fw-bold mx-3">${item.quantity}</span>
-                        <button class="btn btn-sm btn-outline-success" onclick="updateQuantity(${itemId}, 1)"><i class="bi bi-plus"></i></button>
-                    </div>
-                `;
+            if (cart[id]) {
+                // Αν υπάρχει στο καλάθι: Κρύψε το κουμπί Add, Εμφάνισε τα Controls
+                btn.classList.add('d-none');
+                controlsDiv.classList.remove('d-none');
+                controlsDiv.classList.add('d-flex'); // Για flex layout
+                qtyDisplay.innerText = cart[id].quantity;
             } else {
-                if (div.dataset.originalHtml) {
-                    div.innerHTML = div.dataset.originalHtml;
-                } else {
-                    div.dataset.originalHtml = div.innerHTML;
-                }
-            }
-        });
-
-        // Initial snapshot for those not yet clicked
-        actionDivs.forEach(div => {
-            if (!div.dataset.originalHtml && !div.querySelector('.quantity-controls')) {
-                div.dataset.originalHtml = div.innerHTML;
+                // Αν ΔΕΝ υπάρχει: Εμφάνισε το κουμπί Add, Κρύψε τα Controls
+                btn.classList.remove('d-none');
+                controlsDiv.classList.add('d-none');
+                controlsDiv.classList.remove('d-flex');
             }
         });
 
@@ -317,10 +333,14 @@
     }
 
     function goToFinalize() {
+        // 1. Έλεγχος αν το καλάθι είναι άδειο
         if (Object.keys(cart).length === 0) {
-            alert("Your cart is empty!");
+            alert("Your cart is empty! Please add items first.");
             return;
         }
+
+        // 2. Κατασκευή URL
+        // Σημείωση: Το restaurantId ορίζεται στην αρχή του script
         window.location.href = '/restaurants/' + restaurantId + '/order/finalize';
     }
 
