@@ -62,25 +62,72 @@
             .then(data => {
                 console.log("Tracking Data:", data);
 
-                if (data.status === 'PENDING') {
-                    //Keep waiting
-                }
-                else if (data.status === 'ACCEPTED' || data.status === 'IN_PROGRESS' || data.status === 'READY_FOR_PICKUP') {
+                // --- 1. Ενημέρωση του Status Text (Ασύγχρονα) ---
+                updateStatusMessage(data.status);
+
+                // --- 2. Έλεγχος αν πρέπει να δείξουμε την οθόνη Tracking ---
+                if (['ACCEPTED', 'IN_PROGRESS', 'READY_FOR_PICKUP', 'OUT_FOR_DELIVERY'].includes(data.status)) {
                     showAccepted(data);
                 }
-                else if (data.status === 'REJECTED' || data.status === 'CANCELLED') {
-                    showRejected();
+                else if (data.status === 'REJECTED' || data.status === 'CANCELLED' || data.status === 'COMPLETED') {
+                    // Μπορείς να φτιάξεις και ξεχωριστή οθόνη για το Completed
+                    if (data.status === 'COMPLETED') {
+                        alert("Order Completed! Enjoy your meal.");
+                        window.location.href = "/";
+                    } else {
+                        showRejected();
+                    }
                 }
             })
             .catch(err => console.error(err));
     }
 
+    // Συνάρτηση που αλλάζει το κείμενο ανάλογα με το Status του Owner
+    function updateStatusMessage(status) {
+        const titleElement = document.querySelector('#accepted-screen h1');
+        const subTextElement = document.querySelector('#accepted-screen p.text-muted');
+
+        if (!titleElement || !subTextElement) return;
+
+        switch (status) {
+            case 'ACCEPTED':
+                titleElement.innerText = "Order Accepted!";
+                titleElement.className = "text-success fw-bold";
+                subTextElement.innerText = "The restaurant has accepted your order.";
+                break;
+            case 'IN_PROGRESS':
+                titleElement.innerText = "Cooking in Progress";
+                titleElement.className = "text-warning fw-bold"; // Κίτρινο για το μαγείρεμα
+                subTextElement.innerText = "Your food is being prepared right now via OpenRoute.";
+                break;
+            case 'READY_FOR_PICKUP':
+                titleElement.innerText = "Ready for Pickup";
+                titleElement.className = "text-info fw-bold";
+                subTextElement.innerText = "Your order is ready! You can go pick it up.";
+                break;
+            case 'OUT_FOR_DELIVERY':
+                titleElement.innerText = "Out for Delivery";
+                titleElement.className = "text-primary fw-bold";
+                subTextElement.innerText = "The rider is on the way to your location.";
+                break;
+            default:
+                // Κρατάμε το default
+                break;
+        }
+    }
+
     function showAccepted(data) {
         document.getElementById('waiting-screen').style.display = 'none';
         document.getElementById('accepted-screen').style.display = 'block';
-        document.getElementById('eta-display').innerText = data.etaMinutes;
+        document.getElementById('rejected-screen').style.display = 'none';
 
-        if (!isMapInitialized && data.shopLocation && data.userLocation) {
+        // --- 3. ΔΙΟΡΘΩΣΗ: Χρήση του σωστού ονόματος πεδίου για την ώρα (etaMins) ---
+        // Αν το etaMins είναι null, δείχνουμε παύλες
+        document.getElementById('eta-display').innerText = data.etaMins ? data.etaMins : "--";
+
+        // --- 4. ΔΙΟΡΘΩΣΗ: Χρήση των σωστών ονομάτων για τον Χάρτη (restaurantLocation, customerLocation) ---
+        // Το Java Record OrderTrackingView έχει: restaurantLocation, customerLocation
+        if (!isMapInitialized && data.restaurantLocation && data.customerLocation) {
             document.getElementById('map').style.display = 'block';
 
             map = L.map('map');
@@ -89,8 +136,9 @@
                 attribution: 'OpenStreetMap'
             }).addTo(map);
 
-            var shopMarker = L.marker(data.shopLocation).addTo(map).bindPopup("Restaurant").openPopup();
-            var userMarker = L.marker(data.userLocation).addTo(map).bindPopup("You");
+            // Προσοχή: Τα markers θέλουν [lat, lon]
+            var shopMarker = L.marker(data.restaurantLocation).addTo(map).bindPopup("Restaurant").openPopup();
+            var userMarker = L.marker(data.customerLocation).addTo(map).bindPopup("You");
 
             var group = new L.featureGroup([shopMarker, userMarker]);
             map.fitBounds(group.getBounds(), {padding: [50, 50]});
@@ -103,10 +151,9 @@
         document.getElementById('waiting-screen').style.display = 'none';
         document.getElementById('accepted-screen').style.display = 'none';
         document.getElementById('rejected-screen').style.display = 'block';
-        clearInterval(polling); // Stop checking
+        clearInterval(polling);
     }
 
-    //check every 3 seconds
     const polling = setInterval(checkStatus, 3000);
     checkStatus();
 

@@ -3,6 +3,7 @@ package gr.hua.dit.project.core.service.impl;
 import gr.hua.dit.project.core.model.Address;
 import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.model.PersonType;
+import gr.hua.dit.project.core.port.GeocodingService;
 import gr.hua.dit.project.core.port.SmsNotificationPort;
 import gr.hua.dit.project.core.repository.PersonRepository;
 import gr.hua.dit.project.core.service.PersonService;
@@ -28,22 +29,26 @@ public final class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
     private final PasswordEncoder passwordEncoder;
+    private final GeocodingService geocodingService;
 
 
 
     public PersonServiceImpl(final SmsNotificationPort smsNotificationPort,
                              final PersonRepository personRepository,
                              final PersonMapper personMapper,
-                             final PasswordEncoder passwordEncoder) {
+                             final PasswordEncoder passwordEncoder,
+                             final GeocodingService geocodingService) {
         if (smsNotificationPort == null) throw new NullPointerException();
         if (personRepository == null) throw new NullPointerException();
         if (personMapper == null) throw new NullPointerException();
-
+        if (passwordEncoder == null) throw new NullPointerException();
+        if (geocodingService == null) throw new NullPointerException();
 
         this.smsNotificationPort = smsNotificationPort;
         this.personRepository = personRepository;
         this.personMapper = personMapper;
         this.passwordEncoder = passwordEncoder;
+        this.geocodingService = geocodingService;
     }
 
 
@@ -97,6 +102,13 @@ public final class PersonServiceImpl implements PersonService {
         newAddress.setStreet(street);
         newAddress.setNumber(number);
         newAddress.setZipCode(zip);
+
+        String fullAddressStr = street + " " + (number.isBlank() ? "" : number) + ", " + zip;
+        this.geocodingService.getCoordinates(fullAddressStr).ifPresent(coords -> {
+            newAddress.setLatitude(coords[0]);
+            newAddress.setLongitude(coords[1]);
+        });
+
         person.getAddresses().add(newAddress);
 
         person.setPasswordHash(hashedPassword);
