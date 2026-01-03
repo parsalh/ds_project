@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -46,6 +47,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         this.currentUserProvider = currentUserProvider;
     }
 
+    // ... [Previous createOrder code remains unchanged] ...
     @Override
     public CustomerOrderView createOrder(final CreateOrderRequest request) {
         final CurrentUser currentUser = currentUserProvider.requireCurrentUser();
@@ -156,12 +158,10 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         if (type == ServiceType.DELIVERY && restaurant.getDeliveryFee() != null) {
             deliveryFee = restaurant.getDeliveryFee();
         }
-
         order.setTotalPrice(itemsTotal.add(deliveryFee));
 
         // 7. Αποθήκευση στη Βάση
         final CustomerOrder savedOrder = customerOrderRepository.save(order);
-
         return customerOrderMapper.toView(savedOrder);
     }
 
@@ -184,6 +184,20 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         }
 
         return Optional.of(customerOrderMapper.toView(customerOrder));
+    }
+
+    // New Implementation
+    @Override
+    public List<CustomerOrderView> getMyOrders() {
+        CurrentUser currentUser = currentUserProvider.requireCurrentUser();
+        if (currentUser.type() != PersonType.CUSTOMER) {
+            throw new SecurityException("Only customers have personal order history");
+        }
+
+        return customerOrderRepository.findAllByCustomerIdOrderByCreatedAtDesc(currentUser.id())
+                .stream()
+                .map(customerOrderMapper::toView)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -233,9 +233,6 @@
             cart = JSON.parse(storedCart);
         }
 
-        // 2. Initialize Service Type Selector
-        // If restaurant ONLY supports PICKUP, lock it.
-        // If restaurant supports DELIVERY, we assume they also allow PICKUP.
         const stKey = 'streetfoodgo_service_type_' + restaurantId;
         const storedType = localStorage.getItem(stKey);
 
@@ -246,21 +243,19 @@
             // Force Pickup
             currentServiceType = 'PICKUP';
             btnPickup.checked = true;
-            btnDelivery.disabled = true; // Lock Delivery
+            btnDelivery.disabled = true;
             btnDelivery.parentElement.title = "This restaurant is Pickup only";
         } else {
-            // Restaurant supports Delivery (and usually Pickup)
             if (storedType) {
                 currentServiceType = storedType;
             } else {
-                currentServiceType = 'DELIVERY'; // Default preference
+                currentServiceType = 'DELIVERY';
             }
 
             if (currentServiceType === 'DELIVERY') btnDelivery.checked = true;
             else btnPickup.checked = true;
         }
 
-        // Save initial state to be sure
         localStorage.setItem(stKey, currentServiceType);
 
         updateUI();
@@ -301,7 +296,6 @@
         let total = 0;
         let count = 0;
 
-        // Παίρνουμε όλα τα κουμπιά add και τα controls
         const addButtons = document.querySelectorAll('.add-btn');
 
         addButtons.forEach(btn => {
@@ -310,13 +304,11 @@
             const qtyDisplay = document.getElementById('qty-display-' + id);
 
             if (cart[id]) {
-                // Αν υπάρχει στο καλάθι: Κρύψε το κουμπί Add, Εμφάνισε τα Controls
                 btn.classList.add('d-none');
                 controlsDiv.classList.remove('d-none');
-                controlsDiv.classList.add('d-flex'); // Για flex layout
+                controlsDiv.classList.add('d-flex');
                 qtyDisplay.innerText = cart[id].quantity;
             } else {
-                // Αν ΔΕΝ υπάρχει: Εμφάνισε το κουμπί Add, Κρύψε τα Controls
                 btn.classList.remove('d-none');
                 controlsDiv.classList.add('d-none');
                 controlsDiv.classList.remove('d-flex');
@@ -333,14 +325,11 @@
     }
 
     function goToFinalize() {
-        // 1. Έλεγχος αν το καλάθι είναι άδειο
         if (Object.keys(cart).length === 0) {
             alert("Your cart is empty! Please add items first.");
             return;
         }
 
-        // 2. Κατασκευή URL
-        // Σημείωση: Το restaurantId ορίζεται στην αρχή του script
         window.location.href = '/restaurants/' + restaurantId + '/order/finalize';
     }
 
