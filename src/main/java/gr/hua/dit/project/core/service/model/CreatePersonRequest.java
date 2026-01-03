@@ -2,9 +2,6 @@ package gr.hua.dit.project.core.service.model;
 
 import gr.hua.dit.project.core.model.PersonType;
 
-/**
- * CreatePersonRequest (DTO -> μεταφορά δεδομένων μεταξύ των lauers).
- */
 public record CreatePersonRequest(
         PersonType type,
         String username,
@@ -15,5 +12,8 @@ public record CreatePersonRequest(
         String street,
         String addressNumber,
         String zipCode,
-        String rawPassword
-) {}
+        String rawPassword,
+        Double latitude,
+        Double longitude
+) {
+}

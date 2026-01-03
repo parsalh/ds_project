@@ -1,219 +1,306 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - StreetFoodGo</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css"/>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
     <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 2rem 0;
+        }
+        .register-card {
+            border: none;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            background: white;
+        }
+        .card-header-custom {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border: none;
+        }
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
+            border: none;
+            padding: 0.75rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn-register:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        /* Map Style */
+        #map {
+            height: 250px;
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 2px solid #dee2e6;
+            margin-bottom: 1rem;
+        }
+
+        /* Select2 Customization to match Bootstrap */
         .select2-container .select2-selection--single {
             height: 38px;
             padding-top: 5px;
             border: 1px solid #ced4da;
+            border-radius: 0.375rem 0 0 0.375rem;
         }
         .select2-container--default .select2-selection--single .select2-selection__arrow {
             top: 6px;
         }
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
-            padding: 1rem;
+        .input-group .select2-container {
+            flex: 0 0 auto;
+            width: 110px !important;
         }
-        .registration-container {
-            max-width: 32rem;
-            width: 100%;
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            padding: 2rem;
+
+        /* Custom Radio Buttons */
+        .btn-check:checked + .btn-outline-danger {
+            background-color: #ff6b6b;
+            border-color: #ff6b6b;
+            color: white;
         }
-        .btn-primary {
-            background-color: #dc2626;
-            border-color: #dc2626;
+        .btn-outline-danger {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
         }
-        .btn-primary:hover {
-            background-color: #b91c1c;
-            border-color: #b91c1c;
-        }
-        .form-control:focus {
-            border-color: #dc2626;
-            box-shadow: 0 0 0 0.25rem rgba(220, 38, 38, 0.25);
-        }
-        a {
-            color: #dc2626;
-            text-decoration: none;
-        }
-        a:hover {
-            color: #b91c1c;
-            text-decoration: underline;
-        }
-        small {
-            color: #6b7280;
+        .btn-outline-danger:hover {
+            background-color: #ff6b6b;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-<div class="registration-container">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card register-card">
 
-    <!-- Page Title -->
-    <header class="mb-4">
-        <h1>StreetFoodGo <small>/ Register</small></h1>
-    </header>
+                <div class="card-header-custom">
+                    <h3 class="mb-0 fw-bold"><i class="bi bi-person-plus-fill me-2"></i>Create an Account</h3>
+                    <p class="mb-0 opacity-75">Join us and start ordering delicious food!</p>
+                </div>
 
-    <!-- Registration Form -->
-    <form th:action="@{/register}" method="POST" th:object="${createPersonRequest}">
+                <div class="card-body p-4 p-md-5">
 
-        <div th:if="${errorMessage != null}" class="alert alert-danger text-center mb-3" role="alert">
-            <p th:text="${errorMessage}" class="m-0"></p>
-        </div>
+                    <form th:action="@{/register}" method="post" id="registerForm" th:object="${createPersonRequest}">
 
-        <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label">Register as:</label>
-            <div class="col-sm-8">
-                <select th:field="*{type}" class="form-select" required autofocus>
-                    <option value="CUSTOMER">Customer</option>
-                    <option value="OWNER">Restaurant Owner</option>
-                </select>
-            </div>
-        </div>
+                        <div th:if="${errorMessage != null}" class="alert alert-danger text-center mb-4">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <span th:text="${errorMessage}">Error message</span>
+                        </div>
 
-        <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label">Username:</label>
-            <div class="col-sm-8">
-                <input th:field="*{username}" type="text" class="form-control" required/>
-            </div>
-        </div>
+                        <div class="mb-4 text-center">
+                            <label class="form-label d-block mb-3">I am a:</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" th:field="*{type}" id="typeCustomer" value="CUSTOMER" onchange="toggleAddress()">
+                                <label class="btn btn-outline-danger" for="typeCustomer">
+                                    <i class="bi bi-emoji-smile me-1"></i> Customer
+                                </label>
 
-        <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label">Password:</label>
-            <div class="col-sm-8">
-                <input th:field="*{rawPassword}" type="password" class="form-control" required/>
-            </div>
-        </div>
+                                <input type="radio" class="btn-check" th:field="*{type}" id="typeOwner" value="OWNER" onchange="toggleAddress()">
+                                <label class="btn btn-outline-danger" for="typeOwner">
+                                    <i class="bi bi-shop me-1"></i> Restaurant Owner
+                                </label>
+                            </div>
+                        </div>
 
-        <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label">First Name:</label>
-            <div class="col-sm-8">
-                <input th:field="*{firstName}" type="text" class="form-control" required/>
-            </div>
-        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Username</label>
+                                <input type="text" th:field="*{username}" class="form-control" placeholder="Choose a username" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Password</label>
+                                <input type="password" th:field="*{rawPassword}" class="form-control" placeholder="Create a password" required>
+                            </div>
 
-        <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label">Last Name:</label>
-            <div class="col-sm-8">
-                <input th:field="*{lastName}" type="text" class="form-control" required/>
-            </div>
-        </div>
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" th:field="*{firstName}" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" th:field="*{lastName}" class="form-control" required>
+                            </div>
 
-        <div class="mb-3">
-            <label for="street" class="form-label">Street Address</label>
-            <input type="text" class="form-control" id="street" name="street" required>
-        </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" th:field="*{emailAddress}" class="form-control" placeholder="name@example.com" required>
+                            </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label for="addressNumber" class="form-label">Number</label>
-                <input type="text" class="form-control" id="addressNumber" name="addressNumber" required>
-            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Mobile Phone</label>
+                                <div class="input-group">
+                                    <select id="country-select" name="countryPrefix" class="form-select">
+                                        <option th:each="option : ${countryCodes}"
+                                                th:value="${option.code}"
+                                                th:data-iso="${option.isoCode}"
+                                                th:text="${option.label}"
+                                                th:selected="${option.code == '+30' and option.isoCode == 'gr'}">
+                                        </option>
+                                    </select>
+                                    <input type="tel" name="localPhoneNumber" class="form-control" placeholder="6912345678" required>
+                                </div>
+                            </div>
+                        </div>
 
-            <div class="col-md-6 mb-3">
-                <label for="zipCode" class="form-label">Zip Code</label>
-                <input type="text" class="form-control" id="zipCode" name="zipCode" required>
-            </div>
-        </div>
+                        <div id="addressSection" class="mt-4 pt-3 border-top">
+                            <h5 class="mb-3 text-secondary"><i class="bi bi-geo-alt me-2"></i>Delivery Address</h5>
 
-        <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label">E-mail Address:</label>
-            <div class="col-sm-8">
-                <input th:field="*{emailAddress}" type="email" class="form-control" required/>
-            </div>
-        </div>
+                            <input type="hidden" id="latitude" th:field="*{latitude}">
+                            <input type="hidden" id="longitude" th:field="*{longitude}">
 
-        <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label">Phone Number:</label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <select id="country-select" name="countryPrefix" class="form-select">
-                        <option th:each="option : ${countryCodes}"
-                                th:value="${option.code}"
-                                th:data-iso="${option.isoCode}"
-                                th:text="${option.label}"
-                                th:selected="${option.code == '+30' and option.isoCode == 'gr'}">
-                        </option>
-                    </select>
+                            <div class="mb-3">
+                                <div id="map"></div>
+                                <small class="text-muted fst-italic">Click on the map to automatically fill your address details.</small>
+                            </div>
 
-                    <input name="localPhoneNumber"
-                           type="tel"
-                           class="form-control"
-                           required/>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Street</label>
+                                    <input type="text" id="street" th:field="*{street}" class="form-control">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Number</label>
+                                    <input type="text" id="addressNumber" th:field="*{addressNumber}" class="form-control">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Zip Code</label>
+                                    <input type="text" id="zipCode" th:field="*{zipCode}" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-register">Register</button>
+                            <a href="/login" class="btn btn-link text-secondary text-decoration-none text-center">Already have an account? Login</a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-
-        <div class="mb-4 d-grid">
-            <button type="submit" class="btn btn-primary">Finalize Registration</button>
-        </div>
-
-        <p class="text-center"><a href="/login">Already have an account? Login</a></p>
-
-    </form>
-
+    </div>
 </div>
 
-<!--dk what dis is-->
-<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
-
-<!-- για το κωδικο χωρας -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+    // --- 1. Select2 Initialization for Country Codes ---
     $(document).ready(function() {
-
-        // συνάρτηση που φτιάχνει το HTML για κάθε επιλογή
         function formatState (state) {
-            if (!state.id) {
-                return state.text;
-            }
-
+            if (!state.id) { return state.text; }
             var isoCode = $(state.element).data('iso');
-
-            if(!isoCode) {
-                return state.text;
-            }
-
-            // flag icons library
-            var $state = $(
-                '<span><span class="fi fi-' + isoCode + '"></span> ' + state.text + '</span>'
-            );
+            if(!isoCode) { return state.text; }
+            var $state = $('<span><span class="fi fi-' + isoCode + '"></span> ' + state.text + '</span>');
             return $state;
-        };
+        }
 
-        // συνάρτηση για το τι θα δείχνει όταν εχει επιλεγεί
         function formatSelection (state) {
             if (!state.id) return state.text;
             var isoCode = $(state.element).data('iso');
-
+            // Show flag + Code (e.g., 🇬🇷 +30) when selected
             var codeOnly = state.id;
-
-            var $state = $(
-                '<span><span class="fi fi-' + isoCode + '"></span> ' + codeOnly + '</span>'
-            );
+            var $state = $('<span><span class="fi fi-' + isoCode + '"></span> ' + codeOnly + '</span>');
             return $state;
         }
 
         $('#country-select').select2({
-            width: '90px',
+            width: '100%', // Controlled by CSS wrapper
             templateResult: formatState,
-            templateSelection: formatSelection
+            templateSelection: formatSelection,
+            dropdownAutoWidth: true
         });
     });
+
+    // --- 2. Toggle Address Visibility ---
+    function toggleAddress() {
+        // We use the checked status to determine type
+        const isCustomer = document.getElementById('typeCustomer').checked;
+        const addressSection = document.getElementById('addressSection');
+        const inputs = addressSection.querySelectorAll('input');
+
+        if (isCustomer) {
+            addressSection.style.display = 'block';
+            inputs.forEach(input => input.disabled = false);
+            // Refresh map size
+            setTimeout(() => { map.invalidateSize(); }, 200);
+        } else {
+            addressSection.style.display = 'none';
+            inputs.forEach(input => input.disabled = true);
+        }
+    }
+
+    // --- 3. Leaflet Map Logic ---
+    var map = L.map('map').setView([37.9838, 23.7275], 13); // Default: Athens
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    var marker;
+
+    map.on('click', function(e) {
+        var lat = e.latlng.lat;
+        var lon = e.latlng.lng;
+
+        // --- NEW: Update hidden inputs ---
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lon;
+
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lon]).addTo(map);
+
+        // Reverse Geocoding via Nominatim
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.address) {
+                    const addr = data.address;
+                    document.getElementById('street').value = addr.road || addr.pedestrian || "";
+                    document.getElementById('addressNumber').value = addr.house_number || "";
+                    document.getElementById('zipCode').value = addr.postcode || "";
+                }
+            })
+            .catch(console.error);
+    });
+
+    // Initialize address visibility on load
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleAddress();
+    });
 </script>
+
 </body>
 </html>
