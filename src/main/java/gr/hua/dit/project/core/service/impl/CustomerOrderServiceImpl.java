@@ -47,12 +47,10 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         this.currentUserProvider = currentUserProvider;
     }
 
-    // ... [Previous createOrder code remains unchanged] ...
     @Override
     public CustomerOrderView createOrder(final CreateOrderRequest request) {
         final CurrentUser currentUser = currentUserProvider.requireCurrentUser();
 
-        // 1. Έλεγχος ότι ο χρήστης είναι Πελάτης
         if (currentUser.type() != PersonType.CUSTOMER) {
             throw new SecurityException("Only customers can create orders");
         }
@@ -75,30 +73,25 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         order.setRestaurant(restaurant);
         order.setOrderStatus(OrderStatus.PENDING);
 
-        // 3. Ορισμός Τύπου Εξυπηρέτησης (Delivery/Pickup)
         ServiceType type = request.serviceType();
         if (type == null) type = ServiceType.DELIVERY;
         order.setServiceType(type);
 
-        // 4. Διαχείριση Διεύθυνσης & Συντεταγμένων
         Address deliveryAddr = new Address();
 
         if (type == ServiceType.PICKUP) {
             deliveryAddr.setStreet("PICKUP");
-            // Στο Pickup, βάζουμε τις συντεταγμένες του καταστήματος
             if (restaurant.getAddressInfo() != null) {
                 deliveryAddr.setLatitude(restaurant.getAddressInfo().getLatitude());
                 deliveryAddr.setLongitude(restaurant.getAddressInfo().getLongitude());
             }
         } else {
-            // Αν είναι Delivery, παίρνουμε το string της διεύθυνσης
             String requestAddrStr = request.deliveryAddress();
             if (requestAddrStr == null || requestAddrStr.trim().isEmpty()) {
                 requestAddrStr = "Address not provided";
             }
             deliveryAddr.setStreet(requestAddrStr);
 
-            // Αντιγραφή συντεταγμένων από το προφίλ του χρήστη
             if (request.deliveryAddress() != null) {
                 String targetAddr = request.deliveryAddress();
 
@@ -118,7 +111,6 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         }
         order.setDeliveryAddress(deliveryAddr);
 
-        // 5. Προσθήκη Προϊόντων & Υπολογισμός ItemsTotal
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal itemsTotal = BigDecimal.ZERO;
 
@@ -129,6 +121,10 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
                 OrderItem orderItem = new OrderItem();
                 orderItem.setCustomerOrder(order);
+
+                orderItem.setCustomerOrder(order);
+
+
                 orderItem.setMenuItem(menuItem);
                 orderItem.setName(menuItem.getName());
                 orderItem.setPrice(menuItem.getPrice());
@@ -145,23 +141,25 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         }
         order.setOrderItems(orderItems);
 
-        // 6. Υπολογισμός Τελικού Ποσού (Grand Total)
+
+
         BigDecimal deliveryFee = BigDecimal.ZERO;
         if (type == ServiceType.DELIVERY && restaurant.getDeliveryFee() != null) {
             deliveryFee = restaurant.getDeliveryFee();
         }
 
+
         BigDecimal finalTotalAmount = itemsTotal.add(deliveryFee);
         order.setTotalPrice(finalTotalAmount);
 
-        // --- 7. ΕΛΕΓΧΟΣ MINIMUM ORDER (ΤΩΡΑ που έχουμε το finalTotalAmount) ---
+
         if (restaurant.getMinimumOrderAmount() != null &&
                 finalTotalAmount.compareTo(restaurant.getMinimumOrderAmount()) < 0) {
             throw new IllegalArgumentException("Order doesn't cover the minimum amount of " + restaurant.getMinimumOrderAmount() + " €");
         }
         // ----------------------------------------------------------------------
 
-        // 8. Αποθήκευση στη Βάση
+
         final CustomerOrder savedOrder = customerOrderRepository.save(order);
         return customerOrderMapper.toView(savedOrder);
     }
@@ -187,7 +185,6 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         return Optional.of(customerOrderMapper.toView(customerOrder));
     }
 
-    // New Implementation
     @Override
     public List<CustomerOrderView> getMyOrders() {
         CurrentUser currentUser = currentUserProvider.requireCurrentUser();

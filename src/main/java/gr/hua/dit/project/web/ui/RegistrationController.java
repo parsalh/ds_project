@@ -15,9 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
-/**
- * UI controller for managing customer/owner registration.
- */
 @Controller
 public class RegistrationController {
 
@@ -33,63 +30,38 @@ public class RegistrationController {
     private List<CountryCodeOption> getCountryCodes(){
         PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
         Set<String> regions = phoneNumberUtil.getSupportedRegions();
-
         List<CountryCodeOption> options = new ArrayList<>();
-
         for (String region : regions) {
             int countryCode = phoneNumberUtil.getCountryCodeForRegion(region);
             String countryName = new Locale("", region).getDisplayCountry(Locale.ENGLISH);
-
-            String isoCode = region.toLowerCase();
-            String label = countryName + " (+" +countryCode + ")";
-            String value = "+"+countryCode;
-
-            options.add(new CountryCodeOption(value,label,isoCode));
+            options.add(new CountryCodeOption("+" + countryCode, countryName + " (+" + countryCode + ")", region.toLowerCase()));
         }
         options.sort(Comparator.comparing(CountryCodeOption::label));
         return options;
     }
 
-    /**
-     * Serves the registration form (HTML)
-     */
     @GetMapping("/register")
     public String showRegistrationForm(final Authentication authentication, Model model){
-        if (AuthController.isAuthenticated(authentication)) {
-            return "redirect:/";
-        }
+        if (AuthController.isAuthenticated(authentication)) return "redirect:/";
 
         model.addAttribute("countryCodes", getCountryCodes());
-        model.addAttribute("defaultCountryCode","+30"); // proepilogh ellada
-
-        //Initial data for the form
         model.addAttribute("createPersonRequest", new CreatePersonRequest(
-                PersonType.CUSTOMER,
-                "","","","","",
-                "","","",
-                ""
+                PersonType.CUSTOMER, "", "", "", "", "", "", "", "", "", null, null
         ));
-
-        return "register"; // the name of the thymeleaf/HTML template
+        return "register";
     }
 
-    /**
-     * Handles the registration form submission (POST HTTP request)
-     */
     @PostMapping("/register")
     public String handleRegistrationFormSubmission(
             final Authentication authentication,
             @ModelAttribute("createPersonRequest") CreatePersonRequest createPersonRequest,
-            @RequestParam(name = "countryPrefix", defaultValue = "+30")  String countryPrefix,
-            @RequestParam(name = "localPhoneNumber")   String localPhoneNumber,
+            @RequestParam(name = "countryPrefix", defaultValue = "+30") String countryPrefix,
+            @RequestParam(name = "localPhoneNumber") String localPhoneNumber,
             final Model model
     ) {
+        if (AuthController.isAuthenticated(authentication)) return "redirect:/";
 
-        if (AuthController.isAuthenticated(authentication)){
-            return "redirect:/"; // already logged in
-        }
-
-        String fullPhoneNumber = countryPrefix+localPhoneNumber.trim();
+        String fullPhoneNumber = countryPrefix + localPhoneNumber.trim();
 
         CreatePersonRequest finalRequest = new CreatePersonRequest(
                 createPersonRequest.type(),
@@ -101,18 +73,19 @@ public class RegistrationController {
                 createPersonRequest.street(),
                 createPersonRequest.addressNumber(),
                 createPersonRequest.zipCode(),
-                createPersonRequest.rawPassword()
+                createPersonRequest.rawPassword(),
+                createPersonRequest.latitude(),
+                createPersonRequest.longitude()
         );
-
-        //TODO Form validation + UI errors.
 
         final CreatePersonResult createPersonResult = this.personService.createPerson(finalRequest);
         if (createPersonResult.created()) {
             return "redirect:/login";
         }
+
         model.addAttribute("countryCodes", getCountryCodes());
-        model.addAttribute("createPersonRequest", finalRequest); // Pass the same form data.
-        model.addAttribute("errorMessage",createPersonResult.reason()); // Show an error message!
+        model.addAttribute("createPersonRequest", finalRequest);
+        model.addAttribute("errorMessage", createPersonResult.reason());
         return "register";
     }
 }
