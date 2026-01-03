@@ -4,12 +4,15 @@ import gr.hua.dit.project.core.model.OrderStatus;
 import gr.hua.dit.project.core.service.model.CreateOrderRequest;
 import gr.hua.dit.project.core.service.model.CustomerOrderView;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CustomerOrderService {
     CustomerOrderView createOrder(CreateOrderRequest request);
 
     Optional<CustomerOrderView> getCustomerOrder(Long id);
+
+    List<CustomerOrderView> getMyOrders();
 
     void updateOrderStatus(Long orderId, OrderStatus status);
 }

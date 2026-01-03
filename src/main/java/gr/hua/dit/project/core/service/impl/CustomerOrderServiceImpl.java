@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -46,6 +47,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         this.currentUserProvider = currentUserProvider;
     }
 
+    // ... [Previous createOrder code remains unchanged] ...
     @Override
     public CustomerOrderView createOrder(final CreateOrderRequest request) {
         final CurrentUser currentUser = currentUserProvider.requireCurrentUser();
@@ -67,28 +69,22 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         order.setRestaurant(restaurant);
         order.setOrderStatus(OrderStatus.PENDING);
 
-        // --- 1. Service Type Logic (Από τον συμφοιτητή σου) ---
         ServiceType type = request.serviceType();
         if (type == null) type = ServiceType.DELIVERY;
         order.setServiceType(type);
 
-        // --- 2. Address Logic (ΠΡΟΣΑΡΜΟΣΜΕΝΟ για το νέο Address Object) ---
-        Address deliveryAddr = new Address(); // Δημιουργούμε το αντικείμενο
-
+        Address deliveryAddr = new Address();
         if (type == ServiceType.PICKUP) {
-            deliveryAddr.setStreet("PICKUP"); // Βάζουμε το 'PICKUP' στο street
+            deliveryAddr.setStreet("PICKUP");
         } else {
             String addressStr = request.deliveryAddress();
             if (addressStr == null || addressStr.trim().isEmpty()) {
                 addressStr = "Address not provided";
             }
-            deliveryAddr.setStreet(addressStr); // Βάζουμε τη διεύθυνση στο street
+            deliveryAddr.setStreet(addressStr);
         }
-        // Αναθέτουμε το ΑΝΤΙΚΕΙΜΕΝΟ Address, όχι String
         order.setDeliveryAddress(deliveryAddr);
 
-
-        // --- 3. Item Saving Logic (Από τον συμφοιτητή σου - Σημαντικό!) ---
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal itemsTotal = BigDecimal.ZERO;
 
@@ -98,40 +94,30 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                         .orElseThrow(() -> new EntityNotFoundException("Menu item not found: " + itemRequest.menuItemId()));
 
                 OrderItem orderItem = new OrderItem();
-
-                // Προσοχή: Ελέγξετε αν στο OrderItem.java λέγεται setOrder ή setCustomerOrder
                 orderItem.setCustomerOrder(order);
                 orderItem.setMenuItem(menuItem);
-
-                // Populate fields (Name, Price)
                 orderItem.setName(menuItem.getName());
                 orderItem.setPrice(menuItem.getPrice());
 
                 int quantity = (itemRequest.quantity() != null && itemRequest.quantity() > 0) ? itemRequest.quantity() : 1;
                 orderItem.setQuantity(quantity);
 
-                // Calculate Subtotal
                 BigDecimal lineTotal = menuItem.getPrice().multiply(BigDecimal.valueOf(quantity));
                 orderItem.setSubtotal(lineTotal);
 
-                // Add to list and running total
                 orderItems.add(orderItem);
                 itemsTotal = itemsTotal.add(lineTotal);
             }
         }
-
         order.setOrderItems(orderItems);
 
-        // --- 4. Total Calculation (Από τον συμφοιτητή σου) ---
         BigDecimal deliveryFee = BigDecimal.ZERO;
         if (type == ServiceType.DELIVERY && restaurant.getDeliveryFee() != null) {
             deliveryFee = restaurant.getDeliveryFee();
         }
-
         order.setTotalPrice(itemsTotal.add(deliveryFee));
 
         final CustomerOrder savedOrder = customerOrderRepository.save(order);
-
         return customerOrderMapper.toView(savedOrder);
     }
 
@@ -154,6 +140,20 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         }
 
         return Optional.of(customerOrderMapper.toView(customerOrder));
+    }
+
+    // New Implementation
+    @Override
+    public List<CustomerOrderView> getMyOrders() {
+        CurrentUser currentUser = currentUserProvider.requireCurrentUser();
+        if (currentUser.type() != PersonType.CUSTOMER) {
+            throw new SecurityException("Only customers have personal order history");
+        }
+
+        return customerOrderRepository.findAllByCustomerIdOrderByCreatedAtDesc(currentUser.id())
+                .stream()
+                .map(customerOrderMapper::toView)
+                .collect(Collectors.toList());
     }
 
     @Override
