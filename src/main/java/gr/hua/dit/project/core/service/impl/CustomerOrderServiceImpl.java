@@ -52,6 +52,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     public CustomerOrderView createOrder(final CreateOrderRequest request) {
         final CurrentUser currentUser = currentUserProvider.requireCurrentUser();
 
+        // 1. Έλεγχος ότι ο χρήστης είναι Πελάτης
         if (currentUser.type() != PersonType.CUSTOMER) {
             throw new SecurityException("Only customers can create orders");
         }
@@ -64,27 +65,63 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                 .findById(request.restaurantId())
                 .orElseThrow(() -> new EntityNotFoundException("Restaurant not found"));
 
+        // 2. Αρχικοποίηση της Παραγγελίας
         final CustomerOrder order = new CustomerOrder();
         order.setCustomer(customer);
         order.setRestaurant(restaurant);
         order.setOrderStatus(OrderStatus.PENDING);
 
+        // 3. Ορισμός Τύπου Εξυπηρέτησης (Delivery/Pickup)
         ServiceType type = request.serviceType();
         if (type == null) type = ServiceType.DELIVERY;
         order.setServiceType(type);
 
+        // 4. Διαχείριση Διεύθυνσης & Συντεταγμένων
         Address deliveryAddr = new Address();
+
         if (type == ServiceType.PICKUP) {
             deliveryAddr.setStreet("PICKUP");
-        } else {
-            String addressStr = request.deliveryAddress();
-            if (addressStr == null || addressStr.trim().isEmpty()) {
-                addressStr = "Address not provided";
+            // Στο Pickup, βάζουμε τις συντεταγμένες του καταστήματος για να μην είναι κενές
+            if (restaurant.getAddressInfo() != null) {
+                deliveryAddr.setLatitude(restaurant.getAddressInfo().getLatitude());
+                deliveryAddr.setLongitude(restaurant.getAddressInfo().getLongitude());
             }
-            deliveryAddr.setStreet(addressStr);
+        } else {
+            // Αν είναι Delivery, παίρνουμε το string της διεύθυνσης
+            String requestAddrStr = request.deliveryAddress();
+            if (requestAddrStr == null || requestAddrStr.trim().isEmpty()) {
+                requestAddrStr = "Address not provided";
+            }
+            deliveryAddr.setStreet(requestAddrStr);
+
+            // --- ΣΗΜΑΝΤΙΚΟ: ΑΝΤΙΓΡΑΦΗ ΣΥΝΤΕΤΑΓΜΕΝΩΝ ΑΠΟ ΤΟ ΠΡΟΦΙΛ ---
+            if (request.deliveryAddress() != null) {
+                String targetAddr = request.deliveryAddress();
+
+                // Ψάχνουμε στις αποθηκευμένες διευθύνσεις του πελάτη
+                customer.getAddresses().stream()
+                        .filter(addr -> {
+                            // Φτιάχνουμε το πλήρες string (Οδός Αριθμός, ΤΚ) για σύγκριση
+                            String addrStr = addr.getStreet() + " " +
+                                    (addr.getNumber() != null ? addr.getNumber() : "") + ", " +
+                                    addr.getZipCode();
+
+                            // Ελέγχουμε αν ταιριάζει απόλυτα ή αν περιέχεται
+                            return addrStr.equals(targetAddr) || targetAddr.contains(addr.getStreet());
+                        })
+                        .findFirst()
+                        .ifPresent(matchedAddr -> {
+                            // ΒΡΕΘΗΚΕ! Αντιγράφουμε τα lat/lon στην παραγγελία
+                            deliveryAddr.setLatitude(matchedAddr.getLatitude());
+                            deliveryAddr.setLongitude(matchedAddr.getLongitude());
+                        });
+            }
         }
+        // Αποθήκευση του αντικειμένου Address (με τα lat/lon) στην παραγγελία
         order.setDeliveryAddress(deliveryAddr);
 
+
+        // 5. Προσθήκη Προϊόντων (Items)
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal itemsTotal = BigDecimal.ZERO;
 
@@ -94,7 +131,11 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                         .orElseThrow(() -> new EntityNotFoundException("Menu item not found: " + itemRequest.menuItemId()));
 
                 OrderItem orderItem = new OrderItem();
+
+                // Σύνδεση με την παραγγελία
                 orderItem.setCustomerOrder(order);
+
+                // Αντιγραφή στοιχείων προϊόντος
                 orderItem.setMenuItem(menuItem);
                 orderItem.setName(menuItem.getName());
                 orderItem.setPrice(menuItem.getPrice());
@@ -102,6 +143,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                 int quantity = (itemRequest.quantity() != null && itemRequest.quantity() > 0) ? itemRequest.quantity() : 1;
                 orderItem.setQuantity(quantity);
 
+                // Υπολογισμός υποσυνόλου γραμμής
                 BigDecimal lineTotal = menuItem.getPrice().multiply(BigDecimal.valueOf(quantity));
                 orderItem.setSubtotal(lineTotal);
 
@@ -111,12 +153,14 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         }
         order.setOrderItems(orderItems);
 
+        // 6. Υπολογισμός Τελικού Ποσού (μαζί με μεταφορικά αν είναι Delivery)
         BigDecimal deliveryFee = BigDecimal.ZERO;
         if (type == ServiceType.DELIVERY && restaurant.getDeliveryFee() != null) {
             deliveryFee = restaurant.getDeliveryFee();
         }
         order.setTotalPrice(itemsTotal.add(deliveryFee));
 
+        // 7. Αποθήκευση στη Βάση
         final CustomerOrder savedOrder = customerOrderRepository.save(order);
         return customerOrderMapper.toView(savedOrder);
     }

@@ -60,11 +60,10 @@ public class RestaurantServiceImpl implements RestaurantService {
         }
 
         if (address.getLatitude() == null || address.getLongitude() == null) {
-            String fullAddress = getFullAddress(address); // Helper method updated
+            String fullAddress = getFullAddress(address);
 
-            // Αν η διεύθυνση έχει περιεχόμενο, ψάχνουμε συντεταγμένες
             if (!fullAddress.isBlank()) {
-                Address finalAddress = address; // Variable used in lambda should be final
+                Address finalAddress = address;
                 geocodingService.getCoordinates(fullAddress)
                         .ifPresent(coords -> {
                             finalAddress.setLatitude(coords[0]);
@@ -103,11 +102,9 @@ public class RestaurantServiceImpl implements RestaurantService {
         Address newAddress = formData.getAddressInfo();
 
         if (newAddress != null) {
-            // Αν έχουν έρθει έτοιμες συντεταγμένες (σπάνιο σε update από φόρμα, αλλά πιθανό)
             if (newAddress.getLatitude() != null && newAddress.getLongitude() != null) {
                 existingRestaurant.setAddressInfo(newAddress);
             } else {
-                // Αν δεν έχουν συντεταγμένες, κάνουμε Geocoding
                 String fullAddress = getFullAddress(newAddress);
                 geocodingService.getCoordinates(fullAddress)
                         .ifPresent(coords -> {

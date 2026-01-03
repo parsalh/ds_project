@@ -170,11 +170,21 @@
                         </form>
                     </div>
 
-                    <div th:if="${order.orderStatus.name() == 'ACCEPTED'}" class="w-100">
-                        <form th:action="@{/owner/restaurant/{rid}/orders/{oid}/status(rid=${restaurant.id}, oid=${order.id})}" method="post">
-                            <input type="hidden" name="status" value="IN_PROGRESS">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="bi bi-fire me-1"></i> Start Cooking
+                    <div th:if="${order.orderStatus.name() == 'IN_PROGRESS'}" class="w-100">
+
+                        <form th:if="${order.serviceType.name() == 'PICKUP'}"
+                              th:action="@{/owner/restaurant/{rid}/orders/{oid}/status(rid=${restaurant.id}, oid=${order.id})}" method="post">
+                            <input type="hidden" name="status" value="READY_FOR_PICKUP">
+                            <button type="submit" class="btn btn-warning w-100 text-dark">
+                                <i class="bi bi-box-seam me-1"></i> Mark Ready for Pickup
+                            </button>
+                        </form>
+
+                        <form th:if="${order.serviceType.name() == 'DELIVERY'}"
+                              th:action="@{/owner/restaurant/{rid}/orders/{oid}/status(rid=${restaurant.id}, oid=${order.id})}" method="post">
+                            <input type="hidden" name="status" value="OUT_FOR_DELIVERY">
+                            <button type="submit" class="btn btn-info w-100 text-white">
+                                <i class="bi bi-bicycle me-1"></i> Dispatch Driver
                             </button>
                         </form>
                     </div>
