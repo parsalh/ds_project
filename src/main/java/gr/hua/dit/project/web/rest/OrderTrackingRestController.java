@@ -87,9 +87,9 @@ public class OrderTrackingRestController {
                 var metrics = distanceService.getDistanceAndDuration(restaurantLat, restaurantLon, orderLat, orderLon);
 
                 if (metrics.isPresent()) {
-                    // ETA = 15 λεπτά (προετοιμασία) + Χρόνος Διαδρομής
+                    // ETA = 20 λεπτά (προετοιμασία) + Χρόνος Διαδρομής
                     int travelTimeMins = (int) Math.round(metrics.get().durationSeconds() / 60.0);
-                    eta = 15 + travelTimeMins;
+                    eta = 20 + travelTimeMins;
                 } else {
                     // Fallback αν αποτύχει το Routing Service
                     eta = 30; // 15 prep + 15 average travel

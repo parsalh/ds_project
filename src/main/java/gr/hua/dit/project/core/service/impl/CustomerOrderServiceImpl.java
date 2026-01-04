@@ -1,6 +1,7 @@
 package gr.hua.dit.project.core.service.impl;
 
 import gr.hua.dit.project.core.model.*;
+import gr.hua.dit.project.core.port.SmsNotificationPort;
 import gr.hua.dit.project.core.repository.CustomerOrderRepository;
 import gr.hua.dit.project.core.repository.MenuItemRepository;
 import gr.hua.dit.project.core.repository.PersonRepository;
@@ -32,19 +33,22 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     private final RestaurantRepository restaurantRepository;
     private final MenuItemRepository menuItemRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final SmsNotificationPort smsNotificationPort;
 
     public CustomerOrderServiceImpl(final CustomerOrderMapper customerOrderMapper,
                                     final CustomerOrderRepository customerOrderRepository,
                                     final PersonRepository personRepository,
                                     final RestaurantRepository restaurantRepository,
                                     final MenuItemRepository menuItemRepository,
-                                    final CurrentUserProvider currentUserProvider) {
+                                    final CurrentUserProvider currentUserProvider,
+                                    final SmsNotificationPort smsNotificationPort) {
         this.customerOrderMapper = customerOrderMapper;
         this.customerOrderRepository = customerOrderRepository;
         this.personRepository = personRepository;
         this.restaurantRepository = restaurantRepository;
         this.menuItemRepository = menuItemRepository;
         this.currentUserProvider = currentUserProvider;
+        this.smsNotificationPort = smsNotificationPort;
     }
 
     @Override
@@ -67,7 +71,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
             throw new IllegalStateException("This restaurant is closed.");
         }
 
-        // 2. Αρχικοποίηση της Παραγγελίας
+        // αρχικοποιηση της παραγγελιας
         final CustomerOrder order = new CustomerOrder();
         order.setCustomer(customer);
         order.setRestaurant(restaurant);
@@ -157,7 +161,6 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                 finalTotalAmount.compareTo(restaurant.getMinimumOrderAmount()) < 0) {
             throw new IllegalArgumentException("Order doesn't cover the minimum amount of " + restaurant.getMinimumOrderAmount() + " €");
         }
-        // ----------------------------------------------------------------------
 
 
         final CustomerOrder savedOrder = customerOrderRepository.save(order);
@@ -210,5 +213,50 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
 
         order.setOrderStatus(status);
         customerOrderRepository.save(order);
+
+        String phoneNumber = order.getCustomer().getMobilePhoneNumber();
+        if (status == OrderStatus.ACCEPTED){
+            String message = "Your order #"+order.getId()+" has been accepted and is getting ready.";
+            System.out.println("Sending SMS to: " + phoneNumber);
+
+            try {
+                smsNotificationPort.sendSms(phoneNumber, message);
+            } catch (Exception e) {
+                System.err.println("Failed to send SMS: " + e.getMessage());
+            }
+        }
+
+        if (status == OrderStatus.REJECTED){
+            String message = "Your order #"+order.getId()+" has been declined.";
+            System.out.println("Sending SMS to: " + phoneNumber);
+
+            try {
+                smsNotificationPort.sendSms(phoneNumber, message);
+            } catch (Exception e) {
+                System.err.println("Failed to send SMS: " + e.getMessage());
+            }
+        }
+
+        if (status == OrderStatus.READY_FOR_PICKUP){
+            String message = "Your order #"+order.getId()+" is ready for pickup!";
+            System.out.println("Sending SMS to: " + phoneNumber);
+
+            try {
+                smsNotificationPort.sendSms(phoneNumber, message);
+            } catch (Exception e) {
+                System.err.println("Failed to send SMS: " + e.getMessage());
+            }
+        }
+
+        if (status == OrderStatus.OUT_FOR_DELIVERY){
+            String message = "Your order #"+order.getId()+" is getting delivered to your location.";
+            System.out.println("Sending SMS to: " + phoneNumber);
+
+            try {
+                smsNotificationPort.sendSms(phoneNumber, message);
+            } catch (Exception e) {
+                System.err.println("Failed to send SMS: " + e.getMessage());
+            }
+        }
     }
 }

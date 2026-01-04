@@ -5,6 +5,8 @@
     <title>Order Tracking - StreetFoodGo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css">
     <style>
         body { background-color: #f8f9fa; }
         .tracking-container { max-width: 800px; margin: 3rem auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
@@ -28,15 +30,19 @@
 
         <div id="accepted-screen" style="display: none;">
             <div class="text-center">
-                <h1 class="text-success fw-bold">Order Accepted!</h1>
-                <h3 class="mt-3">Estimated Time: <span id="eta-display" class="text-danger fw-bold">--</span> mins</h3>
-                <p class="text-muted">Your food is being prepared.</p>
+                <h1 id="orderStatus" class="text-success fw-bold">Order Accepted!</h1>
+                <h3 id="eta-container" class="mt-3">Estimated Time: <span id="eta-display" class="text-danger fw-bold">--</span> mins</h3>
+                <p id="status-description" class="text-muted">Your food is being prepared.</p>
             </div>
 
             <div id="map"></div>
 
-            <div class="mt-4 text-center">
+            <div id="profile-actions" class="mt-4 text-center">
                 <a href="/customer/profile" class="btn btn-outline-secondary">Go to Profile</a>
+            </div>
+
+            <div id="completed-actions" class="mt-4 text-center" style="display: none;">
+                <a href="/" class="btn btn-primary btn-lg">Back to Home Page</a>
             </div>
         </div>
 
@@ -54,17 +60,12 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     const orderId = [[${orderId}]];
-    // Παίρνουμε το ID του εστιατορίου για να ξέρουμε ποιο καλάθι να σβήσουμε
-    // (Το 'order' πρέπει να έχει περάσει στο Model από τον Controller)
     const restaurantId = [[${order != null ? order.restaurantId : null}]];
     /*]]>*/
 
-    // --- ΝΕΟΣ ΚΩΔΙΚΑΣ: ΕΚΚΑΘΑΡΙΣΗ ΚΑΛΑΘΙΟΥ ---
-    // Αν φτάσαμε εδώ, η παραγγελία πέτυχε. ΤΩΡΑ σβήνουμε το καλάθι.
     if (restaurantId) {
         localStorage.removeItem('streetfoodgo_cart_' + restaurantId);
     }
-    // -----------------------------------------
 
     let isMapInitialized = false;
     let map;
@@ -75,18 +76,36 @@
             .then(data => {
                 console.log("Tracking Data:", data);
 
-                // --- 1. Ενημέρωση του Status Text (Ασύγχρονα) ---
+                //ενημέρωση του status text (async)
                 updateStatusMessage(data.status);
 
-                // --- 2. Έλεγχος αν πρέπει να δείξουμε την οθόνη Tracking ---
                 if (['ACCEPTED', 'IN_PROGRESS', 'READY_FOR_PICKUP', 'OUT_FOR_DELIVERY'].includes(data.status)) {
                     showAccepted(data);
                 }
                 else if (data.status === 'REJECTED' || data.status === 'CANCELLED' || data.status === 'COMPLETED') {
-                    // Μπορείς να φτιάξεις και ξεχωριστή οθόνη για το Completed
                     if (data.status === 'COMPLETED') {
-                        alert("Order Completed! Enjoy your meal.");
-                        window.location.href = "/";
+                        document.getElementById('waiting-screen').style.display = 'none';
+                        document.getElementById('accepted-screen').style.display = 'block';
+                        document.getElementById('rejected-screen').style.display = 'none';
+
+                        const statusElement = document.getElementById('orderStatus');
+                        if (statusElement) {
+                            statusElement.innerText = 'Order completed. Enjoy! 😄';
+                            statusElement.className = 'text-success fw-bold';
+                        }
+
+                        const etaContainer = document.getElementById('eta-container');
+                        if (etaContainer) etaContainer.style.display = 'none';
+                        const descElement = document.getElementById('status-description');
+                        if (descElement) descElement.style.display = 'none';
+
+
+                        const profileBtn = document.getElementById('profile-actions');
+                        if (profileBtn) profileBtn.style.display = 'none';
+                        const homeBtn = document.getElementById('completed-actions');
+                        if (homeBtn) homeBtn.style.display = 'block';
+
+                        if (polling) clearInterval(polling);
                     } else {
                         showRejected();
                     }
@@ -95,7 +114,7 @@
             .catch(err => console.error(err));
     }
 
-    // Συνάρτηση που αλλάζει το κείμενο ανάλογα με το Status του Owner
+    //μεθοδος ενημέρωσης του status text αναλογα με το status του owner
     function updateStatusMessage(status) {
         const titleElement = document.querySelector('#accepted-screen h1');
         const subTextElement = document.querySelector('#accepted-screen p.text-muted');
@@ -110,7 +129,7 @@
                 break;
             case 'IN_PROGRESS':
                 titleElement.innerText = "Cooking in Progress";
-                titleElement.className = "text-warning fw-bold"; // Κίτρινο για το μαγείρεμα
+                titleElement.className = "text-warning fw-bold";
                 subTextElement.innerText = "Your food is being prepared.";
                 break;
             case 'READY_FOR_PICKUP':
@@ -124,7 +143,6 @@
                 subTextElement.innerText = "The driver is on the way to your location.";
                 break;
             default:
-                // Κρατάμε το default
                 break;
         }
     }
@@ -134,12 +152,8 @@
         document.getElementById('accepted-screen').style.display = 'block';
         document.getElementById('rejected-screen').style.display = 'none';
 
-        // --- 3. ΔΙΟΡΘΩΣΗ: Χρήση του σωστού ονόματος πεδίου για την ώρα (etaMins) ---
-        // Αν το etaMins είναι null, δείχνουμε παύλες
         document.getElementById('eta-display').innerText = data.etaMins ? data.etaMins : "--";
 
-        // --- 4. ΔΙΟΡΘΩΣΗ: Χρήση των σωστών ονομάτων για τον Χάρτη (restaurantLocation, customerLocation) ---
-        // Το Java Record OrderTrackingView έχει: restaurantLocation, customerLocation
         if (!isMapInitialized && data.restaurantLocation && data.customerLocation) {
             document.getElementById('map').style.display = 'block';
 
@@ -149,9 +163,28 @@
                 attribution: 'OpenStreetMap'
             }).addTo(map);
 
-            // Προσοχή: Τα markers θέλουν [lat, lon]
-            var shopMarker = L.marker(data.restaurantLocation).addTo(map).bindPopup("Restaurant").openPopup();
-            var userMarker = L.marker(data.customerLocation).addTo(map).bindPopup("You");
+            var restaurantIcon = L.AwesomeMarkers.icon({
+                icon: 'cutlery',
+                markerColor: 'orange',
+                prefix: 'fa',
+                iconColor: 'white'
+            });
+
+            var userIcon = L.AwesomeMarkers.icon({
+                icon: 'home',
+                markerColor: 'green',
+                prefix: 'fa',
+                iconColor: 'white'
+            });
+
+            var shopMarker = L.marker(data.restaurantLocation, {icon: restaurantIcon})
+                .addTo(map)
+                .bindPopup("<b>Restaurant</b>")
+                .openPopup();
+
+            var userMarker = L.marker(data.customerLocation, {icon: userIcon})
+                .addTo(map)
+                .bindPopup("<b>You</b>");
 
             var group = new L.featureGroup([shopMarker, userMarker]);
             map.fitBounds(group.getBounds(), {padding: [50, 50]});
@@ -171,6 +204,8 @@
     checkStatus();
 
 </script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
 
 </body>
 </html>
