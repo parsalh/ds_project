@@ -25,7 +25,7 @@ public class ApplicationUserDetailsService implements UserDetailsService {
         if (username.isBlank()) throw new IllegalArgumentException();
 
         final Person person = this.personRepository
-                .findByUsernameIgnoreCase(username)
+                .findByUsernameIgnoreCaseOrEmailAddressIgnoreCase(username, username)
                 .orElse(null);
         if (person == null) throw new UsernameNotFoundException("Person with username" + username + " does not exist");
 

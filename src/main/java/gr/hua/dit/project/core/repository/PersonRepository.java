@@ -22,15 +22,13 @@ public interface PersonRepository extends JpaRepository<Person,Long> {
 //
 //    void deletePersonById(Long id);
 
-
-
     Optional<Person> findByUsernameIgnoreCase(final String username);
 
     Optional<Person> findByEmailAddressIgnoreCase(final String emailAddress);
 
     List<Person> findAllByTypeOrderByLastName(final PersonType type);
 
-    Optional<Person> findByUsernameOrEmailAddress(String username, String emailAddress);
+    Optional<Person> findByUsernameIgnoreCaseOrEmailAddressIgnoreCase(String username, String emailAddress);
 
     boolean existsByUsernameIgnoreCase(final String username);
 
