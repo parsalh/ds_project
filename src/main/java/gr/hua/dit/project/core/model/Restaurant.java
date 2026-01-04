@@ -61,6 +61,9 @@ public class Restaurant {
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OpenHour> openHours = new ArrayList<>();
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     public Restaurant() {}
 
     public Restaurant(Long id,
@@ -163,6 +166,10 @@ public class Restaurant {
     public void setAddressInfo(Address addressInfo) {
         this.addressInfo = addressInfo;
     }
+
+    public String getImageUrl() { return imageUrl; }
+
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public boolean isOpen() {
         LocalDateTime now = LocalDateTime.now();

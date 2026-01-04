@@ -98,6 +98,7 @@ public class RestaurantServiceImpl implements RestaurantService {
         existingRestaurant.setDeliveryFee(formData.getDeliveryFee());
         existingRestaurant.setServiceType(formData.getServiceType());
         existingRestaurant.setCuisines(formData.getCuisines());
+        existingRestaurant.setImageUrl(formData.getImageUrl());
 
         Address newAddress = formData.getAddressInfo();
 

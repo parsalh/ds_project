@@ -36,6 +36,11 @@
             </div>
 
             <div class="mb-3">
+                <label class="form-label">Image URL</label>
+                <input type="url" th:field="*{imageUrl}" class="form-control" placeholder="https://example.com/burger.jpg">
+            </div>
+
+            <div class="mb-3">
                 <label class="form-label">Description</label>
                 <textarea th:field="*{description}" class="form-control" rows="2"></textarea>
             </div>

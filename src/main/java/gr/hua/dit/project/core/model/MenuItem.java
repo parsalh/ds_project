@@ -44,7 +44,8 @@ public class MenuItem {
     @Column(name = "type", nullable = false, length = 20)
     private ItemType type;
 
-    //TODO image_url of menu item
+    @Column(name = "image_url")
+    private String imageUrl;
 
     public MenuItem() {}
 
@@ -121,6 +122,10 @@ public class MenuItem {
     public void setType(ItemType type) {
         this.type = type;
     }
+
+    public String getImageUrl() { return imageUrl; }
+
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     @Override
     public String toString() {

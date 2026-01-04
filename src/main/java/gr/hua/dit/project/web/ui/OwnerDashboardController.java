@@ -152,6 +152,7 @@ public class OwnerDashboardController {
             existing.setDescription(menuItem.getDescription());
             existing.setAvailable(menuItem.getAvailable());
             existing.setType(menuItem.getType());
+            existing.setImageUrl(menuItem.getImageUrl());
             menuItemRepository.save(existing);
         } else {
             menuItem.setRestaurant(restaurant);
