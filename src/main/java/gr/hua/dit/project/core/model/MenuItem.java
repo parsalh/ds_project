@@ -55,7 +55,8 @@ public class MenuItem {
                     BigDecimal price,
                     Boolean available,
                     String description,
-                    ItemType type) {
+                    ItemType type,
+                    String imageUrl) {
 
         this.id = id;
         this.restaurant = restaurant;
@@ -64,7 +65,7 @@ public class MenuItem {
         this.available = available;
         this.description = description;
         this.type = type;
-
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {

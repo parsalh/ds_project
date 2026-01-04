@@ -75,7 +75,8 @@ public class Restaurant {
                       BigDecimal minimumOrderAmount,
                       BigDecimal deliveryFee,
                       ServiceType serviceType,
-                      List<OpenHour> openHours) {
+                      List<OpenHour> openHours,
+                      String imageUrl) {
         this.id = id;
         this.owner = owner;
         this.name = name;
@@ -86,6 +87,7 @@ public class Restaurant {
         this.deliveryFee = deliveryFee;
         this.serviceType = serviceType;
         this.openHours = openHours;
+        this.imageUrl = imageUrl;
     }
 
     public Long getId() {

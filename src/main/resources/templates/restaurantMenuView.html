@@ -24,7 +24,6 @@
             background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
             padding: 3rem 1rem;
             color: white;
-            text-align: center;
             border-bottom-left-radius: 20px;
             border-bottom-right-radius: 20px;
         }
@@ -40,6 +39,7 @@
         .menu-card {
             border: none;
             box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            overflow: hidden;
         }
 
         .order-total-bar {
@@ -122,28 +122,38 @@
 
 <header class="hero-section mb-4">
     <div class="container">
-        <h1 class="display-5 fw-bold">
-            <span th:text="${restaurant.name}">Restaurant Name</span>
-            <span th:unless="${restaurant.isOpen()}" class="badge bg-danger fs-6 align-middle ms-2">CLOSED</span>
-            <span th:if="${restaurant.isOpen()}" class="badge bg-success fs-6 align-middle ms-2">OPEN</span>
-        </h1>
+        <div class="row align-items-center">
+            <div class="col-md-8 text-center text-md-start">
+                <h1 class="display-5 fw-bold">
+                    <span th:text="${restaurant.name}">Restaurant Name</span>
+                    <span th:unless="${restaurant.isOpen()}" class="badge bg-danger fs-6 align-middle ms-2">CLOSED</span>
+                    <span th:if="${restaurant.isOpen()}" class="badge bg-success fs-6 align-middle ms-2">OPEN</span>
+                </h1>
 
-        <div class="d-inline-flex bg-white rounded-pill p-1 mt-3 shadow-sm text-dark">
-            <div class="btn-group" role="group" aria-label="Service Type">
-                <input type="radio" class="btn-check" name="serviceType" id="stDelivery" value="DELIVERY"
-                       autocomplete="off" onchange="updateServiceType('DELIVERY')">
-                <label class="btn btn-outline-danger rounded-pill px-4 border-0 fw-bold" for="stDelivery">
-                    <i class="bi bi-bicycle"></i> Delivery
-                </label>
+                <div class="d-inline-flex bg-white rounded-pill p-1 mt-3 shadow-sm text-dark">
+                    <div class="btn-group" role="group" aria-label="Service Type">
+                        <input type="radio" class="btn-check" name="serviceType" id="stDelivery" value="DELIVERY"
+                               autocomplete="off" onchange="updateServiceType('DELIVERY')">
+                        <label class="btn btn-outline-danger rounded-pill px-4 border-0 fw-bold" for="stDelivery">
+                            <i class="bi bi-bicycle"></i> Delivery
+                        </label>
 
-                <input type="radio" class="btn-check" name="serviceType" id="stPickup" value="PICKUP"
-                       autocomplete="off" onchange="updateServiceType('PICKUP')">
-                <label class="btn btn-outline-danger rounded-pill px-4 border-0 fw-bold" for="stPickup">
-                    <i class="bi bi-bag"></i> Pickup
-                </label>
+                        <input type="radio" class="btn-check" name="serviceType" id="stPickup" value="PICKUP"
+                               autocomplete="off" onchange="updateServiceType('PICKUP')">
+                        <label class="btn btn-outline-danger rounded-pill px-4 border-0 fw-bold" for="stPickup">
+                            <i class="bi bi-bag"></i> Pickup
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 text-center mt-4 mt-md-0">
+                <img th:src="${restaurant.imageUrl != null && !restaurant.imageUrl.isEmpty() ? restaurant.imageUrl : 'https://placehold.co/600x400?text=Restaurant+Image'}"
+                     class="img-fluid rounded-3 shadow"
+                     alt="Restaurant Cover"
+                     style="max-height: 200px; width: 100%; object-fit: cover;">
             </div>
         </div>
-
     </div>
 </header>
 
@@ -176,12 +186,9 @@
                 <div class="card menu-card h-100">
                     <img th:src="${item.imageUrl != null && !item.imageUrl.isEmpty() ? item.imageUrl : 'https://media.istockphoto.com/id/1346523346/vector/spoon-and-fork-icon-vector-illustration-design-editable-resizable-eps-10.jpg?s=612x612&w=0&k=20&c=OOAsa1DeluipbQkMVlGsK98eHFjGzz0fMmyyry4pvpA='}"
                          class="card-img-top"
-                         style="height: 150px; object-fit: cover;"
+                         style="aspect-ratio: 3/2; object-fit: cover; width: 100%; height: auto;"
                          alt="Menu Item">
 
-                    <div class="card-body">
-                    </div>
-                </div>
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <h5 class="card-title fw-bold" th:text="${item.name}">Item Name</h5>
