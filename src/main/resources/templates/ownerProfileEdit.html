@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - StreetFoodGo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@6.6.6/css/flag-icons.min.css"/>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+
+    <style>
+        body { background-color: #f8f9fa; min-height: 100vh; padding-bottom: 2rem; }
+
+        .hero-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
+            padding: 3rem 1rem;
+            color: white;
+            margin-bottom: 2rem;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-light-outline-custom {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            font-weight: bold;
+        }
+        .btn-light-outline-custom:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: #fff;
+            transform: scale(1.05);
+        }
+
+        .form-container {
+            max-width: 40rem;
+            width: 100%;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            margin-top: 2rem;
+        }
+
+        .btn-primary-custom {
+            background-color: #dc2626;
+            border-color: #dc2626;
+            color: white;
+        }
+        .btn-primary-custom:hover {
+            background-color: #b91c1c;
+            color: white;
+        }
+
+        .select2-container .select2-selection--single {
+            height: 38px;
+            padding-top: 5px;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            top: 6px;
+        }
+        .input-group .select2-container {
+            flex: 0 0 auto;
+            width: 110px !important;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">StreetFoodGo <small class="text-secondary">| Business</small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <span class="navbar-text text-white me-3">
+                        Welcome, <span class="fw-bold" th:text="${me != null ? me.username : 'Owner'}">Owner</span>
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post" class="d-flex">
+                        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<header class="hero-section">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <div class="mb-3 mb-md-0 text-center text-md-start">
+            <h1 class="display-5 fw-bold">Edit Profile</h1>
+            <p class="lead mb-0 opacity-75">Update your personal information</p>
+        </div>
+        <div>
+            <a th:href="@{/owner/dashboard}" class="btn btn-light-outline-custom btn-lg shadow-sm">
+                <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="form-container">
+
+        <form th:action="@{/owner/profile/edit}" method="post" th:object="${person}">
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">First Name</label>
+                    <input type="text" th:field="*{firstName}" class="form-control" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Last Name</label>
+                    <input type="text" th:field="*{lastName}" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Email Address</label>
+                <input type="email" th:field="*{emailAddress}" class="form-control" required>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-bold">Mobile Phone</label>
+                <div class="input-group">
+                    <select id="country-select" name="countryPrefix" class="form-select">
+                        <option th:each="option : ${countryCodes}"
+                                th:value="${option.code}"
+                                th:data-iso="${option.isoCode}"
+                                th:text="${option.label}"
+                                th:selected="${option.code == currentCountryPrefix}">
+                        </option>
+                    </select>
+                    <input type="tel" name="localPhoneNumber" th:value="${currentLocalPhoneNumber}" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary-custom btn-lg">Save Changes</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        function formatState (state) {
+            if (!state.id) { return state.text; }
+            var isoCode = $(state.element).data('iso');
+            if(!isoCode) { return state.text; }
+            var $state = $('<span><span class="fi fi-' + isoCode + '"></span> ' + state.text + '</span>');
+            return $state;
+        }
+
+        function formatSelection (state) {
+            if (!state.id) return state.text;
+            var isoCode = $(state.element).data('iso');
+            var codeOnly = state.id;
+            var $state = $('<span><span class="fi fi-' + isoCode + '"></span> ' + codeOnly + '</span>');
+            return $state;
+        }
+
+        $('#country-select').select2({
+            width: '100%',
+            templateResult: formatState,
+            templateSelection: formatSelection,
+            dropdownAutoWidth: true
+        });
+    });
+</script>
+</body>
+</html>
