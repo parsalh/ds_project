@@ -9,16 +9,43 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <style>
-        body { background-color: #f8f9fa; min-height: 100vh; padding: 2rem 0; }
+        body { background-color: #f8f9fa; min-height: 100vh; padding-bottom: 2rem; }
+
+        /* --- Hero Section --- */
+        .hero-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
+            padding: 3rem 1rem;
+            color: white;
+            margin-bottom: 2rem;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-light-custom {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+        .btn-light-custom:hover {
+            background: rgba(255, 255, 255, 0.4);
+            color: white;
+        }
+
         .form-container {
-            max-width: 50rem; /* Λίγο πιο πλατύ για να χωράει το table */
+            max-width: 50rem;
             width: 100%;
             background: white;
             border-radius: 0.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             margin: auto;
+            margin-top: 2rem;
         }
+
         .btn-primary-custom {
             background-color: #dc2626;
             border-color: #dc2626;
@@ -39,13 +66,45 @@
 </head>
 <body>
 
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">StreetFoodGo <small class="text-secondary">| Business</small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <span class="navbar-text text-white me-3">
+                        Welcome, <span class="fw-bold" th:text="${me != null ? me.username : 'Owner'}">Owner</span>
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post" class="d-flex">
+                        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<header class="hero-section">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <div class="mb-3 mb-md-0 text-center text-md-start">
+            <h1 class="display-5 fw-bold" th:text="${restaurant.id == null} ? 'Add New Restaurant' : 'Edit Restaurant'">Restaurant Title</h1>
+            <p class="lead mb-0 opacity-75">Configure details, location, and operating hours</p>
+        </div>
+        <div>
+            <a th:href="@{/owner/dashboard}" class="btn btn-light-custom px-4 py-2">
+                <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</header>
+
 <div class="container">
     <div class="form-container">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0" th:text="${restaurant.id == null} ? 'Add New Restaurant' : 'Edit Restaurant'">Title</h2>
-            <a th:href="@{/owner/dashboard}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Back</a>
-        </div>
 
         <form th:action="@{${restaurant.id == null ? '/owner/restaurant/new' : '/owner/restaurant/' + restaurant.id + '/edit'}}"
               th:object="${restaurant}"
@@ -139,10 +198,14 @@
                                 <span class="fw-bold" th:text="*{openHours[__${stat.index}__].dayOfWeek}">MONDAY</span>
                             </td>
                             <td>
-                                <input type="time" class="form-control" th:field="*{openHours[__${stat.index}__].openTime}">
+                                <input type="time" class="form-control"
+                                       th:name="|openHours[${stat.index}].openTime|"
+                                       th:value="${openHour.openTime != null ? #temporals.format(openHour.openTime, 'HH:mm') : ''}">
                             </td>
                             <td>
-                                <input type="time" class="form-control" th:field="*{openHours[__${stat.index}__].closeTime}">
+                                <input type="time" class="form-control"
+                                       th:name="|openHours[${stat.index}].closeTime|"
+                                       th:value="${openHour.closeTime != null ? #temporals.format(openHour.closeTime, 'HH:mm') : ''}">
                             </td>
                         </tr>
                         </tbody>
@@ -152,7 +215,7 @@
             </div>
 
             <div class="d-grid">
-                <button type="submit" class="btn btn-primary-custom">Save Restaurant Details</button>
+                <button type="submit" class="btn btn-primary-custom btn-lg">Save Restaurant Details</button>
             </div>
         </form>
 

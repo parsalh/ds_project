@@ -5,24 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Item - StreetFoodGo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-        body { background-color: #f8f9fa; display: flex; align-items: center; min-height: 100vh; }
+        body { background-color: #f8f9fa; min-height: 100vh; padding-bottom: 2rem; }
+
+        /* --- Hero Section --- */
+        .hero-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
+            padding: 3rem 1rem;
+            color: white;
+            margin-bottom: 2rem;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn-light-custom {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            font-weight: 500;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+        .btn-light-custom:hover {
+            background: rgba(255, 255, 255, 0.4);
+            color: white;
+        }
+
         .form-container {
-            max-width: 30rem;
+            max-width: 40rem;
             width: 100%;
             background: white;
-            padding: 2rem;
+            padding: 2.5rem;
             border-radius: 0.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             margin: auto;
+            margin-top: 2rem;
+        }
+
+        .btn-primary-custom {
+            background-color: #dc2626;
+            border-color: #dc2626;
+            color: white;
+        }
+        .btn-primary-custom:hover {
+            background-color: #b91c1c;
+            color: white;
         }
     </style>
 </head>
 <body>
 
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">StreetFoodGo <small class="text-secondary">| Business</small></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <span class="navbar-text text-white me-3">
+                        Welcome, <span class="fw-bold" th:text="${me != null ? me.username : 'Owner'}">Owner</span>
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post" class="d-flex">
+                        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<header class="hero-section">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <div class="mb-3 mb-md-0 text-center text-md-start">
+            <h1 class="display-5 fw-bold" th:text="${menuItem.id == null} ? 'Add New Dish' : 'Edit Dish'">Dish Title</h1>
+            <p class="lead mb-0 opacity-75">Manage menu item details and availability</p>
+        </div>
+        <div>
+            <a th:href="@{/owner/restaurant/{id}/edit(id=${restaurantId})}" class="btn btn-light-custom px-4 py-2">
+                <i class="bi bi-arrow-left me-2"></i> Back to Restaurant
+            </a>
+        </div>
+    </div>
+</header>
+
 <div class="container">
     <div class="form-container">
-        <h3 class="mb-4 text-center" th:text="${menuItem.id == null} ? 'Add New Dish' : 'Edit Dish'">Dish</h3>
 
         <form th:action="@{/owner/restaurant/{rid}/menu/save(rid=${restaurantId})}"
               th:object="${menuItem}"
@@ -31,48 +104,50 @@
             <input type="hidden" th:field="*{id}">
 
             <div class="mb-3">
-                <label class="form-label">Name</label>
+                <label class="form-label fw-bold">Name</label>
                 <input type="text" th:field="*{name}" class="form-control" required autofocus>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Image URL</label>
+                <label class="form-label fw-bold">Image URL</label>
                 <input type="url" th:field="*{imageUrl}" class="form-control" placeholder="https://example.com/burger.jpg">
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Description</label>
-                <textarea th:field="*{description}" class="form-control" rows="2"></textarea>
+                <label class="form-label fw-bold">Description</label>
+                <textarea th:field="*{description}" class="form-control" rows="3"></textarea>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Price (€)</label>
-                <input type="number" step="0.01" th:field="*{price}" class="form-control" required>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Price (€)</label>
+                    <input type="number" step="0.01" th:field="*{price}" class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Category</label>
+                    <select th:field="*{type}" class="form-select" required>
+                        <option value="" disabled selected>Select a category</option>
+                        <option th:each="t : ${itemTypes}"
+                                th:value="${t}"
+                                th:text="${t}">CATEGORY</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Category</label>
-                <select th:field="*{type}" class="form-select" required>
-                    <option value="" disabled selected>Select a category</option>
-                    <option th:each="t : ${itemTypes}"
-                            th:value="${t}"
-                            th:text="${t}">CATEGORY</option>
-                </select>
+            <div class="form-check form-switch mb-4 p-3 bg-light rounded d-flex align-items-center">
+                <input class="form-check-input ms-0 me-3" type="checkbox" role="switch" id="availSwitch" th:field="*{available}" style="width: 3em; height: 1.5em;">
+                <label class="form-check-label fw-bold pt-1" for="availSwitch">Available for order</label>
             </div>
 
-            <div class="form-check form-switch mb-4">
-                <input class="form-check-input" type="checkbox" role="switch" id="availSwitch" th:field="*{available}">
-                <label class="form-check-label" for="availSwitch">Available for order</label>
-            </div>
-
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-success">Save Item</button>
-                <a th:href="@{/owner/restaurant/{id}/edit(id=${restaurantId})}" class="btn btn-outline-secondary">Cancel</a>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary-custom btn-lg">Save Item</button>
             </div>
 
         </form>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
