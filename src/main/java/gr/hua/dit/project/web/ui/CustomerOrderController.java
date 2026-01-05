@@ -75,7 +75,7 @@ public class CustomerOrderController {
         model.addAttribute("totalPrice", cart.getTotalPrice());
         model.addAttribute("totalQuantity", cart.getTotalQuantity());
 
-        return "restaurantMenuView";
+        return "CustomerRestaurantMenuView";
     }
 
     @PostMapping("/{restaurantId}/cart/add")
