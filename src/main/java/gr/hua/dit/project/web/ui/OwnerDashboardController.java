@@ -82,7 +82,7 @@ public class OwnerDashboardController {
         model.addAttribute("cuisines", Cuisine.values());
         model.addAttribute("serviceTypes", ServiceType.values());
 
-        return "restaurantForm";
+        return "ownerRestaurantEdit";
     }
 
     @PostMapping("/restaurant/new")
@@ -105,7 +105,7 @@ public class OwnerDashboardController {
         model.addAttribute("cuisines", Cuisine.values());
         model.addAttribute("serviceTypes", ServiceType.values());
 
-        return "restaurantForm";
+        return "ownerRestaurantEdit";
     }
 
     @PostMapping("/restaurant/{id}/edit")
@@ -123,7 +123,7 @@ public class OwnerDashboardController {
         model.addAttribute("menuItem", menuItem);
         model.addAttribute("restaurantId", restaurantId);
         model.addAttribute("itemTypes", ItemType.values());
-        return "menuItemForm";
+        return "ownerMenuItemEdit";
     }
 
     @GetMapping("/restaurant/{restaurantId}/menu/{menuId}/edit")
@@ -135,7 +135,7 @@ public class OwnerDashboardController {
         model.addAttribute("menuItem", menuItem);
         model.addAttribute("restaurantId", restaurantId);
         model.addAttribute("itemTypes", ItemType.values());
-        return "menuItemForm";
+        return "ownerMenuItemEdit";
     }
 
     @PostMapping("/restaurant/{restaurantId}/menu/save")

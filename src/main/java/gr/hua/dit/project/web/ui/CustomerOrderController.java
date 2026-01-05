@@ -128,7 +128,7 @@ public class CustomerOrderController {
         model.addAttribute("cart", cart);
         model.addAttribute("grandTotal", grandTotal);
 
-        return "finalizeOrder";
+        return "customerFinalizeOrder";
     }
 
     @PostMapping("/{restaurantId}/order")
@@ -190,7 +190,7 @@ public class CustomerOrderController {
         model.addAttribute("orderId", orderId);
         model.addAttribute("order", order); // <--- ΑΥΤΟ ΕΛΕΙΠΕ και χρειάζεται για το script του καλαθιού
 
-        return "orderTracker";
+        return "customerFinalizeOrderTracker";
     }
 
     public static class OrderForm {
