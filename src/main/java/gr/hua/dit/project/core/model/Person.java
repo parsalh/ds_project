@@ -78,7 +78,7 @@ public class Person {
 
     @NotNull
     @NotBlank
-    @Size(max = 255)
+    @Size(min = 4, max = 255)
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
