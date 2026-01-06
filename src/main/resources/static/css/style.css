@@ -34,13 +34,13 @@ a:hover {
    2. SPECIAL BODY STYLES (Login/Register)
    ========================================= */
 /* Πρέπει να προσθέσεις την κλάση "body-login" στο <body> του login.html */
+/* Αλλαγή: Το κάνουμε ίδιο με το register (Light Gradient) */
 body.body-login {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     min-height: 100vh;
     display: flex;
+    flex-direction: column; /* Για να μπει σωστά η Navbar */
     align-items: center;
-    justify-content: center;
-    background: var(--gradient-hero);
-    padding: 1rem;
 }
 
 /* Πρέπει να προσθέσεις την κλάση "body-register" στο <body> του register.html */
@@ -62,6 +62,15 @@ body.body-register {
     color: transparent !important;
     font-size: 1.5rem;
     font-weight: bold;
+}
+
+/* Gradient Text Utility */
+.text-gradient {
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block; /* Σημαντικό για να δουλέψει σωστά το clip */
 }
 
 /* Dropdown Menu Styling */
@@ -228,12 +237,15 @@ body.body-register {
 
 /* Login Container */
 .login-container {
-    max-width: 28rem;
+    max-width: 400px; /* Πιο στενό από το register για να είναι κομψό */
     width: 100%;
     background: white;
     border-radius: 1rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    /* Ίδια σκιά με το register */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     padding: 2.5rem;
+    margin-top: 4rem; /* Απόσταση από τη Navbar */
+    margin-bottom: 2rem;
 }
 
 /* Register Card */
