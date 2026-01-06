@@ -43,7 +43,6 @@ public class HomeController {
             HttpServletResponse response,
             Model model
     ) {
-        // 1. Owner Redirect
         if (AuthController.isAuthenticated(authentication)) {
             boolean isOwner = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_OWNER"));
@@ -52,15 +51,12 @@ public class HomeController {
             }
         }
 
-        // 2. Intelligent Redirect / Defaulting Logic
-        // If the user did NOT provide specific search params (lat, lon, or text query)
-        // We try to "guess" their location from cookies or profile to provide a better default view.
         if (lat == null && lon == null && (query == null || query.isBlank())) {
 
             Double targetLat = null;
             Double targetLon = null;
 
-            // A. Check Cookies first (works for guests AND logged-in users who recently selected a location)
+            // Elenxoume ta cookies
             Double cookieLat = getCookieValue(request, "sf_lat");
             Double cookieLon = getCookieValue(request, "sf_lon");
 
@@ -69,7 +65,7 @@ public class HomeController {
                 targetLon = cookieLon;
             }
 
-            // B. If Logged In: Check saved addresses if cookies are missing
+            // Ama den cookies elenxoume address
             if (AuthController.isAuthenticated(authentication)) {
                 String username = authentication.getName();
                 Person person = personRepository.findByUsernameIgnoreCase(username).orElse(null);
@@ -77,7 +73,7 @@ public class HomeController {
                 if (person != null) {
                     model.addAttribute("userAddresses", person.getAddresses());
 
-                    // If we haven't found a location from cookies, use the first saved address
+                    // Ama den cookies dialegoume to prwto address
                     if (targetLat == null && !person.getAddresses().isEmpty()) {
                         Address defaultAddr = person.getAddresses().get(0);
                         targetLat = defaultAddr.getLatitude();
@@ -86,17 +82,11 @@ public class HomeController {
                 }
             }
 
-            // C. PERFORM REDIRECT
-            // If we found a valid location, redirect the user to the parameterized URL.
+            // Ton stelnoume sto swsto URL gia ta lat kai lon tou
             if (targetLat != null && targetLon != null) {
                 return String.format("redirect:/?lat=%s&lon=%s", targetLat, targetLon);
             }
         }
-        // --- End of Defaulting Logic ---
-
-
-        // 3. Normal Page Rendering
-        // At this point, we either have explicit params (lat/lon) or we are showing the generic "All" list.
 
         if (AuthController.isAuthenticated(authentication)) {
             String username = authentication.getName();
@@ -106,7 +96,6 @@ public class HomeController {
         }
 
         if (lat != null && lon != null) {
-            // Get Top 15 Nearby (Cuisine filtering is now handled Client-Side in HTML)
             model.addAttribute("restaurants", restaurantService.getTop15NearbyRestaurants(lat, lon));
             model.addAttribute("selectedLocation", true);
         } else if (query != null && !query.isBlank()) {

@@ -11,7 +11,6 @@
             background-color: #f8f9fa;
         }
 
-        /* --- Updated Hero Section to match Owner Dashboard --- */
         .hero-section {
             background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
             padding: 3rem 1rem; /* Matching Dashboard Padding */
@@ -41,9 +40,6 @@
             color: white;
         }
 
-        /* --- Button Styles from Owner Dashboard --- */
-
-        /* Solid White Button (Matches Add Restaurant) */
         .btn-light-custom {
             background: rgba(255, 255, 255, 0.9);
             color: #dc2626;
@@ -57,7 +53,6 @@
             transform: scale(1.05);
         }
 
-        /* Outline White Button (Matches Edit Profile) */
         .btn-light-outline-custom {
             background: transparent;
             color: white;
@@ -71,12 +66,10 @@
             transform: scale(1.05);
         }
 
-        /* Style for the filter buttons */
         .filter-btn {
             transition: all 0.2s;
         }
 
-        /* Search Input Transparency for Hero */
         .hero-search-input {
             background: rgba(255,255,255,0.9);
             border: none;
@@ -275,7 +268,6 @@
             }
         }
 
-        // 2. Update Address Button Text if Location Selected
         const currentLat = urlParams.get("lat");
         const currentLon = urlParams.get("lon");
 
@@ -296,7 +288,6 @@
         }
     });
 
-    // 3. Client-Side Filtering
     function filterSelection(category) {
         const items = document.getElementsByClassName("restaurant-item");
         category = category.toUpperCase();
@@ -317,7 +308,6 @@
         }
     }
 
-    // 4. Update Filter Button Styles
     function updateFilterStyle(clickedBtn) {
         const buttons = document.querySelectorAll('.filter-btn');
         buttons.forEach(btn => {

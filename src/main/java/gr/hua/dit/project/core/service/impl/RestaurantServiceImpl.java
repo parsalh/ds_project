@@ -36,28 +36,26 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    @Transactional(readOnly = true) // Required because isOpen() accesses lazy collection 'openHours'
+    @Transactional(readOnly = true)
     public List<Restaurant> getTop15NearbyRestaurants(Double userLat, Double userLon) {
         if (userLat == null || userLon == null) return new ArrayList<>();
 
-        // 1. DB FILTER (Bounding Box)
-        double range = 0.15;
+        double range = 0.10;    // Peripou 10km
         List<Restaurant> candidates = restaurantRepository.findAllByAddressInfoLatitudeBetweenAndAddressInfoLongitudeBetween(
                 userLat - range, userLat + range,
                 userLon - range, userLon + range
         );
 
-        // 2. MEMORY FILTER: Open Only + Haversine Sort
-        // We filter by isOpen() FIRST, so we don't waste time sorting closed restaurants
+        // Kanoume Haversine Sort gia na paroume top 20 sto peripou
         List<Restaurant> openCandidates = candidates.stream()
-                .filter(Restaurant::isOpen) // <--- NEW FILTER
+                .filter(Restaurant::isOpen)
                 .sorted(Comparator.comparingDouble(r ->
                         calculateHaversineDistance(userLat, userLon, getLat(r), getLon(r))
                 ))
                 .limit(20) // Take top 20 closest OPEN restaurants
                 .toList();
 
-        // 3. API SORT (Precise Driving Distance)
+        // Pername apo to api gia top 15 sigoura
         List<Restaurant> finalSorted = new ArrayList<>(openCandidates);
         finalSorted.sort((r1, r2) -> {
             double d1 = getRealDistance(userLat, userLon, r1);
@@ -65,7 +63,6 @@ public class RestaurantServiceImpl implements RestaurantService {
             return Double.compare(d1, d2);
         });
 
-        // Return Top 15
         return finalSorted.stream().limit(15).toList();
     }
 
