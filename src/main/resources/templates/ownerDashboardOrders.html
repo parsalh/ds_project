@@ -5,78 +5,26 @@
     <title>Manage Orders - StreetFoodGo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        body { background-color: #f8f9fa; min-height: 100vh; padding-bottom: 2rem;}
-
-        /* Consistent Hero Section */
-        .hero-section {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
-            padding: 3rem 1rem;
-            color: white;
-            margin-bottom: 2rem;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-        }
-
-        .order-card {
-            background: white;
-            border: none;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
-            border-left: 6px solid gray;
-            transition: transform 0.2s;
-        }
-
-        .order-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-        }
-
-        .status-PENDING { border-left-color: #ffc107; }
-        .status-ACCEPTED { border-left-color: #0d6efd; }
-        .status-IN_PROGRESS { border-left-color: #0dcaf0; }
-
-        .status-READY_FOR_PICKUP { border-left-color: #198754; }
-        .status-OUT_FOR_DELIVERY { border-left-color: #fd7e14; }
-
-        .status-COMPLETED { border-left-color: #20c997; }
-        .status-REJECTED { border-left-color: #dc3545; }
-        .status-CANCELLED { border-left-color: #6c757d; }
-
-        /* Updated Back Button Style (Matches Edit Profile) */
-        .btn-light-outline-custom {
-            background: transparent;
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            font-weight: bold;
-        }
-        .btn-light-outline-custom:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-color: #fff;
-            transform: scale(1.05);
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/owner/dashboard">StreetFoodGo <small class="text-secondary">| Business</small></a>
+        <a class="navbar-brand" href="/">StreetFoodGo <small class="text-secondary" style="font-size: 0.6em;">| Business</small></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
-                    <span class="navbar-text text-white me-3">
-                        Welcome, <span class="fw-bold" th:text="${me != null ? me.username : 'Owner'}">Owner</span>
+                    <span class="navbar-text text-dark me-3">
+                        Welcome, <span class="fw-bold" th:text="${me.username}">Owner</span>
                     </span>
                 </li>
                 <li class="nav-item">
                     <form th:action="@{/logout}" method="post" class="d-flex">
-                        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                        <button class="btn btn-outline-danger btn-sm" type="submit">Logout</button>
                     </form>
                 </li>
             </ul>

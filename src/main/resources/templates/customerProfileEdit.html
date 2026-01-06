@@ -1,172 +1,201 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Profile - StreetFoodGo</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>
-    body { background-color: #f8f9fa; min-height: 100vh; padding: 2rem 0; }
-    .edit-container { max-width: 800px; margin: auto; }
-    .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 2rem; }
-    #map { height: 300px; width: 100%; border-radius: 0.5rem; border: 1px solid #ced4da; }
-    .btn-primary-custom { background-color: #dc2626; border-color: #dc2626; color: white; }
-    .btn-primary-custom:hover { background-color: #b91c1c; color: white; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - StreetFoodGo</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">StreetFoodGo</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Hi, <span sec:authentication="name">User</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" th:href="@{/customer/profile}">My Profile</a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post">
+                                <button class="dropdown-item text-danger" type="submit">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
 <div class="container edit-container">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Edit Profile</h2>
-    <a th:href="@{/customer/profile}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Profile</a>
-  </div>
-
-  <div class="card p-4">
-    <h4 class="mb-3 text-secondary">Personal Information</h4>
-    <form th:action="@{/customer/profile/update}" method="post">
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <label class="form-label">First Name</label>
-          <input type="text" name="firstName" th:value="${person.firstName}" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Last Name</label>
-          <input type="text" name="lastName" th:value="${person.lastName}" class="form-control" required>
-        </div>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input type="email" name="emailAddress" th:value="${person.emailAddress}" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Mobile Phone</label>
-        <input type="tel" name="mobilePhoneNumber" th:value="${person.mobilePhoneNumber}" class="form-control" required>
-      </div>
-      <div class="text-end">
-        <button type="submit" class="btn btn-primary-custom">Save Changes</button>
-      </div>
-    </form>
-  </div>
-
-  <div class="card p-4">
-    <h4 class="mb-3 text-secondary">My Addresses</h4>
-
-    <div th:if="${person.addresses.isEmpty()}" class="alert alert-warning">
-      No addresses saved yet. Add one below!
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Edit Profile</h2>
+        <a th:href="@{/customer/profile}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Profile
+        </a>
     </div>
 
-    <ul class="list-group mb-4" th:unless="${person.addresses.isEmpty()}">
-      <li class="list-group-item d-flex justify-content-between align-items-center"
-          th:each="addr, stat : ${person.addresses}">
-        <div>
-          <i class="bi bi-geo-alt-fill text-danger me-2"></i>
-          <span class="fw-bold" th:text="${addr.street} + ' ' + (${addr.number} ?: '')">Street 12</span>
-          <span class="text-muted" th:text="', ' + ${addr.zipCode}">12345</span>
-        </div>
-        <a th:href="@{/customer/profile/address/delete(index=${stat.index})}"
-           class="btn btn-sm btn-outline-danger"
-           onclick="return confirm('Remove this address?');">
-          <i class="bi bi-trash"></i>
-        </a>
-      </li>
-    </ul>
-
-    <hr>
-
-    <h5 class="mb-3">Add New Address</h5>
-    <form th:action="@{/customer/profile/address/add}" th:object="${newAddress}" method="post">
-
-      <div class="mb-3">
-        <label class="form-label fw-bold">Select Location on Map</label>
-        <div id="map"></div>
-        <small class="text-muted">Click the map to autofill address details.</small>
-      </div>
-
-      <input type="hidden" id="latitude" th:field="*{latitude}">
-      <input type="hidden" id="longitude" th:field="*{longitude}">
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Street</label>
-                <input type="text" id="addressStreet" th:field="*{street}"
-                       class="form-control"
-                       th:classappend="${#fields.hasErrors('street')} ? 'is-invalid' : ''"
-                       required readonly style="background-color: #e9ecef;">
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></div>
+    <div class="card p-4">
+        <h4 class="mb-3 text-secondary">Personal Information</h4>
+        <form th:action="@{/customer/profile/update}" method="post">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="firstName" th:value="${person.firstName}" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="lastName" th:value="${person.lastName}" class="form-control" required>
+                </div>
             </div>
-
-            <div class="col-md-3 mb-3">
-                <label class="form-label">Number</label>
-                <input type="text" id="addressNumber" th:field="*{number}"
-                       class="form-control"
-                       th:classappend="${#fields.hasErrors('number')} ? 'is-invalid' : ''"
-                       required readonly style="background-color: #e9ecef;">
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('number')}" th:errors="*{number}"></div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="emailAddress" th:value="${person.emailAddress}" class="form-control" required>
             </div>
-
-            <div class="col-md-3 mb-3">
-                <label class="form-label">Zip Code</label>
-                <input type="text" id="zipcode" th:field="*{zipCode}"
-                       class="form-control"
-                       th:classappend="${#fields.hasErrors('zipCode')} ? 'is-invalid' : ''"
-                       required readonly style="background-color: #e9ecef;">
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('zipCode')}" th:errors="*{zipCode}"></div>
+            <div class="mb-3">
+                <label class="form-label">Mobile Phone</label>
+                <input type="tel" name="mobilePhoneNumber" th:value="${person.mobilePhoneNumber}" class="form-control" required>
             </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary-custom">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card p-4">
+        <h4 class="mb-3 text-secondary">My Addresses</h4>
+
+        <div th:if="${person.addresses.isEmpty()}" class="alert alert-warning">
+            No addresses saved yet. Add one below!
         </div>
 
-      <button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-lg"></i> Add Address</button>
-    </form>
-  </div>
+        <ul class="list-group mb-4" th:unless="${person.addresses.isEmpty()}">
+            <li class="list-group-item d-flex justify-content-between align-items-center"
+                th:each="addr, stat : ${person.addresses}">
+                <div>
+                    <i class="bi bi-geo-alt-fill text-danger me-2"></i>
+                    <span class="fw-bold" th:text="${addr.street} + ' ' + (${addr.number} ?: '')">Street 12</span>
+                    <span class="text-muted" th:text="', ' + ${addr.zipCode}">12345</span>
+                </div>
+                <a th:href="@{/customer/profile/address/delete(index=${stat.index})}"
+                   class="btn btn-sm btn-outline-danger"
+                   onclick="return confirm('Remove this address?');">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </li>
+        </ul>
+
+        <hr>
+
+        <h5 class="mb-3">Add New Address</h5>
+        <form th:action="@{/customer/profile/address/add}" th:object="${newAddress}" method="post">
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Select Location on Map</label>
+                <div id="map"></div>
+                <small class="text-muted">Click the map to autofill address details.</small>
+            </div>
+
+            <input type="hidden" id="latitude" th:field="*{latitude}">
+            <input type="hidden" id="longitude" th:field="*{longitude}">
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Street</label>
+                    <input type="text" id="addressStreet" th:field="*{street}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('street')} ? 'is-invalid' : ''"
+                           required readonly>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Number</label>
+                    <input type="text" id="addressNumber" th:field="*{number}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('number')} ? 'is-invalid' : ''"
+                           required readonly>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('number')}" th:errors="*{number}"></div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <label class="form-label">Zip Code</label>
+                    <input type="text" id="zipcode" th:field="*{zipCode}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('zipCode')} ? 'is-invalid' : ''"
+                           required readonly>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('zipCode')}" th:errors="*{zipCode}"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-lg"></i> Add Address</button>
+        </form>
+    </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-  // Leaflet Map Initialization (Similar to ownerRestaurantEdit.html)
-  var map = L.map('map').setView([37.9838, 23.7275], 12); // Default to Athens
+    // Leaflet Map Initialization
+    var map = L.map('map').setView([37.9838, 23.7275], 12); // Default to Athens
 
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap'
-  }).addTo(map);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
 
-  var marker;
+    var marker;
 
-  map.on('click', function(e) {
-    var lat = e.latlng.lat;
-    var lon = e.latlng.lng;
+    map.on('click', function(e) {
+        var lat = e.latlng.lat;
+        var lon = e.latlng.lng;
 
-    if (marker) map.removeLayer(marker);
-    marker = L.marker([lat, lon]).addTo(map);
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lon]).addTo(map);
 
-    document.getElementById('latitude').value = lat;
-    document.getElementById('longitude').value = lon;
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lon;
 
-      ['addressStreet', 'addressNumber', 'zipcode'].forEach(function(id) {
-          var el = document.getElementById(id);
-          if (el) {
-              el.removeAttribute('readonly');
-              el.style.backgroundColor = '';
-          }
-      });
+        ['addressStreet', 'addressNumber', 'zipcode'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.removeAttribute('readonly');
+                el.style.backgroundColor = 'white'; // Visual cue that it's active
+            }
+        });
 
-    // Reverse Geocoding
-    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
-    fetch(url)
+        // Reverse Geocoding
+        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
+        fetch(url)
             .then(response => response.json())
             .then(data => {
-              if (data && data.address) {
-                const addr = data.address;
-                document.getElementById('addressStreet').value = addr.road || addr.pedestrian || "";
-                document.getElementById('addressNumber').value = addr.house_number || "";
-                document.getElementById('zipcode').value = addr.postcode || "";
-              }
+                if (data && data.address) {
+                    const addr = data.address;
+                    document.getElementById('addressStreet').value = addr.road || addr.pedestrian || "";
+                    document.getElementById('addressNumber').value = addr.house_number || "";
+                    document.getElementById('zipcode').value = addr.postcode || "";
+                }
             })
             .catch(console.error);
-  });
+    });
 </script>
 
 </body>

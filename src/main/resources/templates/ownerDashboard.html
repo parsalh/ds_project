@@ -6,94 +6,26 @@
     <title>Owner Dashboard - StreetFoodGo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        body { background-color: #f8f9fa; min-height: 100vh; padding-bottom: 2rem; }
-
-        .hero-section {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
-            padding: 3rem 1rem;
-            color: white;
-            margin-bottom: 2rem;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-        }
-
-        .restaurant-card {
-            border: none;
-            border-radius: 1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-
-        .restaurant-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        .card-status-strip {
-            height: 6px;
-            width: 100%;
-        }
-        .status-open { background-color: #198754; }
-        .status-closed { background-color: #6c757d; }
-
-        .btn-primary-custom {
-            background-color: #dc2626;
-            border-color: #dc2626;
-            color: white;
-        }
-        .btn-primary-custom:hover {
-            background-color: #b91c1c;
-            color: white;
-            border-color: #b91c1c;
-        }
-
-        .btn-light-custom {
-            background: rgba(255, 255, 255, 0.9);
-            color: #dc2626;
-            border: none;
-            font-weight: bold;
-        }
-        .btn-light-custom:hover {
-            background: #fff;
-            color: #b91c1c;
-            transform: scale(1.05);
-        }
-
-        .btn-light-outline-custom {
-            background: transparent;
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            font-weight: bold;
-        }
-        .btn-light-outline-custom:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-color: #fff;
-            transform: scale(1.05);
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">StreetFoodGo <small class="text-secondary">| Business</small></a>
+        <a class="navbar-brand" href="/">StreetFoodGo <small class="text-secondary" style="font-size: 0.6em; -webkit-text-fill-color: gray;">| Business</small></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
-                    <span class="navbar-text text-white me-3">
+                    <span class="navbar-text text-dark me-3">
                         Welcome, <span class="fw-bold" th:text="${me.username}">Owner</span>
                     </span>
                 </li>
                 <li class="nav-item">
                     <form th:action="@{/logout}" method="post" class="d-flex">
-                        <button class="btn btn-outline-light btn-sm" type="submit">Logout</button>
+                        <button class="btn btn-outline-danger btn-sm" type="submit">Logout</button>
                     </form>
                 </li>
             </ul>

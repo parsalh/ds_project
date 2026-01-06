@@ -47,7 +47,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     public List<Restaurant> getNearbyRestaurants(Double userLat, Double userLon) {
         if (userLat == null || userLon == null) return new ArrayList<>();
 
-        double range = 0.05;    // Peripou 5km
+        double range = 0.025;    // Peripou 2.5km
         List<Restaurant> candidates = restaurantRepository.findAllByAddressInfoLatitudeBetweenAndAddressInfoLongitudeBetween(
                 userLat - range, userLat + range,
                 userLon - range, userLon + range

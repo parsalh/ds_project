@@ -4,63 +4,93 @@
     <meta charset="UTF-8">
     <title>Order Tracking - StreetFoodGo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css">
-    <style>
-        body { background-color: #f8f9fa; }
-        .tracking-container { max-width: 800px; margin: 3rem auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        #map { height: 400px; width: 100%; border-radius: 10px; margin-top: 20px; display: none; }
-        .status-box { text-align: center; margin-bottom: 2rem; }
-        .spinner-border { width: 3rem; height: 3rem; }
-    </style>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
-<div class="container">
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">StreetFoodGo</a>
+    </div>
+</nav>
+
+<header class="hero-section" style="padding-bottom: 5rem;">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold">Order Status</h1>
+        <p class="lead mb-0 opacity-75">Track your delivery in real-time</p>
+    </div>
+</header>
+
+<div class="container mb-5">
     <div class="tracking-container">
 
         <div id="waiting-screen" class="status-box">
-            <h2 class="text-secondary mb-3">Waiting for restaurant confirmation...</h2>
-            <div class="spinner-border text-primary" role="status">
+            <h2 class="text-secondary mb-4 fw-bold">Waiting for confirmation...</h2>
+            <div class="spinner-border text-primary mb-3" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="text-muted mt-3">Please wait while the restaurant reviews your order.</p>
+            <p class="text-muted fs-5">Please wait while the restaurant reviews your order.</p>
         </div>
 
         <div id="accepted-screen" style="display: none;">
-            <div class="text-center">
-                <h1 id="orderStatus" class="text-success fw-bold">Order Accepted!</h1>
-                <h3 id="eta-container" class="mt-3">Estimated Time: <span id="eta-display" class="text-danger fw-bold">--</span> mins</h3>
-                <p id="status-description" class="text-muted">Your food is being prepared.</p>
+            <div class="text-center mb-4">
+                <h1 id="orderStatus" class="text-success fw-bold mb-2">Order Accepted!</h1>
+
+                <h3 id="eta-container" class="mt-3">
+                    Estimated Time: <span id="eta-display" class="text-danger fw-bold">--</span> mins
+                </h3>
+
+                <p id="status-description" class="text-muted fs-5">Your food is being prepared.</p>
+
+                <div class="mt-2" id="badges-container">
+                    <span th:if="${order.serviceType == T(gr.hua.dit.project.core.model.ServiceType).PICKUP}"
+                          class="badge bg-warning text-dark fs-6">
+                        <i class="bi bi-bag-fill me-1"></i> PICKUP ORDER
+                    </span>
+                    <span th:if="${order.serviceType == T(gr.hua.dit.project.core.model.ServiceType).DELIVERY}"
+                          class="badge bg-primary text-white fs-6">
+                        <i class="bi bi-bicycle me-1"></i> DELIVERY ORDER
+                    </span>
+                </div>
             </div>
 
             <div id="map"></div>
 
             <div id="profile-actions" class="mt-4 text-center">
-                <a href="/customer/profile" class="btn btn-outline-secondary">Go to Profile</a>
+                <a href="/customer/profile" class="btn btn-outline-secondary">
+                    <i class="bi bi-person"></i> Go to Profile
+                </a>
             </div>
 
             <div id="completed-actions" class="mt-4 text-center" style="display: none;">
-                <a href="/" class="btn btn-primary btn-lg">Back to Home Page</a>
+                <a href="/" class="btn btn-gradient-custom btn-lg">
+                    <i class="bi bi-house-door-fill"></i> Back to Home Page
+                </a>
             </div>
         </div>
 
-        <div id="rejected-screen" style="display: none;" class="text-center">
-            <h2 class="text-danger">Order Rejected</h2>
-            <p>We are sorry, the restaurant cannot fulfill your order at this time.</p>
-            <a href="/" class="btn btn-primary">Find another restaurant</a>
+        <div id="rejected-screen" style="display: none;" class="text-center py-4">
+            <i class="bi bi-x-circle text-danger" style="font-size: 4rem;"></i>
+            <h2 class="text-danger fw-bold mt-3">Order Rejected</h2>
+            <p class="text-muted fs-5">We are sorry, the restaurant cannot fulfill your order at this time.</p>
+            <a href="/" class="btn btn-primary-custom mt-3">Find another restaurant</a>
         </div>
 
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script th:inline="javascript">
     /*<![CDATA[*/
     const orderId = [[${orderId}]];
     const restaurantId = [[${order != null ? order.restaurantId : null}]];
+    const serviceType = [[${order != null ? order.serviceType : 'DELIVERY'}]];
     /*]]>*/
 
     if (restaurantId) {
@@ -74,15 +104,12 @@
         fetch('/tracking-api/' + orderId)
             .then(response => response.json())
             .then(data => {
-                console.log("Tracking Data:", data);
-
-                //ενημέρωση του status text (async)
                 updateStatusMessage(data.status);
 
                 if (['ACCEPTED', 'IN_PROGRESS', 'READY_FOR_PICKUP', 'OUT_FOR_DELIVERY'].includes(data.status)) {
                     showAccepted(data);
                 }
-                else if (data.status === 'REJECTED' || data.status === 'CANCELLED' || data.status === 'COMPLETED') {
+                else if (['REJECTED', 'CANCELLED', 'COMPLETED'].includes(data.status)) {
                     if (data.status === 'COMPLETED') {
                         document.getElementById('waiting-screen').style.display = 'none';
                         document.getElementById('accepted-screen').style.display = 'block';
@@ -90,20 +117,25 @@
 
                         const statusElement = document.getElementById('orderStatus');
                         if (statusElement) {
-                            statusElement.innerText = 'Order completed. Enjoy! 😄';
+                            statusElement.innerText = 'Order completed. Enjoy!';
                             statusElement.className = 'text-success fw-bold';
                         }
-
                         const etaContainer = document.getElementById('eta-container');
                         if (etaContainer) etaContainer.style.display = 'none';
+
                         const descElement = document.getElementById('status-description');
                         if (descElement) descElement.style.display = 'none';
 
+                        // Hide Badges
+                        const badgesEl = document.getElementById('badges-container');
+                        if (badgesEl) badgesEl.style.display = 'none';
 
-                        const profileBtn = document.getElementById('profile-actions');
-                        if (profileBtn) profileBtn.style.display = 'none';
-                        const homeBtn = document.getElementById('completed-actions');
-                        if (homeBtn) homeBtn.style.display = 'block';
+                        document.getElementById('profile-actions').style.display = 'none';
+                        document.getElementById('completed-actions').style.display = 'block';
+
+                        // Hide Map
+                        const mapEl = document.getElementById('map');
+                        if (mapEl) mapEl.style.display = 'none';
 
                         if (polling) clearInterval(polling);
                     } else {
@@ -114,7 +146,6 @@
             .catch(err => console.error(err));
     }
 
-    //μεθοδος ενημέρωσης του status text αναλογα με το status του owner
     function updateStatusMessage(status) {
         const titleElement = document.querySelector('#accepted-screen h1');
         const subTextElement = document.querySelector('#accepted-screen p.text-muted');
@@ -142,8 +173,6 @@
                 titleElement.className = "text-primary fw-bold";
                 subTextElement.innerText = "The driver is on the way to your location.";
                 break;
-            default:
-                break;
         }
     }
 
@@ -170,9 +199,13 @@
                 iconColor: 'white'
             });
 
+            var userIconName = (serviceType === 'PICKUP') ? 'cutlery' : 'home';
+            var userIconColor = (serviceType === 'PICKUP') ? 'purple' : 'green';
+            var userPopupText = (serviceType === 'PICKUP') ? '<b>Pickup Point</b>' : '<b>Delivery Address</b>';
+
             var userIcon = L.AwesomeMarkers.icon({
-                icon: 'home',
-                markerColor: 'green',
+                icon: userIconName,
+                markerColor: userIconColor,
                 prefix: 'fa',
                 iconColor: 'white'
             });
@@ -184,7 +217,7 @@
 
             var userMarker = L.marker(data.customerLocation, {icon: userIcon})
                 .addTo(map)
-                .bindPopup("<b>You</b>");
+                .bindPopup(userPopupText);
 
             var group = new L.featureGroup([shopMarker, userMarker]);
             map.fitBounds(group.getBounds(), {padding: [50, 50]});
@@ -202,9 +235,7 @@
 
     const polling = setInterval(checkStatus, 3000);
     checkStatus();
-
 </script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.min.js"></script>
 
 </body>

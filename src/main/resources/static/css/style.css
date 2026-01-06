@@ -1,0 +1,543 @@
+/* =========================================
+   1. VARIABLES & GLOBAL SETTINGS
+   ========================================= */
+:root {
+    --primary-color: #dc2626;      /* Κόκκινο */
+    --primary-hover: #b91c1c;      /* Σκούρο Κόκκινο */
+    --gradient-main: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 100%);
+    --gradient-hero: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
+    --bg-light: #f8f9fa;
+    --text-dark: #212529;
+}
+
+body {
+    background-color: var(--bg-light);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Ομαλή κύλιση για τη σελίδα του μενού */
+html {
+    scroll-behavior: smooth;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* =========================================
+   2. SPECIAL BODY STYLES (Login/Register)
+   ========================================= */
+/* Πρέπει να προσθέσεις την κλάση "body-login" στο <body> του login.html */
+body.body-login {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-hero);
+    padding: 1rem;
+}
+
+/* Πρέπει να προσθέσεις την κλάση "body-register" στο <body> του register.html */
+body.body-register {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 2rem 0;
+}
+
+/* =========================================
+   3. TYPOGRAPHY & NAVBAR
+   ========================================= */
+.navbar-brand {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent !important;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Dropdown Menu Styling */
+.dropdown-menu {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    padding: 0.5rem;
+    margin-top: 8px !important;
+}
+
+.dropdown-item {
+    border-radius: 8px;
+    margin-bottom: 2px;
+    padding: 10px 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    color: #4a5568;
+}
+
+.dropdown-item:hover {
+    background-color: #ffe5e5;
+    color: var(--primary-hover);
+    transform: translateX(3px);
+}
+
+.dropdown-item.active, .dropdown-item:active {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+}
+
+/* =========================================
+   4. BUTTONS
+   ========================================= */
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: white;
+}
+
+.btn-light-custom {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--primary-color);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    font-weight: bold;
+}
+
+.btn-light-custom:hover {
+    background: #fff;
+    color: var(--primary-hover);
+    border-color: #fff;
+    transform: scale(1.05);
+}
+
+.btn-light-outline-custom {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+}
+
+.btn-light-outline-custom:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-color: #fff;
+    transform: scale(1.05);
+}
+
+.btn-gradient {
+    background: var(--gradient-main);
+    border: none;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b6b 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.4);
+}
+
+.btn-register {
+    background: var(--gradient-hero);
+    border: none;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
+    transition: all 0.3s;
+}
+
+.btn-register:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    color: white;
+}
+
+.filter-btn, .filter-service-btn {
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+/* Custom Radio Buttons Outline */
+.btn-check:checked + .btn-outline-danger {
+    background-color: #ff6b6b;
+    border-color: #ff6b6b;
+    color: white;
+}
+.btn-outline-danger {
+    color: #ff6b6b;
+    border-color: #ff6b6b;
+}
+.btn-outline-danger:hover {
+    background-color: #ff6b6b;
+    color: white;
+}
+
+/* =========================================
+   5. CARDS & CONTAINERS
+   ========================================= */
+/* Hero Section (Common in Index, OwnerDashboard, Menu) */
+.hero-section {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
+    padding: 3rem 1rem;
+    color: white;
+    margin-bottom: 2rem;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.hero-search-input {
+    background: rgba(255,255,255,0.9);
+    border: none;
+}
+.hero-search-input:focus {
+    background: white;
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+}
+
+/* Restaurant Card */
+.restaurant-card {
+    transition: transform 0.2s, box-shadow 0.3s ease;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Login Container */
+.login-container {
+    max-width: 28rem;
+    width: 100%;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    padding: 2.5rem;
+}
+
+/* Register Card */
+.register-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    overflow: hidden;
+    background: white;
+}
+
+.card-header-custom {
+    background: var(--gradient-hero);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    border: none;
+}
+
+/* Menu Card */
+.menu-card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+
+/* =========================================
+   6. PAGE SPECIFIC STYLES
+   ========================================= */
+
+/* --- Owner Dashboard --- */
+.card-status-strip {
+    height: 6px;
+    width: 100%;
+}
+.status-open { background-color: #198754; }
+.status-closed { background-color: #6c757d; }
+
+/* --- Register / Map --- */
+#map {
+    height: 250px;
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 2px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+/* Select2 Customization */
+.select2-container .select2-selection--single {
+    height: 38px;
+    padding-top: 5px;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem 0 0 0.375rem;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    top: 6px;
+}
+.input-group .select2-container {
+    flex: 0 0 auto;
+    width: 110px !important;
+}
+
+/* Form inputs focus state */
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(220, 38, 38, 0.25);
+}
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+/* --- Customer Menu View --- */
+.category-nav {
+    position: sticky;
+    top: 56px;
+    z-index: 1020;
+    background-color: #fff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.order-total-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #212529;
+    color: white;
+    padding: 1rem;
+    z-index: 1050;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    padding: 0.2rem;
+}
+
+.quantity-controls button {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* =========================================
+   7. EDIT PAGES & FORMS (Profile, Restaurant)
+   ========================================= */
+.edit-container {
+    max-width: 800px;
+    margin: 2rem auto; /* Κεντράρισμα και κενό πάνω-κάτω */
+    padding: 0 1rem;
+}
+
+/* Ειδικό στυλ για κάρτες στις φόρμες */
+.edit-container .card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 2rem;
+    border-radius: 1rem;
+}
+
+/* Χάρτης */
+#map {
+    height: 300px;
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+    margin-bottom: 1rem;
+}
+
+/* Input readonly styling (όπως στη διεύθυνση) */
+input[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   8. UI IMPROVEMENTS (Final Polish)
+   ========================================= */
+
+/* --- 1. Bottom Bar (Total) --- */
+.order-total-bar {
+    background: var(--gradient-main) !important;
+    border-top: none;
+    box-shadow: 0 -4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.order-total-bar span#totalPriceDisplay {
+    color: white !important;
+    font-weight: 800;
+    font-size: 1.2rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* --- 2. View Order Button (White Button, Gradient Text) --- */
+.order-total-bar button {
+    background: white !important;
+    border: none !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    padding: 0.5rem 1.5rem;
+    transition: transform 0.2s;
+}
+
+.order-total-bar button:hover {
+    transform: scale(1.05);
+}
+
+/* Η κλάση για τα gradient γράμματα μέσα στο κουμπί */
+.gradient-text {
+    background: var(--gradient-main);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+/* Το badge (αριθμός προϊόντων) */
+.order-total-bar button .badge {
+    background: var(--gradient-main) !important;
+    color: white !important;
+    font-size: 0.9rem;
+    border-radius: 50%; /* Στρογγυλό badge */
+    padding: 0.35em 0.6em;
+}
+
+/* --- 3. Menu Item Images (Ψηλότερες & Στενότερες) --- */
+.menu-card .card-img-top {
+    /* Αυξήσαμε το ύψος στα 250px για να φαίνονται πιο "ψηλές" */
+    height: 250px !important;
+    object-fit: cover;
+    width: 100%;
+}
+
+/* --- 4. Buttons & Filters Gradient --- */
+.add-btn.btn-primary-custom {
+    background: var(--gradient-main) !important;
+    border: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.add-btn.btn-primary-custom:hover {
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b6b 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
+}
+
+.filter-btn.active-filter {
+    background: var(--gradient-main) !important;
+    color: white !important;
+    border: none !important;
+}
+.filter-btn:not(.active-filter):hover {
+    background-color: #ffe5e5 !important;
+    color: #dc2626 !important;
+}
+
+/* =========================================
+   9. RESTAURANT HERO IMAGE STYLING
+   ========================================= */
+
+.hero-section img {
+    border: 5px solid white;        /* Λευκό περίγραμμα 5px */
+    border-radius: 12px;            /* Στρογγυλεμένες γωνίες */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Σκιά για να ξεχωρίζει από το φόντο */
+    transition: all 0.3s ease;
+}
+
+/* =========================================
+   10. ORDER & TRACKING PAGES
+   ========================================= */
+
+/* --- Finalize Order Page --- */
+.order-card {
+    background: white;
+    border-radius: 1rem; /* Πιο στρογγυλεμένο */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+    border: none;
+    transition: transform 0.2s ease;
+}
+
+/* Πίνακας προϊόντων */
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    color: #495057;
+    font-weight: 600;
+}
+.table-group-divider {
+    border-top: 2px solid var(--primary-color);
+}
+
+/* --- Tracking Page --- */
+.tracking-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 2.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    position: relative;
+    top: -50px; /* Για να "πατήσει" πάνω στο Hero Section */
+}
+
+/* Status Icons & Text */
+.status-box {
+    text-align: center;
+    padding: 1rem;
+}
+
+.spinner-border.text-primary {
+    color: var(--primary-color) !important; /* Να είναι κόκκινο */
+}
+
+/* =========================================
+   11. EXTRA SPACING FOR MENU PAGE
+   ========================================= */
+/* Δίνουμε αρκετό χώρο στο κάτω μέρος για να μην κρύβεται το τελευταίο κουμπί από την μπάρα */
+body.body-with-bar {
+    padding-bottom: 140px;
+}
+
+/* =========================================
+   12. GRADIENT BUTTONS (Back to Home)
+   ========================================= */
+.btn-gradient-custom {
+    background: var(--gradient-main) !important; /* Το βασικό gradient */
+    border: none;
+    color: white !important;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-gradient-custom:hover {
+    /* Αντίστροφο gradient στο hover για εφέ */
+    background: linear-gradient(135deg, #ff8c42 0%, #ff6b6b 100%) !important;
+    transform: translateY(-3px); /* Σηκώνεται λίγο προς τα πάνω */
+    box-shadow: 0 8px 15px rgba(255, 107, 107, 0.4); /* Έντονη σκιά */
+}

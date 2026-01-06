@@ -1,38 +1,42 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - StreetFoodGo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        body { background-color: #f8f9fa; min-height: 100vh; padding-bottom: 2rem; }
-        .hero-section {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
-            padding: 3rem 1rem;
-            color: white;
-            margin-bottom: 2rem;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-        }
-        .profile-card {
-            background: white;
-            border: none;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-        .order-row { transition: background-color 0.2s; }
-        .order-row:hover { background-color: #f8f9fa; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="/">StreetFoodGo</a>
-        <div class="d-flex">
-            <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+        <a class="navbar-brand" href="/">StreetFoodGo</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Hi, <span sec:authentication="name">User</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" th:href="@{/customer/profile}">My Profile</a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post">
+                                <button class="dropdown-item text-danger" type="submit">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
