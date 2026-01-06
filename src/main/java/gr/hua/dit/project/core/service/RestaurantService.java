@@ -21,4 +21,6 @@ public interface RestaurantService {
     Optional<Restaurant> findById(Long restaurantId);
 
     List<Restaurant> findAll();
+
+    List<Restaurant> getTop15NearbyRestaurants(Double lat, Double lon);
 }
