@@ -12,9 +12,11 @@ import gr.hua.dit.project.core.service.PersonService;
 import gr.hua.dit.project.core.service.RestaurantService;
 import gr.hua.dit.project.core.service.model.UpdatePersonRequest;
 import gr.hua.dit.project.core.security.ApplicationUserDetails;
+import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -164,8 +166,19 @@ public class OwnerDashboardController {
     }
 
     @PostMapping("/restaurant/new")
-    public String saveRestaurant(@ModelAttribute("restaurant") Restaurant restaurant,
+    public String saveRestaurant(@Valid @ModelAttribute("restaurant") Restaurant restaurant,
+                                 BindingResult bindingResult,
+                                 Model model,
                                  Authentication authentication) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("cuisines", Cuisine.values());
+            model.addAttribute("serviceTypes", ServiceType.values());
+            prepareOpenHours(restaurant);
+
+            return "ownerRestaurantEdit";
+        }
+
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
         restaurantService.createRestaurant(restaurant, userDetails.personId());
         return "redirect:/owner/dashboard";
@@ -188,8 +201,19 @@ public class OwnerDashboardController {
 
     @PostMapping("/restaurant/{id}/edit")
     public String updateRestaurant(@PathVariable Long id,
-                                   @ModelAttribute("restaurant") Restaurant formData,
+                                   @Valid @ModelAttribute("restaurant") Restaurant formData,
+                                   BindingResult bindingResult,
+                                   Model model,
                                    Authentication authentication) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("cuisines", Cuisine.values());
+            model.addAttribute("serviceTypes", ServiceType.values());
+            prepareOpenHours(formData);
+
+            return "ownerRestaurantEdit";
+        }
+
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
         restaurantService.updateRestaurant(id, formData, userDetails.personId());
         return "redirect:/owner/dashboard";
@@ -218,8 +242,18 @@ public class OwnerDashboardController {
 
     @PostMapping("/restaurant/{restaurantId}/menu/save")
     public String saveMenuItem(@PathVariable Long restaurantId,
-                               @ModelAttribute("menuItem") MenuItem menuItem,
+                               @Valid @ModelAttribute("menuItem") MenuItem menuItem,
+                               BindingResult bindingResult,
+                               Model model,
                                Authentication authentication) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("restaurantId", restaurantId);
+            model.addAttribute("itemTypes", ItemType.values());
+
+            return "ownerMenuItemEdit";
+        }
+
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
         Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(restaurantId, userDetails.personId());
 

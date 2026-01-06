@@ -193,18 +193,31 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Street</label>
-                                    <input type="text" id="street" th:field="*{street}" class="form-control">
+                                    <input type="text" id="street" th:field="*{street}"
+                                           class="form-control"
+                                           th:classappend="${#fields.hasErrors('street')} ? 'is-invalid' : ''"
+                                           readonly style="background-color: #e9ecef;">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></div>
                                 </div>
+
                                 <div class="col-md-3">
                                     <label class="form-label">Number</label>
-                                    <input type="text" id="addressNumber" th:field="*{addressNumber}" class="form-control">
+                                    <input type="text" id="addressNumber" th:field="*{addressNumber}"
+                                           class="form-control"
+                                           th:classappend="${#fields.hasErrors('addressNumber')} ? 'is-invalid' : ''"
+                                           readonly style="background-color: #e9ecef;">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('addressNumber')}" th:errors="*{addressNumber}"></div>
                                 </div>
+
                                 <div class="col-md-3">
                                     <label class="form-label">Zip Code</label>
-                                    <input type="text" id="zipCode" th:field="*{zipCode}" class="form-control">
+                                    <input type="text" id="zipCode" th:field="*{zipCode}"
+                                           class="form-control"
+                                           th:classappend="${#fields.hasErrors('zipCode')} ? 'is-invalid' : ''"
+                                           readonly style="background-color: #e9ecef;">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('zipCode')}" th:errors="*{zipCode}"></div>
                                 </div>
                             </div>
-                        </div>
 
                         <div class="d-grid gap-2 mt-5">
                             <button type="submit" class="btn btn-register">Register</button>
@@ -285,6 +298,14 @@
         // --- NEW: Update hidden inputs ---
         document.getElementById('latitude').value = lat;
         document.getElementById('longitude').value = lon;
+
+        ['street', 'addressNumber', 'zipCode'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.removeAttribute('readonly');
+                el.style.backgroundColor = ''; // Επαναφορά στο default (λευκό)
+            }
+        });
 
         if (marker) map.removeLayer(marker);
         marker = L.marker([lat, lon]).addTo(map);

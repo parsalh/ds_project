@@ -1,6 +1,11 @@
 package gr.hua.dit.project.core.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -30,12 +35,15 @@ public class Restaurant {
     @JoinColumn(name = "owner_id", nullable = false)
     private Person owner;
 
+    @NotBlank(message = "Name is required.")
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
+    @Valid
     @Embedded
     private Address addressInfo = new Address();
 
+    @NotEmpty(message = "Choose at least one cuisine.")
     @ElementCollection(targetClass = Cuisine.class)
     @CollectionTable(
             name = "restaurant_cuisines",
@@ -48,12 +56,17 @@ public class Restaurant {
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MenuItem> menu = new ArrayList<>();
 
+    @NotNull(message = "Minimum order amount is required.")
+    @PositiveOrZero(message = "Minimum order amount can't be negative.")
     @Column(name = "minimum_order_amount", nullable = false)
     private BigDecimal minimumOrderAmount;
 
+    @NotNull(message = "Delivery fee is required.")
+    @PositiveOrZero(message = "Delivery fee can't be negative.")
     @Column(name = "delivery_fee", nullable = false)
     private BigDecimal deliveryFee;
 
+    @NotNull(message = "Service type is required.")
     @Enumerated(EnumType.STRING)
     @Column(name = "service_type", nullable = false, length = 10)
     private ServiceType serviceType;

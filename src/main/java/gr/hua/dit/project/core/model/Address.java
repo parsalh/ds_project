@@ -2,16 +2,24 @@ package gr.hua.dit.project.core.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Embeddable
 public class Address {
 
+    @NotBlank(message = "Street name is required.")
+    @Size(max = 100, message = "Street name is too large (max 100)")
     @Column(name = "address_street", nullable = false, length = 100)
     private String street;
 
+    @NotBlank(message = "Number is required.")
+    @Size(max = 10, message = "Number is too large (max 10 characters)")
     @Column(name = "address_number", length = 10)
     private String number;
 
+    @NotBlank(message = "Zip code is required.")
+    @Size(max = 10, message = "Zip code is too large (max 10)")
     @Column(name = "address_zip_code", length = 10)
     private String zipCode;
 

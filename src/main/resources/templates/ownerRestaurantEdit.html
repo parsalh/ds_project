@@ -11,7 +11,6 @@
     <style>
         body { background-color: #f8f9fa; min-height: 100vh; padding-bottom: 2rem; }
 
-        /* --- Hero Section --- */
         .hero-section {
             background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
             padding: 3rem 1rem;
@@ -22,7 +21,6 @@
             box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
         }
 
-        /* Updated Back Button Style (Matches Edit Profile) */
         .btn-light-outline-custom {
             background: transparent;
             color: white;
@@ -117,7 +115,13 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Name</label>
-                    <input type="text" th:field="*{name}" class="form-control" required>
+                    <input type="text" th:field="*{name}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                           required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
+                        Name Error
+                    </div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Image URL</label>
@@ -128,17 +132,29 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Street</label>
-                    <input type="text" th:field="*{addressInfo.street}" id="addressStreet" class="form-control" required>
+                    <input type="text" th:field="*{addressInfo.street}" id="addressStreet"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('addressInfo.street')} ? 'is-invalid' : ''"
+                           required readonly style="background-color: #e9ecef;">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('addressInfo.street')}" th:errors="*{addressInfo.street}"></div>
                 </div>
 
                 <div class="col-md-3 mb-3">
                     <label class="form-label fw-bold">Number</label>
-                    <input type="text" th:field="*{addressInfo.number}" id="addressNumber" class="form-control" required>
+                    <input type="text" th:field="*{addressInfo.number}" id="addressNumber"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('addressInfo.number')} ? 'is-invalid' : ''"
+                           required readonly style="background-color: #e9ecef;">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('addressInfo.number')}" th:errors="*{addressInfo.number}"></div>
                 </div>
 
                 <div class="col-md-3 mb-3">
                     <label class="form-label fw-bold">Zip Code</label>
-                    <input type="text" th:field="*{addressInfo.zipCode}" id="zipcode" class="form-control" required>
+                    <input type="text" th:field="*{addressInfo.zipCode}" id="zipcode"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('addressInfo.zipCode')} ? 'is-invalid' : ''"
+                           required readonly style="background-color: #e9ecef;">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('addressInfo.zipCode')}" th:errors="*{addressInfo.zipCode}"></div>
                 </div>
             </div>
 
@@ -157,27 +173,50 @@
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Min Order (€)</label>
-                    <input type="number" step="0.5" th:field="*{minimumOrderAmount}" class="form-control" required>
+                    <input type="number" step="0.5" th:field="*{minimumOrderAmount}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('minimumOrderAmount')} ? 'is-invalid' : ''"
+                           required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('minimumOrderAmount')}" th:errors="*{minimumOrderAmount}">
+                        Min Order Error
+                    </div>
                 </div>
+
                 <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Delivery Fee (€)</label>
-                    <input type="number" step="0.1" th:field="*{deliveryFee}" class="form-control" required>
+                    <input type="number" step="0.1" th:field="*{deliveryFee}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('deliveryFee')} ? 'is-invalid' : ''"
+                           required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('deliveryFee')}" th:errors="*{deliveryFee}">
+                        Delivery Fee Error
+                    </div>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label fw-bold">Service Type</label>
-                    <select th:field="*{serviceType}" class="form-select" required>
+                    <select th:field="*{serviceType}"
+                            class="form-select"
+                            th:classappend="${#fields.hasErrors('serviceType')} ? 'is-invalid' : ''"
+                            required>
                         <option th:each="type : ${serviceTypes}" th:value="${type}" th:text="${type}"></option>
                     </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('serviceType')}" th:errors="*{serviceType}">
+                        Service Type Error
+                    </div>
                 </div>
             </div>
 
             <div class="mb-4">
                 <label class="form-label fw-bold d-block">Cuisines</label>
-                <div class="d-flex flex-wrap gap-3">
+                <div class="d-flex flex-wrap gap-3 p-2 rounded"
+                     th:classappend="${#fields.hasErrors('cuisines')} ? 'border border-danger bg-light' : ''">
                     <div class="form-check" th:each="cuisine : ${cuisines}">
                         <input class="form-check-input" type="checkbox" th:field="*{cuisines}" th:value="${cuisine}">
                         <label class="form-check-label" th:for="${#ids.prev('cuisines')}" th:text="${cuisine}"></label>
                     </div>
+                </div>
+                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('cuisines')}" th:errors="*{cuisines}">
+                    Cuisine Error
                 </div>
             </div>
 
@@ -304,6 +343,14 @@
     map.on('click', function(e) {
         var lat = e.latlng.lat;
         var lon = e.latlng.lng;
+
+        ['addressStreet', 'addressNumber', 'zipcode'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.removeAttribute('readonly');
+                el.style.backgroundColor = '';
+            }
+        });
 
         if (marker) {
             map.removeLayer(marker);

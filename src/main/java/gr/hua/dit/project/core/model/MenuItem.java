@@ -1,6 +1,10 @@
 package gr.hua.dit.project.core.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
@@ -28,18 +32,24 @@ public class MenuItem {
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
+    @NotBlank(message = "Name is required.")
+    @Size(max = 100, message = "Name is too large (max 100)")
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    @NotNull(message = "Price is required.")
+    @PositiveOrZero(message = "Price can't be negative.")
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
     @Column(name = "available", nullable = false)
     private Boolean available = true;
 
+    @Size(max = 255, message = "Description is too large.")
     @Column(name = "description")
     private String description;
 
+    @NotNull(message = "Type is required.")
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)
     private ItemType type;

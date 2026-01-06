@@ -84,26 +84,40 @@
       <div class="mb-3">
         <label class="form-label fw-bold">Select Location on Map</label>
         <div id="map"></div>
-        <small class="text-muted">Click the map to auto-fill address details.</small>
+        <small class="text-muted">Click the map to autofill address details.</small>
       </div>
 
       <input type="hidden" id="latitude" th:field="*{latitude}">
       <input type="hidden" id="longitude" th:field="*{longitude}">
 
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label">Street</label>
-          <input type="text" id="addressStreet" th:field="*{street}" class="form-control" required>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Street</label>
+                <input type="text" id="addressStreet" th:field="*{street}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('street')} ? 'is-invalid' : ''"
+                       required readonly style="background-color: #e9ecef;">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('street')}" th:errors="*{street}"></div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Number</label>
+                <input type="text" id="addressNumber" th:field="*{number}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('number')} ? 'is-invalid' : ''"
+                       required readonly style="background-color: #e9ecef;">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('number')}" th:errors="*{number}"></div>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Zip Code</label>
+                <input type="text" id="zipcode" th:field="*{zipCode}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('zipCode')} ? 'is-invalid' : ''"
+                       required readonly style="background-color: #e9ecef;">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('zipCode')}" th:errors="*{zipCode}"></div>
+            </div>
         </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Number</label>
-          <input type="text" id="addressNumber" th:field="*{number}" class="form-control" required>
-        </div>
-        <div class="col-md-3 mb-3">
-          <label class="form-label">Zip Code</label>
-          <input type="text" id="zipcode" th:field="*{zipCode}" class="form-control" required>
-        </div>
-      </div>
 
       <button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-lg"></i> Add Address</button>
     </form>
@@ -130,6 +144,14 @@
 
     document.getElementById('latitude').value = lat;
     document.getElementById('longitude').value = lon;
+
+      ['addressStreet', 'addressNumber', 'zipcode'].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) {
+              el.removeAttribute('readonly');
+              el.style.backgroundColor = '';
+          }
+      });
 
     // Reverse Geocoding
     const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;

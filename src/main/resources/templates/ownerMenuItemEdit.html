@@ -106,7 +106,13 @@
 
             <div class="mb-3">
                 <label class="form-label fw-bold">Name</label>
-                <input type="text" th:field="*{name}" class="form-control" required autofocus>
+                <input type="text" th:field="*{name}"
+                       class="form-control"
+                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                       required autofocus>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">
+                    Name Error
+                </div>
             </div>
 
             <div class="mb-3">
@@ -116,23 +122,41 @@
 
             <div class="mb-3">
                 <label class="form-label fw-bold">Description</label>
-                <textarea th:field="*{description}" class="form-control" rows="3"></textarea>
+                <textarea th:field="*{description}"
+                          class="form-control"
+                          th:classappend="${#fields.hasErrors('description')} ? 'is-invalid' : ''"
+                          rows="3"></textarea>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">
+                    Description Error
+                </div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Price (€)</label>
-                    <input type="number" step="0.01" th:field="*{price}" class="form-control" required>
+                    <input type="number" step="0.01" th:field="*{price}"
+                           class="form-control"
+                           th:classappend="${#fields.hasErrors('price')} ? 'is-invalid' : ''"
+                           required>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('price')}" th:errors="*{price}">
+                        Price Error
+                    </div>
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Category</label>
-                    <select th:field="*{type}" class="form-select" required>
+                    <select th:field="*{type}"
+                            class="form-select"
+                            th:classappend="${#fields.hasErrors('type')} ? 'is-invalid' : ''"
+                            required>
                         <option value="" disabled selected>Select a category</option>
                         <option th:each="t : ${itemTypes}"
                                 th:value="${t}"
                                 th:text="${t}">CATEGORY</option>
                     </select>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}">
+                        Category Error
+                    </div>
                 </div>
             </div>
 
