@@ -50,6 +50,14 @@
     </div>
 </nav>
 
+<div class="container mt-3">
+    <div id="cart-notification" class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert" style="display: none;">
+        <i class="bi bi-exclamation-circle-fill me-2"></i>
+        <span id="cart-notification-msg"></span>
+        <button type="button" class="btn-close" onclick="document.getElementById('cart-notification').style.display='none'"></button>
+    </div>
+</div>
+
 <header class="hero-section mb-4">
     <div class="container">
         <div class="row align-items-center">
@@ -315,7 +323,22 @@
 
     function goToFinalize() {
         if (Object.keys(cart).length === 0) {
-            alert("Your cart is empty! Please add items first.");
+            // ΑΝΤΙΚΑΤΑΣΤΑΣΗ ΤΟΥ alert() ΜΕ UI MESSAGE
+
+            const notifyBox = document.getElementById('cart-notification');
+            const notifyMsg = document.getElementById('cart-notification-msg');
+
+            if (notifyBox && notifyMsg) {
+                notifyMsg.innerText = "Your cart is empty! Please add items first.";
+                notifyBox.style.display = 'block';
+
+                // Scroll στην κορυφή για να δει το μήνυμα ο χρήστης αν είναι χαμηλά
+                notifyBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                // Fallback αν δεν βρεθεί το στοιχείο (για σιγουριά)
+                console.warn("Notification element not found");
+                alert("Your cart is empty! Please add items first.");
+            }
             return;
         }
         window.location.href = '/restaurants/' + restaurantId + '/order/finalize';

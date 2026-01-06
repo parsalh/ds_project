@@ -275,14 +275,6 @@
             }
         }
     }
-
-    const backBtn = document.getElementById('btnBackToMenu');
-    if (backBtn) {
-        backBtn.addEventListener('click', function() {
-            localStorage.removeItem('streetfoodgo_cart_' + restaurantId);
-        });
-    }
-
     window.onload = loadOrder;
 </script>
 
