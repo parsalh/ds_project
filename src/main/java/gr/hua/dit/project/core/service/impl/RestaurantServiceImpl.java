@@ -36,48 +36,35 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
+    public List<Restaurant> findAllOpen() {
+        return findAll().stream()
+                .filter(Restaurant::isOpen)
+                .toList();
+    }
+
+    @Override
     @Transactional(readOnly = true)
-    public List<Restaurant> getTop15NearbyRestaurants(Double userLat, Double userLon) {
+    public List<Restaurant> getNearbyRestaurants(Double userLat, Double userLon) {
         if (userLat == null || userLon == null) return new ArrayList<>();
 
-        double range = 0.10;    // Peripou 10km
+        double range = 0.05;    // Peripou 5km
         List<Restaurant> candidates = restaurantRepository.findAllByAddressInfoLatitudeBetweenAndAddressInfoLongitudeBetween(
                 userLat - range, userLat + range,
                 userLon - range, userLon + range
         );
 
-        // Kanoume Haversine Sort gia na paroume top 20 sto peripou
-        List<Restaurant> openCandidates = candidates.stream()
+        // Filtraroume me Haversine gia ta 30 prota
+        return candidates.stream()
                 .filter(Restaurant::isOpen)
                 .sorted(Comparator.comparingDouble(r ->
                         calculateHaversineDistance(userLat, userLon, getLat(r), getLon(r))
                 ))
-                .limit(20) // Take top 20 closest OPEN restaurants
+                .limit(30)
                 .toList();
-
-        // Pername apo to api gia top 15 sigoura
-        List<Restaurant> finalSorted = new ArrayList<>(openCandidates);
-        finalSorted.sort((r1, r2) -> {
-            double d1 = getRealDistance(userLat, userLon, r1);
-            double d2 = getRealDistance(userLat, userLon, r2);
-            return Double.compare(d1, d2);
-        });
-
-        return finalSorted.stream().limit(15).toList();
     }
 
     private Double getLat(Restaurant r) { return r.getAddressInfo() != null ? r.getAddressInfo().getLatitude() : 0.0; }
     private Double getLon(Restaurant r) { return r.getAddressInfo() != null ? r.getAddressInfo().getLongitude() : 0.0; }
-
-    private double getRealDistance(double uLat, double uLon, Restaurant r) {
-        Double rLat = getLat(r);
-        Double rLon = getLon(r);
-        if (rLat == 0.0 || rLon == 0.0) return Double.MAX_VALUE;
-
-        return distanceAdapter.getDistanceAndDuration(uLat, uLon, rLat, rLon)
-                .map(metrics -> metrics.distanceMeters())
-                .orElse(Double.MAX_VALUE);
-    }
 
     private double calculateHaversineDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371;

@@ -56,16 +56,17 @@ public class HomeController {
             Double targetLat = null;
             Double targetLon = null;
 
-            // Elenxoume ta cookies
+            // Get cookies
             Double cookieLat = getCookieValue(request, "sf_lat");
             Double cookieLon = getCookieValue(request, "sf_lon");
 
+            // Initialize target with cookies if available
             if (cookieLat != null && cookieLon != null) {
                 targetLat = cookieLat;
                 targetLon = cookieLon;
             }
 
-            // Ama den cookies elenxoume address
+            // Check if user is authenticated
             if (AuthController.isAuthenticated(authentication)) {
                 String username = authentication.getName();
                 Person person = personRepository.findByUsernameIgnoreCase(username).orElse(null);
@@ -73,8 +74,31 @@ public class HomeController {
                 if (person != null) {
                     model.addAttribute("userAddresses", person.getAddresses());
 
-                    // Ama den cookies dialegoume to prwto address
-                    if (targetLat == null && !person.getAddresses().isEmpty()) {
+                    if (cookieLat != null && cookieLon != null && !person.getAddresses().isEmpty()) {
+                        // Logic: Find closest saved address to cookie location
+                        Address closest = null;
+                        double minDistance = Double.MAX_VALUE;
+
+                        for (Address addr : person.getAddresses()) {
+                            if (addr.getLatitude() != null && addr.getLongitude() != null) {
+                                // Simple squared Euclidean distance for comparison
+                                double dist = Math.pow(addr.getLatitude() - cookieLat, 2) +
+                                        Math.pow(addr.getLongitude() - cookieLon, 2);
+                                if (dist < minDistance) {
+                                    minDistance = dist;
+                                    closest = addr;
+                                }
+                            }
+                        }
+
+                        // Use closest address if found
+                        if (closest != null) {
+                            targetLat = closest.getLatitude();
+                            targetLon = closest.getLongitude();
+                        }
+
+                    } else if (targetLat == null && !person.getAddresses().isEmpty()) {
+                        // Fallback: If no cookies, pick the first address
                         Address defaultAddr = person.getAddresses().get(0);
                         targetLat = defaultAddr.getLatitude();
                         targetLon = defaultAddr.getLongitude();
@@ -82,12 +106,13 @@ public class HomeController {
                 }
             }
 
-            // Ton stelnoume sto swsto URL gia ta lat kai lon tou
+            // Redirect if we found a valid target
             if (targetLat != null && targetLon != null) {
                 return String.format("redirect:/?lat=%s&lon=%s", targetLat, targetLon);
             }
         }
 
+        // Pass user addresses to view if authenticated (for the dropdown)
         if (AuthController.isAuthenticated(authentication)) {
             String username = authentication.getName();
             personRepository.findByUsernameIgnoreCase(username).ifPresent(person -> {
@@ -96,7 +121,7 @@ public class HomeController {
         }
 
         if (lat != null && lon != null) {
-            model.addAttribute("restaurants", restaurantService.getTop15NearbyRestaurants(lat, lon));
+            model.addAttribute("restaurants", restaurantService.getNearbyRestaurants(lat, lon));
             model.addAttribute("selectedLocation", true);
         } else if (query != null && !query.isBlank()) {
             model.addAttribute("restaurants", restaurantRepository.findByNameContainingIgnoreCase(query));
