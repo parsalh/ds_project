@@ -13,7 +13,7 @@
 
         .hero-section {
             background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
-            padding: 3rem 1rem; /* Matching Dashboard Padding */
+            padding: 3rem 1rem;
             color: white;
             margin-bottom: 2rem;
             border-bottom-left-radius: 20px;
@@ -66,8 +66,9 @@
             transform: scale(1.05);
         }
 
-        .filter-btn {
+        .filter-btn, .filter-service-btn {
             transition: all 0.2s;
+            cursor: pointer;
         }
 
         .hero-search-input {
@@ -109,6 +110,36 @@
             color: white;
             transform: translateY(-2px); /* Μικρή ανύψωση για εφέ */
             box-shadow: 0 4px 8px rgba(255, 107, 107, 0.4); /* Σκιά στο χρώμα του κουμπιού */
+
+        /* --- Dropdown Styling --- */
+        .dropdown-menu {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            padding: 0.5rem;
+            margin-top: 8px !important;
+        }
+
+        .dropdown-item {
+            border-radius: 8px;
+            margin-bottom: 2px;
+            padding: 10px 16px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: #4a5568;
+        }
+
+        .dropdown-item:hover {
+            background-color: #ffe5e5;
+            color: #b91c1c;
+            transform: translateX(3px);
+        }
+
+        .dropdown-item.active, .dropdown-item:active {
+            background-color: #dc2626 !important;
+            color: white !important;
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3);
+            }
         }
     </style>
 </head>
@@ -164,34 +195,48 @@
                 </button>
             </form>
 
-            <div class="d-flex justify-content-center justify-content-lg-start flex-wrap gap-2">
-                <span class="text-white align-self-center me-1">Filters:</span>
+            <div class="d-flex flex-column gap-2">
+                <div class="d-flex justify-content-center justify-content-lg-start flex-wrap gap-2">
+                    <span class="text-white align-self-center me-1">Cuisines:</span>
+                    <button onclick="filterCuisine('all', this)"
+                            class="filter-btn badge btn-primary-custom text-white border-0 rounded-pill px-3 py-2">
+                        All
+                    </button>
+                    <button th:each="c : ${cuisines}"
+                            th:if="${cStat.index < 5}"
+                            th:data-filter="${c}"
+                            onclick="filterCuisine(this.getAttribute('data-filter'), this)"
+                            class="filter-btn badge bg-white text-dark border-0 rounded-pill px-3 py-2">
+                        <span th:text="${c}">CUISINE</span>
+                    </button>
+                </div>
 
-                <button onclick="filterSelection('all'); updateFilterStyle(this)"
-                        class="filter-btn badge btn-primary-custom text-white border-0 rounded-pill px-3 py-2"
-                        style="cursor: pointer;">
-                    All
-                </button>
-
-                <button th:each="c : ${cuisines}"
-                        th:if="${cStat.index < 5}"
-                        th:data-filter="${c}"
-                        onclick="filterSelection(this.getAttribute('data-filter')); updateFilterStyle(this)"
-                        class="filter-btn badge bg-white text-dark border-0 rounded-pill px-3 py-2"
-                        style="cursor: pointer;">
-                    <span th:text="${c}">CUISINE</span>
-                </button>
+                <div class="d-flex justify-content-center justify-content-lg-start flex-wrap gap-2">
+                    <span class="text-white align-self-center me-1">Service:</span>
+                    <button onclick="filterService('ALL', this)"
+                            class="filter-service-btn badge btn-primary-custom text-white border-0 rounded-pill px-3 py-2">
+                        All
+                    </button>
+                    <button onclick="filterService('DELIVERY', this)"
+                            class="filter-service-btn badge bg-white text-dark border-0 rounded-pill px-3 py-2">
+                        Delivery
+                    </button>
+                    <button onclick="filterService('PICKUP', this)"
+                            class="filter-service-btn badge bg-white text-dark border-0 rounded-pill px-3 py-2">
+                        Pickup
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="d-flex gap-2 flex-column flex-sm-row">
+        <div class="d-flex gap-2 flex-column flex-sm-row mt-3 mt-lg-0">
 
-            <div sec:authorize="isAuthenticated()" th:if="${userAddresses != null && !userAddresses.isEmpty()}" class="dropdown">
-                <button class="btn btn-light-outline-custom btn-lg w-100 dropdown-toggle" type="button"
+            <div sec:authorize="isAuthenticated()" th:if="${userAddresses != null && !userAddresses.isEmpty()}" class="dropdown w-100">
+                <button class="btn btn-light-custom btn-lg w-100 dropdown-toggle shadow-sm" type="button"
                         id="addressDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-geo-alt me-2"></i> Saved Addresses
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow">
+                <ul class="dropdown-menu dropdown-menu-end shadow w-100">
                     <li th:each="addr : ${userAddresses}">
                         <a class="dropdown-item address-option"
                            th:href="@{/(lat=${addr.latitude}, lon=${addr.longitude})}"
@@ -205,7 +250,7 @@
                 </ul>
             </div>
 
-            <button onclick="getLocation()" class="btn btn-light-custom btn-lg w-100 shadow-sm">
+            <button sec:authorize="!isAuthenticated()" onclick="getLocation()" class="btn btn-light-custom btn-lg w-100 shadow-sm">
                 <i class="bi bi-cursor-fill me-2"></i>Use My Location
             </button>
         </div>
@@ -222,13 +267,14 @@
 
     <h3 class="mb-4 text-secondary">
         <span th:unless="${selectedLocation}">Restaurants Near You</span>
-        <span th:if="${selectedLocation}" class="text-danger">Top 15 Closest Restaurants</span>
+        <span th:if="${selectedLocation}" class="text-danger">Top 30 Closest Restaurants</span>
     </h3>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
         <div class="col restaurant-item"
              th:each="restaurant : ${restaurants}"
-             th:data-cuisines="${restaurant.cuisines}">
+             th:data-cuisines="${restaurant.cuisines}"
+             th:data-service-type="${restaurant.serviceType}">
 
             <div class="card h-100 restaurant-card">
                 <img th:src="${restaurant.imageUrl != null && !restaurant.imageUrl.isEmpty() ? restaurant.imageUrl : 'https://t4.ftcdn.net/jpg/02/75/70/03/360_F_275700347_09reCCwb7JBxTKiYQXsyri4riMKaHbj8.jpg'}"
@@ -320,35 +366,72 @@
         }
     });
 
-    function filterSelection(category) {
-        const items = document.getElementsByClassName("restaurant-item");
-        category = category.toUpperCase();
+    // --- Filtering Logic ---
+    let currentCuisine = 'ALL';
+    let currentService = 'ALL';
 
-        if (category === "ALL") {
-            for (let i = 0; i < items.length; i++) {
-                items[i].style.display = "block";
-            }
-        } else {
-            for (let i = 0; i < items.length; i++) {
-                const itemCuisines = items[i].getAttribute("data-cuisines");
-                if (itemCuisines && itemCuisines.includes(category)) {
-                    items[i].style.display = "block";
-                } else {
-                    items[i].style.display = "none";
-                }
-            }
-        }
-    }
+    function filterCuisine(cuisine, clickedBtn) {
+        currentCuisine = cuisine.toUpperCase();
 
-    function updateFilterStyle(clickedBtn) {
+        // Update Styles for Cuisine Buttons
         const buttons = document.querySelectorAll('.filter-btn');
         buttons.forEach(btn => {
             btn.classList.remove('btn-primary-custom', 'text-white');
             btn.classList.add('bg-white', 'text-dark');
         });
-
         clickedBtn.classList.remove('bg-white', 'text-dark');
         clickedBtn.classList.add('btn-primary-custom', 'text-white');
+
+        applyFilters();
+    }
+
+    function filterService(service, clickedBtn) {
+        currentService = service;
+
+        // Update Styles for Service Buttons
+        const buttons = document.querySelectorAll('.filter-service-btn');
+        buttons.forEach(btn => {
+            btn.classList.remove('btn-primary-custom', 'text-white');
+            btn.classList.add('bg-white', 'text-dark');
+        });
+        clickedBtn.classList.remove('bg-white', 'text-dark');
+        clickedBtn.classList.add('btn-primary-custom', 'text-white');
+
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const items = document.getElementsByClassName("restaurant-item");
+
+        for (let i = 0; i < items.length; i++) {
+            const itemCuisines = items[i].getAttribute("data-cuisines");
+            const itemService = items[i].getAttribute("data-service-type");
+
+            // 1. Check Cuisine
+            let cuisineMatch = false;
+            if (currentCuisine === "ALL") {
+                cuisineMatch = true;
+            } else if (itemCuisines && itemCuisines.includes(currentCuisine)) {
+                cuisineMatch = true;
+            }
+
+            // 2. Check Service
+            let serviceMatch = false;
+            if (currentService === "ALL") {
+                serviceMatch = true;
+            } else if (currentService === "DELIVERY") {
+                if (itemService === "DELIVERY" || itemService === "BOTH") serviceMatch = true;
+            } else if (currentService === "PICKUP") {
+                if (itemService === "PICKUP" || itemService === "BOTH") serviceMatch = true;
+            }
+
+            // 3. Show/Hide based on both matches
+            if (cuisineMatch && serviceMatch) {
+                items[i].style.display = "block";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
     }
 
     function savePreference(lat, lon) {
