@@ -35,9 +35,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant,Long> {
 
     boolean existsByServiceType(final ServiceType serviceType);
 
-    //TODO think about it
-    // Search for restaurants within a bounding box
-//    List<Restaurant> findAllByLatitudeBetweenAndLongitudeBetween(
-//            Double minLat, Double maxLat, Double minLon, Double maxLon);
+    List<Restaurant> findAllByAddressInfoLatitudeBetweenAndAddressInfoLongitudeBetween(
+            Double minLat, Double maxLat, Double minLon, Double maxLon);
 
 }

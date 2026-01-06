@@ -1,19 +1,23 @@
 package gr.hua.dit.project.web.ui;
 
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import gr.hua.dit.project.core.model.*;
 import gr.hua.dit.project.core.repository.CustomerOrderRepository;
 import gr.hua.dit.project.core.repository.MenuItemRepository;
+import gr.hua.dit.project.core.repository.PersonRepository;
 import gr.hua.dit.project.core.service.CustomerOrderService;
+import gr.hua.dit.project.core.service.PersonService;
 import gr.hua.dit.project.core.service.RestaurantService;
+import gr.hua.dit.project.core.service.model.UpdatePersonRequest;
 import gr.hua.dit.project.core.security.ApplicationUserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @RequestMapping("/owner")
@@ -23,16 +27,37 @@ public class OwnerDashboardController {
     private final MenuItemRepository menuItemRepository;
     private final CustomerOrderRepository customerOrderRepository;
     private final CustomerOrderService customerOrderService;
+    private final PersonService personService;
+    private final PersonRepository personRepository;
 
     public OwnerDashboardController(RestaurantService restaurantService,
                                     MenuItemRepository menuItemRepository,
                                     CustomerOrderRepository customerOrderRepository,
-                                    CustomerOrderService customerOrderService) {
+                                    CustomerOrderService customerOrderService,
+                                    PersonService personService,
+                                    PersonRepository personRepository) {
 
         this.restaurantService = restaurantService;
         this.menuItemRepository = menuItemRepository;
         this.customerOrderRepository = customerOrderRepository;
         this.customerOrderService = customerOrderService;
+        this.personService = personService;
+        this.personRepository = personRepository;
+    }
+
+    public record CountryCodeOption(String code, String label, String isoCode) {}
+
+    private List<CountryCodeOption> getCountryCodes(){
+        PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
+        Set<String> regions = phoneNumberUtil.getSupportedRegions();
+        List<CountryCodeOption> options = new ArrayList<>();
+        for (String region : regions) {
+            int countryCode = phoneNumberUtil.getCountryCodeForRegion(region);
+            String countryName = new Locale("", region).getDisplayCountry(Locale.ENGLISH);
+            options.add(new CountryCodeOption("+" + countryCode, countryName + " (+" + countryCode + ")", region.toLowerCase()));
+        }
+        options.sort(Comparator.comparing(CountryCodeOption::label));
+        return options;
     }
 
     @GetMapping("/dashboard")
@@ -45,6 +70,59 @@ public class OwnerDashboardController {
         model.addAttribute("me", userDetails);
 
         return "ownerDashboard";
+    }
+
+    @GetMapping("/profile/edit")
+    public String showEditProfileForm(Authentication authentication, Model model) {
+        ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
+        Long ownerId = userDetails.personId();
+
+        Person person = personRepository.findById(ownerId)
+                .orElseThrow(() -> new RuntimeException("Owner not found"));
+
+        String currentPrefix = "+30";
+        String currentLocal = "";
+
+        if (person.getMobilePhoneNumber() != null && !person.getMobilePhoneNumber().isBlank()) {
+            try {
+                PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+                Phonenumber.PhoneNumber number = phoneUtil.parse(person.getMobilePhoneNumber(), null);
+                currentPrefix = "+" + number.getCountryCode();
+                currentLocal = String.valueOf(number.getNationalNumber());
+            } catch (NumberParseException e) {
+                currentLocal = person.getMobilePhoneNumber();
+            }
+        }
+
+        model.addAttribute("person", person);
+        model.addAttribute("me", userDetails);
+        model.addAttribute("countryCodes", getCountryCodes());
+        model.addAttribute("currentCountryPrefix", currentPrefix);
+        model.addAttribute("currentLocalPhoneNumber", currentLocal);
+
+        return "ownerProfileEdit";
+    }
+
+    @PostMapping("/profile/edit")
+    public String updateProfile(@ModelAttribute("person") Person formData,
+                                @RequestParam(name = "countryPrefix", defaultValue = "+30") String countryPrefix,
+                                @RequestParam(name = "localPhoneNumber") String localPhoneNumber,
+                                Authentication authentication) {
+        ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
+        Long ownerId = userDetails.personId();
+
+        String fullPhoneNumber = countryPrefix + localPhoneNumber.trim();
+
+        UpdatePersonRequest updateRequest = new UpdatePersonRequest(
+                formData.getFirstName(),
+                formData.getLastName(),
+                fullPhoneNumber,
+                formData.getEmailAddress()
+        );
+
+        personService.updatePersonDetails(ownerId, updateRequest);
+
+        return "redirect:/owner/dashboard";
     }
 
     @GetMapping("/restaurant/{id}/orders")

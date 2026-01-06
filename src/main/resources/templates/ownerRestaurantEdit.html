@@ -22,17 +22,18 @@
             box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
         }
 
-        .btn-light-custom {
-            background: rgba(255, 255, 255, 0.2);
+        /* Updated Back Button Style (Matches Edit Profile) */
+        .btn-light-outline-custom {
+            background: transparent;
             color: white;
-            border: 1px solid rgba(255,255,255,0.4);
-            font-weight: 500;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            font-weight: bold;
         }
-        .btn-light-custom:hover {
-            background: rgba(255, 255, 255, 0.4);
+        .btn-light-outline-custom:hover {
+            background: rgba(255, 255, 255, 0.1);
             color: white;
+            border-color: #fff;
+            transform: scale(1.05);
         }
 
         .form-container {
@@ -96,7 +97,7 @@
             <p class="lead mb-0 opacity-75">Configure details, location, and operating hours</p>
         </div>
         <div>
-            <a th:href="@{/owner/dashboard}" class="btn btn-light-custom px-4 py-2">
+            <a th:href="@{/owner/dashboard}" class="btn btn-light-outline-custom btn-lg shadow-sm">
                 <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
             </a>
         </div>
