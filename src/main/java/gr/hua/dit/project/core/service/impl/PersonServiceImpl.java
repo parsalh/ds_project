@@ -13,6 +13,9 @@ import gr.hua.dit.project.core.service.model.CreatePersonResult;
 import gr.hua.dit.project.core.service.model.PersonView;
 import gr.hua.dit.project.core.service.model.UpdatePersonRequest;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,22 +23,35 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class PersonServiceImpl implements PersonService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PersonServiceImpl.class);
+
+    private final Validator validator;
     private final SmsNotificationPort smsNotificationPort;
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
     private final PasswordEncoder passwordEncoder;
     private final GeocodingService geocodingService;
 
-    public PersonServiceImpl(final SmsNotificationPort smsNotificationPort,
+    public PersonServiceImpl(final Validator validator,
+                             final SmsNotificationPort smsNotificationPort,
                              final PersonRepository personRepository,
                              final PersonMapper personMapper,
                              final PasswordEncoder passwordEncoder,
                              final GeocodingService geocodingService) {
+
+        if (validator == null) throw new NullPointerException();
+        if (smsNotificationPort == null) throw new NullPointerException();
+        if (personRepository == null) throw new NullPointerException();
+        if (personMapper == null) throw new NullPointerException();
+        if (passwordEncoder == null) throw new NullPointerException();
+        if (geocodingService == null) throw new NullPointerException();
+
+        this.validator = validator;
         this.smsNotificationPort = smsNotificationPort;
         this.personRepository = personRepository;
         this.personMapper = personMapper;
@@ -48,12 +64,29 @@ public class PersonServiceImpl implements PersonService {
     public CreatePersonResult createPerson(final CreatePersonRequest createPersonRequest) {
         if (createPersonRequest == null) throw new NullPointerException();
 
+
+        // `CreatePersonRequest` validation.
+        final Set<ConstraintViolation<CreatePersonRequest>> requestViolations =
+                this.validator.validate(createPersonRequest);
+        if (!requestViolations.isEmpty()) {
+            final StringBuilder sb = new StringBuilder();
+            for (final ConstraintViolation<CreatePersonRequest> violation : requestViolations) {
+                sb
+                        .append(violation.getPropertyPath())
+                        .append(" : ")
+                        .append(violation.getMessage())
+                        .append("\n");
+            }
+            return CreatePersonResult.fail(sb.toString());
+        }
+
+        // Unpack (we assume valid `CreatePersonRequest` instance)
         final PersonType type = createPersonRequest.type();
         final String username = createPersonRequest.username().strip();
         final String firstName = createPersonRequest.firstName().strip();
         final String lastName = createPersonRequest.lastName().strip();
         final String emailAddress = createPersonRequest.emailAddress().strip();
-        final String mobilePhoneNumber = createPersonRequest.mobilePhoneNumber().strip();
+        final String mobilePhoneNumber = (createPersonRequest.countryPrefix() + createPersonRequest.localPhoneNumber()).strip();
 
         String street = null;
         String number = null;
@@ -102,6 +135,14 @@ public class PersonServiceImpl implements PersonService {
             this.smsNotificationPort.sendSms(mobilePhoneNumber, content);
         } catch (Exception e) {
             LOGGER.error("Error sending SMS", e);
+        }
+
+        final Set<ConstraintViolation<Person>> personViolations = this.validator.validate(person);
+        if (!personViolations.isEmpty()) {
+            // Throw an exception instead of returning an instance, i.e. `CreatePersonResult.fail`.
+            // At this point, errors/violations on the `Person` instance
+            // indicate a programmer error, not a client error.
+            throw new RuntimeException("Invalid Person instance");
         }
 
         person = this.personRepository.save(person);

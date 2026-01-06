@@ -118,6 +118,7 @@
                         <div class="mb-4 text-center">
                             <label class="form-label d-block mb-3">I am a:</label>
                             <div class="btn-group w-100" role="group">
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
                                 <input type="radio" class="btn-check" th:field="*{type}" id="typeCustomer" value="CUSTOMER" onchange="toggleAddress()">
                                 <label class="btn btn-outline-danger" for="typeCustomer">
                                     <i class="bi bi-emoji-smile me-1"></i> Customer
@@ -134,38 +135,46 @@
                             <div class="col-md-6">
                                 <label class="form-label">Username</label>
                                 <input type="text" th:field="*{username}" class="form-control" placeholder="Choose a username" required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Password</label>
                                 <input type="password" th:field="*{rawPassword}" class="form-control" placeholder="Create a password" required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('rawPassword')}" th:errors="*{rawPassword}"></div>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">First Name</label>
                                 <input type="text" th:field="*{firstName}" class="form-control" required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Last Name</label>
                                 <input type="text" th:field="*{lastName}" class="form-control" required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Email Address</label>
                                 <input type="email" th:field="*{emailAddress}" class="form-control" placeholder="name@example.com" required>
+                                <div class="text-danger small mt-1" th:if="${#fields.hasErrors('emailAddress')}" th:errors="*{emailAddress}"></div>
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label">Mobile Phone</label>
                                 <div class="input-group">
-                                    <select id="country-select" name="countryPrefix" class="form-select">
+                                    <select id="country-select" th:field="*{countryPrefix}" class="form-select">
                                         <option th:each="option : ${countryCodes}"
                                                 th:value="${option.code}"
                                                 th:data-iso="${option.isoCode}"
-                                                th:text="${option.label}"
-                                                th:selected="${option.code == '+30' and option.isoCode == 'gr'}">
+                                                th:text="${option.label}">
                                         </option>
                                     </select>
-                                    <input type="tel" name="localPhoneNumber" class="form-control" placeholder="6912345678" required>
+
+                                    <input type="tel" th:field="*{localPhoneNumber}" class="form-control" placeholder="6912345678"
+                                           th:classappend="${#fields.hasErrors('localPhoneNumber')} ? 'is-invalid' : ''">
+
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('localPhoneNumber')}" th:errors="*{localPhoneNumber}"></div>
                                 </div>
                             </div>
                         </div>

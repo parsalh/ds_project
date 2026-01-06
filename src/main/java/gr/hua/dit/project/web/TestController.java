@@ -4,42 +4,39 @@ import gr.hua.dit.project.core.model.Person;
 import gr.hua.dit.project.core.model.PersonType;
 import gr.hua.dit.project.core.repository.PersonRepository;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.awt.*;
 import java.time.Instant;
 
-@RestController
+/**
+ * Controller for <strong>Testing</strong>.
+ */
+@Controller
 public class TestController {
 
-    private final PersonRepository personRepository;
+    public TestController() {}
 
-    public TestController(PersonRepository personRepository) {
-        this.personRepository = personRepository;
+    /*
+    @GetMapping(value = "/test/error/404")
+    public String test(){
+        return "error/404";
     }
 
-    /**
-     * REST endpoint for testing.
+    @GetMapping(value = "/test/error/error")
+    public String testErrorError(){
+        return "error/error";
+    }
+
+    @GetMapping(value = "/test/error/NullPointerException")
+    public String testErrorNullPointerException(){
+        final Integer a = null;
+        final int b = 0;
+        final int c=a+b;
+        return null;
+    }
      */
-//    @GetMapping(value = "test", produces = MediaType.TEXT_PLAIN_VALUE)
-//    public String test(){
-//        //Example 1: create Person
-//        Person person = new Person();
-//        person.setId(null); //auto-gen
-//        person.setUsername("example_" + System.currentTimeMillis());
-//        person.setType(PersonType.CUSTOMER);
-//        person.setFirstName("Stavroula");
-//        person.setLastName("Parsali");
-//        person.setEmailAddress("ex" + System.currentTimeMillis() + "@test.com");
-//        person.setMobilePhoneNumber("+3069" + (int)(Math.random() * 1_000_00000));
-//        person.setAddress("Omirou 9");
-//        person.setPasswordHash("<invalid>");
-//        person.setCreatedAt(Instant.now());
-//
-//        person = this.personRepository.save(person);
-//
-//        return person.toString();
-//    }
 
 }

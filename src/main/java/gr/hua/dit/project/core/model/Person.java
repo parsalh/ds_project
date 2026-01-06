@@ -2,6 +2,10 @@ package gr.hua.dit.project.core.model;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -29,18 +33,34 @@ public class Person {
     @Column(name = "id")
     private Long id;
 
+    @NotNull
+    @NotBlank
+    @Size(max = 50)
     @Column(name = "username", nullable = false, length = 50)
     private String username;
 
+    @NotNull
+    @NotBlank
+    @Size(max = 100)
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
+    @NotNull
+    @NotBlank
+    @Size(max = 100)
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
+    @NotNull
+    @NotBlank
+    @Size(max = 18)
     @Column(name = "mobile_phone_number", nullable = false, length = 18)
     private String mobilePhoneNumber; // e164
 
+    @NotNull
+    @NotBlank
+    @Size(max = 100)
+    @Email
     @Column(name = "email_address", nullable = false, length = 100)
     private String emailAddress;
 
@@ -51,10 +71,14 @@ public class Person {
     )
     private List<Address> addresses = new ArrayList<>();
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 20)
     private PersonType type;
 
+    @NotNull
+    @NotBlank
+    @Size(min = 4, max = 24)
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 

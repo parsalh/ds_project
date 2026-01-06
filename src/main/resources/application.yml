@@ -34,3 +34,11 @@ app:
     audience: "external-systems"
     secret: "${JWT_SECRET:Er4d/6nmWX6RWjDQW6CpeQZZwi9+WoBrhdQ4XEKWY9o=}" #openssl rand -base64 32
     ttl-minutes: 60
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+    include-message: always
+    include-binding-errors: always
+    include-exception: true

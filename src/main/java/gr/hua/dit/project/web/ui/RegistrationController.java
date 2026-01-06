@@ -5,9 +5,12 @@ import gr.hua.dit.project.core.model.PersonType;
 import gr.hua.dit.project.core.service.PersonService;
 import gr.hua.dit.project.core.service.model.CreatePersonRequest;
 import gr.hua.dit.project.core.service.model.CreatePersonResult;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,7 +49,7 @@ public class RegistrationController {
 
         model.addAttribute("countryCodes", getCountryCodes());
         model.addAttribute("createPersonRequest", new CreatePersonRequest(
-                PersonType.CUSTOMER, "", "", "", "", "", "", "", "", "", null, null
+                PersonType.CUSTOMER, "", "", "", "", "+30", "", "", "", "", "", null, null
         ));
         return "register";
     }
@@ -54,37 +57,25 @@ public class RegistrationController {
     @PostMapping("/register")
     public String handleRegistrationFormSubmission(
             final Authentication authentication,
-            @ModelAttribute("createPersonRequest") CreatePersonRequest createPersonRequest,
-            @RequestParam(name = "countryPrefix", defaultValue = "+30") String countryPrefix,
-            @RequestParam(name = "localPhoneNumber") String localPhoneNumber,
+            @Valid @ModelAttribute("createPersonRequest") CreatePersonRequest createPersonRequest,
+            final BindingResult bindingResult,
             final Model model
     ) {
         if (AuthController.isAuthenticated(authentication)) return "redirect:/";
 
-        String fullPhoneNumber = countryPrefix + localPhoneNumber.trim();
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("countryCodes", getCountryCodes());
+            return "register";
+        }
 
-        CreatePersonRequest finalRequest = new CreatePersonRequest(
-                createPersonRequest.type(),
-                createPersonRequest.username(),
-                createPersonRequest.firstName(),
-                createPersonRequest.lastName(),
-                createPersonRequest.emailAddress(),
-                fullPhoneNumber,
-                createPersonRequest.street(),
-                createPersonRequest.addressNumber(),
-                createPersonRequest.zipCode(),
-                createPersonRequest.rawPassword(),
-                createPersonRequest.latitude(),
-                createPersonRequest.longitude()
-        );
+        final CreatePersonResult createPersonResult = this.personService.createPerson(createPersonRequest);
 
-        final CreatePersonResult createPersonResult = this.personService.createPerson(finalRequest);
         if (createPersonResult.created()) {
             return "redirect:/login";
         }
 
         model.addAttribute("countryCodes", getCountryCodes());
-        model.addAttribute("createPersonRequest", finalRequest);
+        model.addAttribute("createPersonRequest", createPersonRequest);
         model.addAttribute("errorMessage", createPersonResult.reason());
         return "register";
     }

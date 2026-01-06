@@ -34,37 +34,49 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
     }
 
+    private void writeError(final HttpServletResponse response) throws IOException {
+        response.setStatus(401);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"error\": \"invalid_token\"}");
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     protected void doFilterInternal(final HttpServletRequest request,
                                     final HttpServletResponse response,
                                     final FilterChain filterChain) throws ServletException, IOException {
 
         final String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            final String token = authorizationHeader.substring(7);
-            try {
-                final Claims claims = this.jwtService.parse(token);
-                final String subject = claims.getSubject();
-                final Collection<String> roles = (Collection<String>) claims.get("roles");
-                //Convert String to GrantedAuthority
-                final var authorities =
-                        roles == null
-                        ? List.<GrantedAuthority>of() //empty list
-                        : roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_"+role)).toList();
-                //Create User
-                final User principal = new User(subject,"",authorities);
-                final UsernamePasswordAuthenticationToken authenticationToken =
-                        new UsernamePasswordAuthenticationToken(principal, null, authorities);
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-            } catch (Exception e) {
-                // Invalid token or internal error.
-                LOGGER.warn("JwtAuthenticationFilter failed", e);
-                response.setStatus(401);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\": \"invalid_token\"}");
-                return; //stop here, i.e., next filters are ignored.
-            }
+
+        // No header or not Bearer? -> Let the request continue unauthenticated.
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        final String token = authorizationHeader.substring(7);
+        try {
+            final Claims claims = this.jwtService.parse(token);
+            final String subject = claims.getSubject();
+            final Collection<String> roles = (Collection<String>) claims.get("roles");
+            //Convert String to GrantedAuthority
+            final var authorities =
+                    roles == null
+                            ? List.<GrantedAuthority>of() //empty list
+                            : roles.stream().map(role ->
+                            new SimpleGrantedAuthority("ROLE_"+role)).toList();
+            //Create User
+            final User principal = new User(subject,"",authorities);
+            final UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(principal, null, authorities);
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        } catch (Exception e) {
+            // Invalid token or internal error.
+            LOGGER.warn("JwtAuthenticationFilter failed", e);
+            this.writeError(response);
+            return; //stop here, i.e., next filters are ignored.
+        }
+
         filterChain.doFilter(request, response); //next filter.
     }
 
