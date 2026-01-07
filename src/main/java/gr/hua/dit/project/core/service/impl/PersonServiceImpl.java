@@ -43,14 +43,6 @@ public class PersonServiceImpl implements PersonService {
                              final PersonMapper personMapper,
                              final PasswordEncoder passwordEncoder,
                              final GeocodingService geocodingService) {
-
-        if (validator == null) throw new NullPointerException();
-        if (smsNotificationPort == null) throw new NullPointerException();
-        if (personRepository == null) throw new NullPointerException();
-        if (personMapper == null) throw new NullPointerException();
-        if (passwordEncoder == null) throw new NullPointerException();
-        if (geocodingService == null) throw new NullPointerException();
-
         this.validator = validator;
         this.smsNotificationPort = smsNotificationPort;
         this.personRepository = personRepository;
@@ -64,23 +56,16 @@ public class PersonServiceImpl implements PersonService {
     public CreatePersonResult createPerson(final CreatePersonRequest createPersonRequest) {
         if (createPersonRequest == null) throw new NullPointerException();
 
-
-        // `CreatePersonRequest` validation.
         final Set<ConstraintViolation<CreatePersonRequest>> requestViolations =
                 this.validator.validate(createPersonRequest);
         if (!requestViolations.isEmpty()) {
             final StringBuilder sb = new StringBuilder();
             for (final ConstraintViolation<CreatePersonRequest> violation : requestViolations) {
-                sb
-                        .append(violation.getPropertyPath())
-                        .append(" : ")
-                        .append(violation.getMessage())
-                        .append("\n");
+                sb.append(violation.getPropertyPath()).append(" : ").append(violation.getMessage()).append("\n");
             }
             return CreatePersonResult.fail(sb.toString());
         }
 
-        // Unpack (we assume valid `CreatePersonRequest` instance)
         final PersonType type = createPersonRequest.type();
         final String username = createPersonRequest.username().strip();
         final String firstName = createPersonRequest.firstName().strip();
@@ -126,6 +111,9 @@ public class PersonServiceImpl implements PersonService {
             if (newAddress.getLatitude() == null || newAddress.getLongitude() == null) {
                 enrichAddressWithCoordinates(newAddress);
             }
+            if (newAddress.getLatitude() == null || newAddress.getLongitude() == null) {
+                throw new IllegalArgumentException("The address could not be located on the map. Please check the details.");
+            }
 
             person.getAddresses().add(newAddress);
         }
@@ -139,9 +127,6 @@ public class PersonServiceImpl implements PersonService {
 
         final Set<ConstraintViolation<Person>> personViolations = this.validator.validate(person);
         if (!personViolations.isEmpty()) {
-            // Throw an exception instead of returning an instance, i.e. `CreatePersonResult.fail`.
-            // At this point, errors/violations on the `Person` instance
-            // indicate a programmer error, not a client error.
             throw new RuntimeException("Invalid Person instance");
         }
 
@@ -170,9 +155,11 @@ public class PersonServiceImpl implements PersonService {
     @Transactional
     public void addAddress(Long personId, Address address) {
         Person person = personRepository.findById(personId).orElseThrow(() -> new EntityNotFoundException("Person not found"));
-        // Use enriched coordinates or geocode if missing
         if (address.getLatitude() == null || address.getLongitude() == null) {
             enrichAddressWithCoordinates(address);
+        }
+        if (address.getLatitude() == null || address.getLongitude() == null) {
+            throw new IllegalArgumentException("The address could not be located on the map.");
         }
         person.getAddresses().add(address);
         personRepository.save(person);

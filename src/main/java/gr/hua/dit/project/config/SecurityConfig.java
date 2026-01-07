@@ -51,12 +51,12 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain uiChain(final HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/",
                                 "/login",
                                 "/register",
-                                "/restaurants/**",
+                                "/restaurants/*/menu",
+                                "/restaurants/*/cart/**",
                                 "/css/**",
                                 "/js/**"
                         ).permitAll()
@@ -76,9 +76,9 @@ public class SecurityConfig {
                                     .anyMatch(auth -> auth.getAuthority().equals("ROLE_CUSTOMER"));
 
                             if (isOwner) {
-                                response.sendRedirect("/owner/dashboard"); // o owner παει στο dashboard του
+                                response.sendRedirect("/owner/dashboard");
                             } else if (isCustomer) {
-                                response.sendRedirect("/"); // ο customer παει στο homepage
+                                response.sendRedirect("/");
                             } else {
                                 response.sendRedirect("/login");
                             }

@@ -48,6 +48,13 @@ public class Cart {
     }
 
     public void addItem(MenuItem menuItem){
+        if (!items.isEmpty()) {
+            Long currentRestaurantId = items.get(0).getMenuItem().getRestaurant().getId();
+            if (!currentRestaurantId.equals(menuItem.getRestaurant().getId())) {
+                throw new IllegalArgumentException("You can only order from one restaurant at a time. Please clear your cart first.");
+            }
+        }
+
         Optional<CartItem> existing = items.stream()
                 .filter(i -> i.getMenuItem().getId().equals(menuItem.getId()))
                 .findFirst();
@@ -92,5 +99,4 @@ public class Cart {
     public void clear(){
         items.clear();
     }
-
 }

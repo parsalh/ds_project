@@ -47,13 +47,12 @@ public class RestaurantServiceImpl implements RestaurantService {
     public List<Restaurant> getNearbyRestaurants(Double userLat, Double userLon) {
         if (userLat == null || userLon == null) return new ArrayList<>();
 
-        double range = 0.025;    // Peripou 2.5km
+        double range = 0.05;    // Peripou 5km
         List<Restaurant> candidates = restaurantRepository.findAllByAddressInfoLatitudeBetweenAndAddressInfoLongitudeBetween(
                 userLat - range, userLat + range,
                 userLon - range, userLon + range
         );
 
-        // Filtraroume me Haversine gia ta 30 prota
         return candidates.stream()
                 .filter(Restaurant::isOpen)
                 .sorted(Comparator.comparingDouble(r ->
@@ -116,6 +115,10 @@ public class RestaurantServiceImpl implements RestaurantService {
                         });
             }
         }
+        if (address.getLatitude() == null || address.getLongitude() == null) {
+            throw new RuntimeException("Restaurant address could not be located. Please provide a valid address.");
+        }
+
         List<OpenHour> validHours = new ArrayList<>();
         if (restaurant.getOpenHours() != null) {
             for (OpenHour hours : restaurant.getOpenHours()) {
@@ -153,6 +156,9 @@ public class RestaurantServiceImpl implements RestaurantService {
                             newAddress.setLongitude(coords[1]);
                         });
                 existingRestaurant.setAddressInfo(newAddress);
+            }
+            if (existingRestaurant.getAddressInfo().getLatitude() == null || existingRestaurant.getAddressInfo().getLongitude() == null) {
+                throw new RuntimeException("Restaurant address could not be located.");
             }
         }
 

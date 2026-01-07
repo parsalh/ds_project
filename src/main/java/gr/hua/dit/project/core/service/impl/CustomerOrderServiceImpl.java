@@ -1,6 +1,7 @@
 package gr.hua.dit.project.core.service.impl;
 
 import gr.hua.dit.project.core.model.*;
+import gr.hua.dit.project.core.port.DistanceService;
 import gr.hua.dit.project.core.port.SmsNotificationPort;
 import gr.hua.dit.project.core.repository.CustomerOrderRepository;
 import gr.hua.dit.project.core.repository.MenuItemRepository;
@@ -34,6 +35,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     private final MenuItemRepository menuItemRepository;
     private final CurrentUserProvider currentUserProvider;
     private final SmsNotificationPort smsNotificationPort;
+    private final DistanceService distanceService;
 
     public CustomerOrderServiceImpl(final CustomerOrderMapper customerOrderMapper,
                                     final CustomerOrderRepository customerOrderRepository,
@@ -41,7 +43,8 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                                     final RestaurantRepository restaurantRepository,
                                     final MenuItemRepository menuItemRepository,
                                     final CurrentUserProvider currentUserProvider,
-                                    final SmsNotificationPort smsNotificationPort) {
+                                    final SmsNotificationPort smsNotificationPort,
+                                    final DistanceService distanceService) {
         this.customerOrderMapper = customerOrderMapper;
         this.customerOrderRepository = customerOrderRepository;
         this.personRepository = personRepository;
@@ -49,6 +52,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         this.menuItemRepository = menuItemRepository;
         this.currentUserProvider = currentUserProvider;
         this.smsNotificationPort = smsNotificationPort;
+        this.distanceService = distanceService;
     }
 
     @Override
@@ -71,19 +75,28 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
             throw new IllegalStateException("This restaurant is closed.");
         }
 
-        // αρχικοποιηση της παραγγελιας
+        // Elenxoume tipo restaurant
+        ServiceType requestedType = request.serviceType();
+        if (requestedType == null) requestedType = ServiceType.DELIVERY; // Default
+
+        ServiceType restaurantType = restaurant.getServiceType();
+
+        if (requestedType == ServiceType.DELIVERY && restaurantType == ServiceType.PICKUP) {
+            throw new IllegalArgumentException("This restaurant does not offer delivery.");
+        }
+        if (requestedType == ServiceType.PICKUP && restaurantType == ServiceType.DELIVERY) {
+            throw new IllegalArgumentException("This restaurant does not offer pickup.");
+        }
+
         final CustomerOrder order = new CustomerOrder();
         order.setCustomer(customer);
         order.setRestaurant(restaurant);
         order.setOrderStatus(OrderStatus.PENDING);
-
-        ServiceType type = request.serviceType();
-        if (type == null) type = ServiceType.DELIVERY;
-        order.setServiceType(type);
+        order.setServiceType(requestedType);
 
         Address deliveryAddr = new Address();
 
-        if (type == ServiceType.PICKUP) {
+        if (requestedType == ServiceType.PICKUP) {
             deliveryAddr.setStreet("PICKUP");
             if (restaurant.getAddressInfo() != null) {
                 deliveryAddr.setLatitude(restaurant.getAddressInfo().getLatitude());
@@ -115,6 +128,27 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         }
         order.setDeliveryAddress(deliveryAddr);
 
+        // Elenxoume gia apostash
+        if (requestedType == ServiceType.DELIVERY) {
+            Address rAddr = restaurant.getAddressInfo();
+            Address cAddr = order.getDeliveryAddress();
+
+            if (rAddr != null && rAddr.getLatitude() != null && rAddr.getLongitude() != null &&
+                    cAddr != null && cAddr.getLatitude() != null && cAddr.getLongitude() != null) {
+
+                var metrics = distanceService.getDistanceAndDuration(
+                        rAddr.getLatitude(), rAddr.getLongitude(),
+                        cAddr.getLatitude(), cAddr.getLongitude()
+                );
+
+                if (metrics.isPresent()) {
+                    if (metrics.get().distanceMeters() > 5000.0) {
+                        throw new IllegalArgumentException("Delivery address is too far (" + (metrics.get().distanceMeters()/1000) + "km). Max allowed is 5km.");
+                    }
+                }
+            }
+        }
+
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal itemsTotal = BigDecimal.ZERO;
 
@@ -123,12 +157,13 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                 MenuItem menuItem = menuItemRepository.findById(itemRequest.menuItemId())
                         .orElseThrow(() -> new EntityNotFoundException("Menu item not found: " + itemRequest.menuItemId()));
 
+                // Ownership Check
+                if (!menuItem.getRestaurant().getId().equals(restaurant.getId())) {
+                    throw new IllegalArgumentException("Menu item '" + menuItem.getName() + "' does not belong to the selected restaurant.");
+                }
+
                 OrderItem orderItem = new OrderItem();
                 orderItem.setCustomerOrder(order);
-
-                orderItem.setCustomerOrder(order);
-
-
                 orderItem.setMenuItem(menuItem);
                 orderItem.setName(menuItem.getName());
                 orderItem.setPrice(menuItem.getPrice());
@@ -145,23 +180,18 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         }
         order.setOrderItems(orderItems);
 
-
-
         BigDecimal deliveryFee = BigDecimal.ZERO;
-        if (type == ServiceType.DELIVERY && restaurant.getDeliveryFee() != null) {
+        if (requestedType == ServiceType.DELIVERY && restaurant.getDeliveryFee() != null) {
             deliveryFee = restaurant.getDeliveryFee();
         }
 
-
         BigDecimal finalTotalAmount = itemsTotal.add(deliveryFee);
         order.setTotalPrice(finalTotalAmount);
-
 
         if (restaurant.getMinimumOrderAmount() != null &&
                 finalTotalAmount.compareTo(restaurant.getMinimumOrderAmount()) < 0) {
             throw new IllegalArgumentException("Order doesn't cover the minimum amount of " + restaurant.getMinimumOrderAmount() + " €");
         }
-
 
         final CustomerOrder savedOrder = customerOrderRepository.save(order);
         return customerOrderMapper.toView(savedOrder);
@@ -215,43 +245,14 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         customerOrderRepository.save(order);
 
         String phoneNumber = order.getCustomer().getMobilePhoneNumber();
-        if (status == OrderStatus.ACCEPTED){
-            String message = "Your order #"+order.getId()+" has been accepted and is getting ready.";
-            System.out.println("Sending SMS to: " + phoneNumber);
+        String message = null;
 
-            try {
-                smsNotificationPort.sendSms(phoneNumber, message);
-            } catch (Exception e) {
-                System.err.println("Failed to send SMS: " + e.getMessage());
-            }
-        }
+        if (status == OrderStatus.ACCEPTED) message = "Your order #"+order.getId()+" has been accepted and is getting ready.";
+        else if (status == OrderStatus.REJECTED) message = "Your order #"+order.getId()+" has been declined.";
+        else if (status == OrderStatus.READY_FOR_PICKUP) message = "Your order #"+order.getId()+" is ready for pickup!";
+        else if (status == OrderStatus.OUT_FOR_DELIVERY) message = "Your order #"+order.getId()+" is getting delivered to your location.";
 
-        if (status == OrderStatus.REJECTED){
-            String message = "Your order #"+order.getId()+" has been declined.";
-            System.out.println("Sending SMS to: " + phoneNumber);
-
-            try {
-                smsNotificationPort.sendSms(phoneNumber, message);
-            } catch (Exception e) {
-                System.err.println("Failed to send SMS: " + e.getMessage());
-            }
-        }
-
-        if (status == OrderStatus.READY_FOR_PICKUP){
-            String message = "Your order #"+order.getId()+" is ready for pickup!";
-            System.out.println("Sending SMS to: " + phoneNumber);
-
-            try {
-                smsNotificationPort.sendSms(phoneNumber, message);
-            } catch (Exception e) {
-                System.err.println("Failed to send SMS: " + e.getMessage());
-            }
-        }
-
-        if (status == OrderStatus.OUT_FOR_DELIVERY){
-            String message = "Your order #"+order.getId()+" is getting delivered to your location.";
-            System.out.println("Sending SMS to: " + phoneNumber);
-
+        if (message != null) {
             try {
                 smsNotificationPort.sendSms(phoneNumber, message);
             } catch (Exception e) {
