@@ -4,7 +4,7 @@ FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
 
-RUN mvn clean package -DskipTests
+RUN mvn -Djava.net.preferIPv4Stack=true clean package -DskipTests
 
 # ---------- RUN STAGE ----------
 FROM eclipse-temurin:21-jre
