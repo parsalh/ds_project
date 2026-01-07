@@ -2,6 +2,7 @@ package gr.hua.dit.project.core.integration;
 
 import gr.hua.dit.project.core.port.GeocodingService;
 import org.apache.tomcat.util.descriptor.web.SecurityRoleRef;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -16,8 +17,9 @@ public class ExternalGeocodingAdapter implements GeocodingService {
     private record ExternalCoordinates(double lat, double lon) {}
     private record ExternalAddressResult(String address) {}
 
-    public ExternalGeocodingAdapter(RestClient.Builder builder) {
-        this.restClient = builder.baseUrl("http://localhost:8081").build();
+    public ExternalGeocodingAdapter(RestClient.Builder builder,
+                                    @Value("${app.external-service.url}") String serviceUrl) {
+        this.restClient = builder.baseUrl(serviceUrl).build();
     }
 
     @Override

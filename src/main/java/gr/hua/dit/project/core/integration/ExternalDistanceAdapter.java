@@ -1,6 +1,7 @@
 package gr.hua.dit.project.core.integration;
 
 import gr.hua.dit.project.core.port.DistanceService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -16,8 +17,9 @@ public class ExternalDistanceAdapter implements DistanceService {
 
     private record ExternalRouteMetrics(double distanceMeters, double durationSeconds) {}
 
-    public ExternalDistanceAdapter(RestClient.Builder builder){
-        this.restClient = builder.baseUrl("http://localhost:8081").build();
+    public ExternalDistanceAdapter(RestClient.Builder builder,
+                                   @Value("${app.external-service.url}") String serviceUrl) {
+        this.restClient = builder.baseUrl(serviceUrl).build();
     }
 
     @Override

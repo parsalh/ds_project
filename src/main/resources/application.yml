@@ -34,6 +34,8 @@ app:
     audience: "external-systems"
     secret: "${JWT_SECRET:Er4d/6nmWX6RWjDQW6CpeQZZwi9+WoBrhdQ4XEKWY9o=}" #openssl rand -base64 32
     ttl-minutes: 60
+  external-service:
+    url: "http://localhost:8081" # Default for running locally without Docker
 
 server:
   error:
