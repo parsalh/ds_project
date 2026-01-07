@@ -1,17 +1,16 @@
-# Stage 1: Build
-FROM eclipse-temurin:21-jdk-jammy AS build
+# Use an official Maven image to build the app
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
 
-RUN sed -i 's/\r$//' mvnw
-RUN chmod +x mvnw
+# Copy pom.xml and download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-RUN ./mvnw dependency:go-offline
+# Copy source code and build
 COPY src ./src
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
-# Stage 2: Run
+# Run the app using a lightweight Java image
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
