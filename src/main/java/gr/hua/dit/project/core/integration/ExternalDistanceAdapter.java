@@ -17,9 +17,8 @@ public class ExternalDistanceAdapter implements DistanceService {
 
     private record ExternalRouteMetrics(double distanceMeters, double durationSeconds) {}
 
-    public ExternalDistanceAdapter(RestClient.Builder builder,
-                                   @Value("${app.external-service.url}") String serviceUrl) {
-        this.restClient = builder.baseUrl(serviceUrl).build();
+    public ExternalDistanceAdapter(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     @Override

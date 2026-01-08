@@ -12,7 +12,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 /**
  * Provides global error handling and custom error templates.
  */
-@ControllerAdvice
+@ControllerAdvice(basePackages = "gr.hua.dit.project.web.ui") // μονο για το base
 public class GlobalErrorHandlerControllerAdvice {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalErrorHandlerControllerAdvice.class);

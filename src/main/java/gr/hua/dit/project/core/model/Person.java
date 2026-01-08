@@ -2,10 +2,7 @@ package gr.hua.dit.project.core.model;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -41,19 +38,20 @@ public class Person {
 
     @NotNull
     @NotBlank
-    @Size(max = 100)
+    @Size(min = 2,max = 100)
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
     @NotNull
     @NotBlank
-    @Size(max = 100)
+    @Size(min = 2,max = 100)
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
     @NotNull
     @NotBlank
     @Size(max = 18)
+    @Pattern(regexp = "^\\+?[0-9]{10,13}$", message = "Invalid phone number")
     @Column(name = "mobile_phone_number", nullable = false, length = 18)
     private String mobilePhoneNumber; // e164
 

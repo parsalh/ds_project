@@ -11,8 +11,13 @@ import gr.hua.dit.project.core.security.CurrentUser;
 import gr.hua.dit.project.core.security.CurrentUserProvider;
 import gr.hua.dit.project.web.rest.dto.Cart;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -135,7 +140,8 @@ public class CustomerOrderController {
     public String placeOrder(@PathVariable Long restaurantId,
                              @RequestParam(value = "deliveryAddress", required = false) String deliveryAddress,
                              @RequestParam(value = "serviceType", defaultValue = "DELIVERY") String serviceTypeStr,
-                             @ModelAttribute OrderForm orderForm,
+                             @Valid @ModelAttribute OrderForm orderForm,
+                             BindingResult bindingResult,
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
 
@@ -143,7 +149,11 @@ public class CustomerOrderController {
             throw new RuntimeException("Cart is empty (No items received)");
         }
 
-        // Μετατροπή δεδομένων
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Invalid order data");
+            return "redirect:/restaurants/" + restaurantId + "/menu";
+        }
+
         List<CreateOrderItemRequest> itemRequests = orderForm.getItems().stream()
                 .filter(i -> i.getQuantity() != null && i.getQuantity() > 0)
                 .map(formItem -> new CreateOrderItemRequest(
@@ -159,19 +169,17 @@ public class CustomerOrderController {
         ServiceType serviceType = ServiceType.valueOf(serviceTypeStr);
 
         CreateOrderRequest orderRequest = new CreateOrderRequest(
-                        restaurantId,
-                deliveryAddress, // Προσοχή: Η σειρά ορισμάτων πρέπει να ταιριάζει με τον constructor του Record σου
-                        serviceType,
+                restaurantId,
+                deliveryAddress,
+                serviceType,
                 itemRequests
                 );
 
         try {
             var view = customerOrderService.createOrder(orderRequest);
 
-            // Καθαρισμός session
             getCart(session).clear();
 
-            // --- ΔΙΟΡΘΩΣΗ: Redirect στο σωστό URL (/restaurants/order/{id}/track) ---
             return "redirect:/restaurants/order/" + view.id() + "/track";
 
         } catch (Exception e) {
@@ -182,18 +190,20 @@ public class CustomerOrderController {
 
     @GetMapping("/order/{orderId}/track")
     public String trackOrderPage(@PathVariable Long orderId, Model model) {
-        // Ανάκτηση της παραγγελίας
+
         var order = customerOrderService.getCustomerOrder(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // Πέρασμα δεδομένων στο HTML
         model.addAttribute("orderId", orderId);
-        model.addAttribute("order", order); // <--- ΑΥΤΟ ΕΛΕΙΠΕ και χρειάζεται για το script του καλαθιού
+        model.addAttribute("order", order);
 
         return "customerFinalizeOrderTracker";
     }
 
     public static class OrderForm {
+
+        @Valid
+        @NotEmpty(message = "Cart cannot be empty.")
         private List<OrderFormItem> items = new ArrayList<>();
 
         public List<OrderFormItem> getItems() {
@@ -206,7 +216,11 @@ public class CustomerOrderController {
     }
 
     public static class OrderFormItem {
+
         private Long menuItemId;
+
+        @Min(value = 1, message = "Quantity must be at least 1.")
+        @NotNull
         private Integer quantity;
 
         public Long getMenuItemId() {

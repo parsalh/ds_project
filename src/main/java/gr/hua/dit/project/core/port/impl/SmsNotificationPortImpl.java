@@ -30,8 +30,8 @@ public class SmsNotificationPortImpl implements SmsNotificationPort {
 
     private record ExternalSmsRequest(String to, String message){}
 
-    public SmsNotificationPortImpl(RestClient.Builder builder) {
-        this.restClient = builder.baseUrl("http://localhost:8081").build();
+    public SmsNotificationPortImpl(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     @Override

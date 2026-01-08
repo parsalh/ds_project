@@ -8,9 +8,11 @@ import gr.hua.dit.project.core.service.CustomerOrderService;
 import gr.hua.dit.project.core.service.PersonService;
 import gr.hua.dit.project.core.service.model.CustomerOrderView;
 import gr.hua.dit.project.core.service.model.UpdatePersonRequest;
+import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,7 +37,7 @@ public class CustomerProfileController {
     public String customerProfile(Authentication authentication, Model model) {
         model.addAttribute("username", authentication.getName());
 
-        // Fetch Order History
+        // order history
         List<CustomerOrderView> orders = customerOrderService.getMyOrders();
         model.addAttribute("orders", orders);
 
@@ -48,22 +50,34 @@ public class CustomerProfileController {
         Person person = personRepository.findById(userDetails.personId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        model.addAttribute("person", person);
-        model.addAttribute("newAddress", new Address()); // for the add address form
+        if (!model.containsAttribute("updatePersonRequest")) {
+            model.addAttribute("updatePersonRequest", new UpdatePersonRequest(
+                    person.getFirstName(),
+                    person.getLastName(),
+                    person.getMobilePhoneNumber(),
+                    person.getEmailAddress()
+            ));
+        }
+        model.addAttribute("person", person); // for the add address form
+        if (!model.containsAttribute("newAddress")) {
+            model.addAttribute("newAddress", new Address());
+        }
         return "customerProfileEdit";
     }
 
     @PostMapping("/profile/update")
     public String updateProfile(Authentication authentication,
-                                @RequestParam String firstName,
-                                @RequestParam String lastName,
-                                @RequestParam String emailAddress,
-                                @RequestParam String mobilePhoneNumber) {
+                                @Valid @ModelAttribute("updatePersonRequest") UpdatePersonRequest request,
+                                BindingResult bindingResult,
+                                Model model) {
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
 
-        UpdatePersonRequest request = new UpdatePersonRequest(
-                firstName, lastName, mobilePhoneNumber, emailAddress
-        );
+        if (bindingResult.hasErrors()) {
+            Person person = personRepository.findById(userDetails.personId()).orElseThrow();
+            model.addAttribute("person", person);
+            model.addAttribute("new Address", new Address());
+            return "customerProfileEdit";
+        }
 
         personService.updatePersonDetails(userDetails.personId(), request);
 
@@ -72,10 +86,26 @@ public class CustomerProfileController {
 
     @PostMapping("/profile/address/add")
     public String addAddress(Authentication authentication,
-                             @ModelAttribute Address address) {
+                             @Valid @ModelAttribute("newAddress") Address address,
+                             BindingResult bindingResult,
+                             Model model) {
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
+
+        if (bindingResult.hasErrors()) {
+            Person person = personRepository.findById(userDetails.personId()).orElseThrow();
+            model.addAttribute("person", person);
+            model.addAttribute("updatePersonRequest", new UpdatePersonRequest(
+                    person.getFirstName(),
+                    person.getLastName(),
+                    person.getMobilePhoneNumber(),
+                    person.getEmailAddress()
+            ));
+            return "customerProfileEdit";
+        }
+
         personService.addAddress(userDetails.personId(), address);
         return "redirect:/customer/profile/edit";
+
     }
 
     @GetMapping("/profile/address/delete")

@@ -17,9 +17,8 @@ public class ExternalGeocodingAdapter implements GeocodingService {
     private record ExternalCoordinates(double lat, double lon) {}
     private record ExternalAddressResult(String address) {}
 
-    public ExternalGeocodingAdapter(RestClient.Builder builder,
-                                    @Value("${app.external-service.url}") String serviceUrl) {
-        this.restClient = builder.baseUrl(serviceUrl).build();
+    public ExternalGeocodingAdapter(RestClient restClient) {
+        this.restClient = restClient;
     }
 
     @Override

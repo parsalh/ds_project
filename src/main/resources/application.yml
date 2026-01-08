@@ -36,6 +36,7 @@ app:
     ttl-minutes: 60
   external-service:
     url: "http://localhost:8081" # Default for running locally without Docker
+    api-key: "streetfoodgo-api-key"
 
 server:
   error:
