@@ -10,7 +10,7 @@ import java.util.List;
  * Repository for managing {@link OrderItem} entity.
  */
 @Repository
-public interface OrderItemRepository extends JpaRepository<OrderItem,Integer> {
+public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     List<OrderItem> findAllByOrderId(final Long orderId);
 

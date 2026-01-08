@@ -5,9 +5,9 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import gr.hua.dit.project.core.model.*;
 import gr.hua.dit.project.core.repository.CustomerOrderRepository;
-import gr.hua.dit.project.core.repository.MenuItemRepository;
 import gr.hua.dit.project.core.repository.PersonRepository;
 import gr.hua.dit.project.core.service.CustomerOrderService;
+import gr.hua.dit.project.core.service.MenuItemService; // Import Service
 import gr.hua.dit.project.core.service.PersonService;
 import gr.hua.dit.project.core.service.RestaurantService;
 import gr.hua.dit.project.core.service.model.UpdatePersonRequest;
@@ -26,21 +26,21 @@ import java.util.*;
 public class OwnerDashboardController {
 
     private final RestaurantService restaurantService;
-    private final MenuItemRepository menuItemRepository;
+    private final MenuItemService menuItemService;
     private final CustomerOrderRepository customerOrderRepository;
     private final CustomerOrderService customerOrderService;
     private final PersonService personService;
     private final PersonRepository personRepository;
 
     public OwnerDashboardController(RestaurantService restaurantService,
-                                    MenuItemRepository menuItemRepository,
+                                    MenuItemService menuItemService,
                                     CustomerOrderRepository customerOrderRepository,
                                     CustomerOrderService customerOrderService,
                                     PersonService personService,
                                     PersonRepository personRepository) {
 
         this.restaurantService = restaurantService;
-        this.menuItemRepository = menuItemRepository;
+        this.menuItemService = menuItemService;
         this.customerOrderRepository = customerOrderRepository;
         this.customerOrderService = customerOrderService;
         this.personService = personService;
@@ -232,7 +232,7 @@ public class OwnerDashboardController {
     public String showEditMenuItemForm(@PathVariable Long restaurantId,
                                        @PathVariable Long menuId,
                                        Model model) {
-        MenuItem menuItem = menuItemRepository.findById(menuId)
+        MenuItem menuItem = menuItemService.findById(menuId)
                 .orElseThrow(()-> new RuntimeException("Item not found"));
         model.addAttribute("menuItem", menuItem);
         model.addAttribute("restaurantId", restaurantId);
@@ -258,17 +258,17 @@ public class OwnerDashboardController {
         Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(restaurantId, userDetails.personId());
 
         if (menuItem.getId() != null) {
-            MenuItem existing = menuItemRepository.findById(menuItem.getId()).get();
+            MenuItem existing = menuItemService.findById(menuItem.getId()).get();
             existing.setName(menuItem.getName());
             existing.setPrice(menuItem.getPrice());
             existing.setDescription(menuItem.getDescription());
             existing.setAvailable(menuItem.getAvailable());
             existing.setType(menuItem.getType());
             existing.setImageUrl(menuItem.getImageUrl());
-            menuItemRepository.save(existing);
+            menuItemService.save(existing);
         } else {
             menuItem.setRestaurant(restaurant);
-            menuItemRepository.save(menuItem);
+            menuItemService.save(menuItem);
         }
 
         return "redirect:/owner/restaurant/" + restaurantId + "/edit";
@@ -280,7 +280,9 @@ public class OwnerDashboardController {
                                  Authentication authentication) {
         ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
         restaurantService.getRestaurantIfAuthorized(restaurantId, userDetails.personId());
-        menuItemRepository.deleteById(menuId);
+
+        menuItemService.deleteById(menuId);
+
         return "redirect:/owner/restaurant/" + restaurantId + "/edit";
     }
 
