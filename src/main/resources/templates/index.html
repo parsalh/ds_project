@@ -48,54 +48,19 @@
     </div>
 </nav>
 
-<header class="hero-section">
-    <div class="container d-flex flex-column flex-lg-row justify-content-between align-items-center">
+<header class="hero-section gradient-box">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center w-100">
 
-        <div class="mb-3 mb-lg-0 w-100 text-center text-lg-start" style="max-width: 600px;">
-
-            <form action="/" method="get" class="d-flex gap-2 mb-3">
+        <div class="mb-3 mb-md-0 w-100 text-center text-md-start" style="max-width: 600px;">
+            <form action="/" method="get" class="d-flex gap-2">
                 <input name="query" type="text" class="form-control form-control-lg hero-search-input" placeholder="Search for burgers, pizza...">
                 <button type="submit" class="btn btn-light-custom">
                     <i class="bi bi-search"></i>
                 </button>
             </form>
-
-            <div class="d-flex flex-column gap-2">
-                <div class="d-flex justify-content-center justify-content-lg-start flex-wrap gap-2">
-                    <span class="text-white align-self-center me-1">Cuisines:</span>
-                    <button onclick="filterCuisine('all', this)"
-                            class="filter-btn badge btn-primary-custom text-white border-0 rounded-pill px-3 py-2">
-                        All
-                    </button>
-                    <button th:each="c : ${cuisines}"
-                            th:if="${cStat.index < 5}"
-                            th:data-filter="${c}"
-                            onclick="filterCuisine(this.getAttribute('data-filter'), this)"
-                            class="filter-btn badge bg-white text-dark border-0 rounded-pill px-3 py-2">
-                        <span th:text="${c}">CUISINE</span>
-                    </button>
-                </div>
-
-                <div class="d-flex justify-content-center justify-content-lg-start flex-wrap gap-2">
-                    <span class="text-white align-self-center me-1">Service:</span>
-                    <button onclick="filterService('ALL', this)"
-                            class="filter-service-btn badge btn-primary-custom text-white border-0 rounded-pill px-3 py-2">
-                        All
-                    </button>
-                    <button onclick="filterService('DELIVERY', this)"
-                            class="filter-service-btn badge bg-white text-dark border-0 rounded-pill px-3 py-2">
-                        Delivery
-                    </button>
-                    <button onclick="filterService('PICKUP', this)"
-                            class="filter-service-btn badge bg-white text-dark border-0 rounded-pill px-3 py-2">
-                        Pickup
-                    </button>
-                </div>
-            </div>
         </div>
 
-        <div class="d-flex gap-2 flex-column flex-sm-row mt-3 mt-lg-0">
-
+        <div class="d-flex gap-2 flex-column flex-sm-row mt-3 mt-md-0">
             <div sec:authorize="isAuthenticated()" th:if="${userAddresses != null && !userAddresses.isEmpty()}" class="dropdown w-100">
                 <button class="btn btn-light-custom btn-lg w-100 dropdown-toggle shadow-sm" type="button"
                         id="addressDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
@@ -125,15 +90,49 @@
 
 <div class="container mb-5">
 
-    <div class="d-flex align-items-center mb-4 text-muted" th:if="${selectedLocation}">
-        <i class="bi bi-sort-numeric-down text-danger me-2"></i>
-        <span>Sorted by distance to your location</span>
-    </div>
-
     <h3 class="mb-4 text-secondary">
         <span th:unless="${selectedLocation}">Restaurants Near You</span>
         <span th:if="${selectedLocation}" class="text-danger">Top 30 Closest Restaurants</span>
     </h3>
+
+    <div class="gradient-box filter-box-container d-flex flex-column gap-3">
+
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <span class="fw-bold me-2">Cuisines:</span>
+
+            <button onclick="filterCuisine('all', this)"
+                    class="filter-btn badge btn-primary-custom rounded-pill px-3 py-2">
+                All
+            </button>
+
+            <button th:each="c : ${cuisines}"
+                    th:if="${cStat.index < 5}"
+                    th:data-filter="${c}"
+                    onclick="filterCuisine(this.getAttribute('data-filter'), this)"
+                    class="filter-btn badge bg-white rounded-pill px-3 py-2">
+                <span th:text="${c}">CUISINE</span>
+            </button>
+        </div>
+
+        <div class="d-flex align-items-center flex-wrap gap-2">
+            <span class="fw-bold me-2">Service:</span>
+
+            <button onclick="filterService('ALL', this)"
+                    class="filter-service-btn badge btn-primary-custom rounded-pill px-3 py-2">
+                All
+            </button>
+
+            <button onclick="filterService('DELIVERY', this)"
+                    class="filter-service-btn badge bg-white rounded-pill px-3 py-2">
+                Delivery
+            </button>
+
+            <button onclick="filterService('PICKUP', this)"
+                    class="filter-service-btn badge bg-white rounded-pill px-3 py-2">
+                Pickup
+            </button>
+        </div>
+    </div>
 
     <div class="row row-cols-1 row-cols-md-3 g-4">
         <div class="col restaurant-item"
@@ -200,7 +199,6 @@
     document.addEventListener("DOMContentLoaded", function() {
         const urlParams = new URLSearchParams(window.location.search);
 
-        // 1. Auto-Redirect Logic
         if (!urlParams.has('lat') && !urlParams.has('lon') && !urlParams.has('query')) {
             if (navigator.permissions) {
                 navigator.permissions.query({name:'geolocation'}).then(function(result) {
@@ -222,7 +220,6 @@
                 addressOptions.forEach(option => {
                     if (option.getAttribute('data-lat') === currentLat &&
                         option.getAttribute('data-lon') === currentLon) {
-                        // Update button html preserving icon
                         dropdownBtn.innerHTML = `<i class="bi bi-geo-alt me-2"></i> ${option.textContent.trim()}`;
                         option.classList.add('active');
                     }
@@ -231,14 +228,12 @@
         }
     });
 
-    // --- Filtering Logic ---
     let currentCuisine = 'ALL';
     let currentService = 'ALL';
 
     function filterCuisine(cuisine, clickedBtn) {
         currentCuisine = cuisine.toUpperCase();
 
-        // Update Styles for Cuisine Buttons
         const buttons = document.querySelectorAll('.filter-btn');
         buttons.forEach(btn => {
             btn.classList.remove('btn-primary-custom', 'text-white');
@@ -253,7 +248,6 @@
     function filterService(service, clickedBtn) {
         currentService = service;
 
-        // Update Styles for Service Buttons
         const buttons = document.querySelectorAll('.filter-service-btn');
         buttons.forEach(btn => {
             btn.classList.remove('btn-primary-custom', 'text-white');
@@ -272,7 +266,6 @@
             const itemCuisines = items[i].getAttribute("data-cuisines");
             const itemService = items[i].getAttribute("data-service-type");
 
-            // 1. Check Cuisine
             let cuisineMatch = false;
             if (currentCuisine === "ALL") {
                 cuisineMatch = true;
@@ -280,7 +273,6 @@
                 cuisineMatch = true;
             }
 
-            // 2. Check Service
             let serviceMatch = false;
             if (currentService === "ALL") {
                 serviceMatch = true;
@@ -290,7 +282,6 @@
                 if (itemService === "PICKUP" || itemService === "BOTH") serviceMatch = true;
             }
 
-            // 3. Show/Hide based on both matches
             if (cuisineMatch && serviceMatch) {
                 items[i].style.display = "block";
             } else {

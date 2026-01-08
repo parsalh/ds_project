@@ -2,8 +2,8 @@
    1. VARIABLES & GLOBAL SETTINGS
    ========================================= */
 :root {
-    --primary-color: #dc2626;      /* Κόκκινο */
-    --primary-hover: #b91c1c;      /* Σκούρο Κόκκινο */
+    --primary-color: #dc2626;      /* Red */
+    --primary-hover: #b91c1c;      /* Dark Red */
     --gradient-main: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 100%);
     --gradient-hero: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
     --bg-light: #f8f9fa;
@@ -15,7 +15,7 @@ body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Ομαλή κύλιση για τη σελίδα του μενού */
+/* Smooth scrolling for menu page */
 html {
     scroll-behavior: smooth;
 }
@@ -33,17 +33,14 @@ a:hover {
 /* =========================================
    2. SPECIAL BODY STYLES (Login/Register)
    ========================================= */
-/* Πρέπει να προσθέσεις την κλάση "body-login" στο <body> του login.html */
-/* Αλλαγή: Το κάνουμε ίδιο με το register (Light Gradient) */
 body.body-login {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     min-height: 100vh;
     display: flex;
-    flex-direction: column; /* Για να μπει σωστά η Navbar */
+    flex-direction: column;
     align-items: center;
 }
 
-/* Πρέπει να προσθέσεις την κλάση "body-register" στο <body> του register.html */
 body.body-register {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     min-height: 100vh;
@@ -70,7 +67,7 @@ body.body-register {
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    display: inline-block; /* Σημαντικό για να δουλέψει σωστά το clip */
+    display: inline-block;
 }
 
 /* Dropdown Menu Styling */
@@ -199,17 +196,77 @@ body.body-register {
 }
 
 /* =========================================
-   5. CARDS & CONTAINERS
+   5. UNIFIED HERO & FILTER STYLES
    ========================================= */
-/* Hero Section (Common in Index, OwnerDashboard, Menu) */
-.hero-section {
+
+/* 1. Shared Gradient Style (Use this for both Hero and Filter box) */
+.gradient-box {
     background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
-    padding: 3rem 1rem;
     color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    border-radius: 20px;
+}
+
+/* 2. Unified Hero Section (Applies to Index, OwnerDashboard, Menu) */
+.hero-section {
+    /* Set the Gradient */
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
+
+    /* FORCE SIZE: Matches OwnerDashboard exactly (320px) */
+    min-height: 200px;
+
+    /* CENTER CONTENT: Keeps text/search bar in the middle of the big box */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Ensure vertical centering */
+
+    /* Spacing & Borders */
+    padding: 2rem 1rem;
     margin-bottom: 2rem;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+
+    /* Ensure text is white */
+    color: white;
+}
+
+/* FORCE WHITE TEXT: Business Dashboard Titles & Subtitles */
+.hero-section h1,
+.hero-section h2,
+.hero-section h3,
+.hero-section p,
+.hero-section span {
+    color: white !important;
+}
+
+/* Exception: Inputs inside hero should keep dark text */
+.hero-section input {
+    color: #212529 !important;
+}
+
+/* 3. Filter Box Specifics */
+.filter-box-container {
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+/* 4. Fix for Filter Buttons inside the Orange Box */
+/* When inside a gradient box, inactive buttons should be white */
+.gradient-box .filter-btn.bg-white,
+.gradient-box .filter-service-btn.bg-white {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+    border: none;
+    font-weight: 500;
+}
+
+/* Active buttons inside gradient box (Dark Red to pop against Orange) */
+.gradient-box .btn-primary-custom {
+    background-color: #b91c1c !important;
+    color: white !important;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .hero-search-input {
@@ -237,14 +294,13 @@ body.body-register {
 
 /* Login Container */
 .login-container {
-    max-width: 400px; /* Πιο στενό από το register για να είναι κομψό */
+    max-width: 400px;
     width: 100%;
     background: white;
     border-radius: 1rem;
-    /* Ίδια σκιά με το register */
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     padding: 2.5rem;
-    margin-top: 4rem; /* Απόσταση από τη Navbar */
+    margin-top: 4rem;
     margin-bottom: 2rem;
 }
 
@@ -361,11 +417,11 @@ body.body-register {
    ========================================= */
 .edit-container {
     max-width: 800px;
-    margin: 2rem auto; /* Κεντράρισμα και κενό πάνω-κάτω */
+    margin: 2rem auto;
     padding: 0 1rem;
 }
 
-/* Ειδικό στυλ για κάρτες στις φόρμες */
+/* Special style for form cards */
 .edit-container .card {
     border: none;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
@@ -373,16 +429,12 @@ body.body-register {
     border-radius: 1rem;
 }
 
-/* Χάρτης */
-#map {
+/* Map override for edit pages */
+.edit-container #map {
     height: 300px;
-    width: 100%;
-    border-radius: 0.5rem;
-    border: 1px solid #ced4da;
-    margin-bottom: 1rem;
 }
 
-/* Input readonly styling (όπως στη διεύθυνση) */
+/* Input readonly styling */
 input[readonly] {
     background-color: #e9ecef;
     cursor: not-allowed;
@@ -406,7 +458,7 @@ input[readonly] {
     text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* --- 2. View Order Button (White Button, Gradient Text) --- */
+/* --- 2. View Order Button --- */
 .order-total-bar button {
     background: white !important;
     border: none !important;
@@ -419,7 +471,6 @@ input[readonly] {
     transform: scale(1.05);
 }
 
-/* Η κλάση για τα gradient γράμματα μέσα στο κουμπί */
 .gradient-text {
     background: var(--gradient-main);
     -webkit-background-clip: text;
@@ -429,18 +480,16 @@ input[readonly] {
     font-size: 1.1rem;
 }
 
-/* Το badge (αριθμός προϊόντων) */
 .order-total-bar button .badge {
     background: var(--gradient-main) !important;
     color: white !important;
     font-size: 0.9rem;
-    border-radius: 50%; /* Στρογγυλό badge */
+    border-radius: 50%;
     padding: 0.35em 0.6em;
 }
 
-/* --- 3. Menu Item Images (Ψηλότερες & Στενότερες) --- */
+/* --- 3. Menu Item Images --- */
 .menu-card .card-img-top {
-    /* Αυξήσαμε το ύψος στα 250px για να φαίνονται πιο "ψηλές" */
     height: 250px !important;
     object-fit: cover;
     width: 100%;
@@ -474,9 +523,9 @@ input[readonly] {
    ========================================= */
 
 .hero-section img {
-    border: 5px solid white;        /* Λευκό περίγραμμα 5px */
-    border-radius: 12px;            /* Στρογγυλεμένες γωνίες */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); /* Σκιά για να ξεχωρίζει από το φόντο */
+    border: 5px solid white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
 }
 
@@ -487,14 +536,14 @@ input[readonly] {
 /* --- Finalize Order Page --- */
 .order-card {
     background: white;
-    border-radius: 1rem; /* Πιο στρογγυλεμένο */
+    border-radius: 1rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
     padding: 2rem;
     border: none;
     transition: transform 0.2s ease;
 }
 
-/* Πίνακας προϊόντων */
+/* Products Table */
 .table thead th {
     background-color: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
@@ -514,7 +563,7 @@ input[readonly] {
     border-radius: 1rem;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     position: relative;
-    top: -50px; /* Για να "πατήσει" πάνω στο Hero Section */
+    top: -50px; /* Pulls it up over the hero section */
 }
 
 /* Status Icons & Text */
@@ -524,13 +573,12 @@ input[readonly] {
 }
 
 .spinner-border.text-primary {
-    color: var(--primary-color) !important; /* Να είναι κόκκινο */
+    color: var(--primary-color) !important;
 }
 
 /* =========================================
    11. EXTRA SPACING FOR MENU PAGE
    ========================================= */
-/* Δίνουμε αρκετό χώρο στο κάτω μέρος για να μην κρύβεται το τελευταίο κουμπί από την μπάρα */
 body.body-with-bar {
     padding-bottom: 140px;
 }
@@ -539,7 +587,7 @@ body.body-with-bar {
    12. GRADIENT BUTTONS (Back to Home)
    ========================================= */
 .btn-gradient-custom {
-    background: var(--gradient-main) !important; /* Το βασικό gradient */
+    background: var(--gradient-main) !important;
     border: none;
     color: white !important;
     font-weight: bold;
@@ -548,8 +596,7 @@ body.body-with-bar {
 }
 
 .btn-gradient-custom:hover {
-    /* Αντίστροφο gradient στο hover για εφέ */
     background: linear-gradient(135deg, #ff8c42 0%, #ff6b6b 100%) !important;
-    transform: translateY(-3px); /* Σηκώνεται λίγο προς τα πάνω */
-    box-shadow: 0 8px 15px rgba(255, 107, 107, 0.4); /* Έντονη σκιά */
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(255, 107, 107, 0.4);
 }

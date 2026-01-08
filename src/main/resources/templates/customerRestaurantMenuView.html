@@ -54,14 +54,6 @@
     </div>
 </nav>
 
-<div class="container mt-3">
-    <div id="cart-notification" class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert" style="display: none;">
-        <i class="bi bi-exclamation-circle-fill me-2"></i>
-        <span id="cart-notification-msg"></span>
-        <button type="button" class="btn-close" onclick="document.getElementById('cart-notification').style.display='none'"></button>
-    </div>
-</div>
-
 <header class="hero-section mb-4">
     <div class="container">
         <div class="row align-items-center">
@@ -92,7 +84,7 @@
             <div class="col-md-4 text-center mt-4 mt-md-0">
                 <img th:src="${restaurant.imageUrl != null && !restaurant.imageUrl.isEmpty() ? restaurant.imageUrl : 'https://t4.ftcdn.net/jpg/02/75/70/03/360_F_275700347_09reCCwb7JBxTKiYQXsyri4riMKaHbj8.jpg'}"
                      class="card-img-top"
-                     style="height: 200px; object-fit: cover;"
+                     style="height: 135px; width: 250px; object-fit: cover;"
                      alt="Restaurant Img">
             </div>
         </div>

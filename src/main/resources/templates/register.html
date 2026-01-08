@@ -139,11 +139,10 @@
                                     <div class="invalid-feedback" th:if="${#fields.hasErrors('zipCode')}" th:errors="*{zipCode}"></div>
                                 </div>
                             </div>
-
-                        <div class="d-grid gap-2 mt-5">
-                            <button type="submit" class="btn btn-register">Register</button>
-                            <a href="/login" class="btn btn-link text-secondary text-decoration-none text-center">Already have an account? Login</a>
-                        </div>
+                        </div> <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-register">Register</button>
+                        <a href="/login" class="btn btn-link text-secondary text-decoration-none text-center">Already have an account? Login</a>
+                    </div>
                     </form>
                 </div>
             </div>
@@ -157,7 +156,6 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // --- 1. Select2 Initialization for Country Codes ---
     $(document).ready(function() {
         function formatState (state) {
             if (!state.id) { return state.text; }
@@ -170,23 +168,20 @@
         function formatSelection (state) {
             if (!state.id) return state.text;
             var isoCode = $(state.element).data('iso');
-            // Show flag + Code (e.g., 🇬🇷 +30) when selected
             var codeOnly = state.id;
             var $state = $('<span><span class="fi fi-' + isoCode + '"></span> ' + codeOnly + '</span>');
             return $state;
         }
 
         $('#country-select').select2({
-            width: '100%', // Controlled by CSS wrapper
+            width: '100%',
             templateResult: formatState,
             templateSelection: formatSelection,
             dropdownAutoWidth: true
         });
     });
 
-    // --- 2. Toggle Address Visibility ---
     function toggleAddress() {
-        // We use the checked status to determine type
         const isCustomer = document.getElementById('typeCustomer').checked;
         const addressSection = document.getElementById('addressSection');
         const inputs = addressSection.querySelectorAll('input');
@@ -194,7 +189,6 @@
         if (isCustomer) {
             addressSection.style.display = 'block';
             inputs.forEach(input => input.disabled = false);
-            // Refresh map size
             setTimeout(() => { map.invalidateSize(); }, 200);
         } else {
             addressSection.style.display = 'none';
@@ -202,8 +196,7 @@
         }
     }
 
-    // --- 3. Leaflet Map Logic ---
-    var map = L.map('map').setView([37.9838, 23.7275], 13); // Default: Athens
+    var map = L.map('map').setView([37.9838, 23.7275], 13);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -216,7 +209,6 @@
         var lat = e.latlng.lat;
         var lon = e.latlng.lng;
 
-        // --- NEW: Update hidden inputs ---
         document.getElementById('latitude').value = lat;
         document.getElementById('longitude').value = lon;
 
@@ -224,14 +216,13 @@
             var el = document.getElementById(id);
             if (el) {
                 el.removeAttribute('readonly');
-                el.style.backgroundColor = ''; // Επαναφορά στο default (λευκό)
+                el.style.backgroundColor = '';
             }
         });
 
         if (marker) map.removeLayer(marker);
         marker = L.marker([lat, lon]).addTo(map);
 
-        // Reverse Geocoding via Nominatim
         const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
 
         fetch(url)
@@ -247,7 +238,6 @@
             .catch(console.error);
     });
 
-    // Initialize address visibility on load
     document.addEventListener("DOMContentLoaded", function() {
         toggleAddress();
     });
