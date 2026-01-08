@@ -29,6 +29,6 @@ cd ds-project
 
 ---
 
-**Open in browser:** [StreetFoodGo](http://localhost:8080/)
+**Open in browser:** [StreetFoodGo](https://streetfoodgo.pios.autos/) 
 
 ---
