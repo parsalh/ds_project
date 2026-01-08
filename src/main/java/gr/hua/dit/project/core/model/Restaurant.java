@@ -1,5 +1,7 @@
 package gr.hua.dit.project.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -33,6 +35,7 @@ public class Restaurant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
+    @JsonIgnore
     private Person owner;
 
     @NotBlank(message = "Name is required.")
@@ -54,6 +57,7 @@ public class Restaurant {
     private Set<Cuisine> cuisines = new HashSet<>();
 
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<MenuItem> menu = new ArrayList<>();
 
     @NotNull(message = "Minimum order amount is required.")

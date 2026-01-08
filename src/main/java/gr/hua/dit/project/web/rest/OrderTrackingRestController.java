@@ -34,14 +34,14 @@ public class OrderTrackingRestController {
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderTrackingView> trackOrder(@PathVariable("orderId") Long orderId){
 
-        // 1. Εύρεση Παραγγελίας
+        // ευρεση παραγγελιας
         CustomerOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         OrderStatus status = order.getOrderStatus();
 
-        // 2. Έλεγχος αν η κατάσταση επιτρέπει Tracking
-        // Αν είναι PENDING, REJECTED, ή CANCELLED δεν δείχνουμε χάρτη/χρόνο
+        // ελεγχος αν η κατασταση επιτρεπει tracking
+        // αν ειναι PENDING, REJECTED ή CANCELLED δεν δειχνουμε χαρτη/χρονο
         if (status != OrderStatus.ACCEPTED &&
                 status != OrderStatus.IN_PROGRESS &&
                 status != OrderStatus.READY_FOR_PICKUP &&
@@ -49,28 +49,24 @@ public class OrderTrackingRestController {
             return ResponseEntity.ok(new OrderTrackingView(status,null,null,null));
         }
 
-        // 3. Συντεταγμένες Εστιατορίου
+        // συντεταγμενες εστιατοριου
         Restaurant restaurant = order.getRestaurant();
         double restaurantLat = restaurant.getAddressInfo() != null ? restaurant.getAddressInfo().getLatitude() : 0.0;
         double restaurantLon = restaurant.getAddressInfo() != null ? restaurant.getAddressInfo().getLongitude() : 0.0;
 
-        // 4. Συντεταγμένες Πελάτη & Υπολογισμός ETA
+        // συντεταγμενες πελατη και υπολογισμος ETA
         int eta;
         double[] customerCoords;
 
         if (order.getServiceType() == gr.hua.dit.project.core.model.ServiceType.PICKUP) {
-            // --- ΠΕΡΙΠΤΩΣΗ PICKUP ---
-            // Ο χρόνος είναι σταθερός (μόνο προετοιμασία)
+            // pickup
             eta = 15;
 
-            // Για Pickup, βάζουμε τις συντεταγμένες του εστιατορίου και στον "πελάτη"
-            // ώστε ο χάρτης να ζεντράρει στο μαγαζί και να μην ψάχνει διαδρομές στο κενό.
             customerCoords = new double[]{restaurantLat, restaurantLon};
 
         } else {
-            // --- ΠΕΡΙΠΤΩΣΗ DELIVERY ---
+            // delivery
 
-            // Διαβάζουμε τις συντεταγμένες απευθείας από την παραγγελία (τις αποθηκεύσαμε στο createOrder)
             Double orderLat = null;
             Double orderLon = null;
 
@@ -79,29 +75,27 @@ public class OrderTrackingRestController {
                 orderLon = order.getDeliveryAddress().getLongitude();
             }
 
-            // Έλεγχος εγκυρότητας συντεταγμένων
+            // ελεγχος εγκυροτητας συντεταγμενων
             if (orderLat != null && orderLon != null && orderLat != 0.0) {
                 customerCoords = new double[]{orderLat, orderLon};
 
-                // Υπολογισμός Διαδρομής μέσω External Service (OpenRouteService)
+                // υπολογισμος διαδρομης με ORS (external)
                 var metrics = distanceService.getDistanceAndDuration(restaurantLat, restaurantLon, orderLat, orderLon);
 
                 if (metrics.isPresent()) {
-                    // ETA = 20 λεπτά (προετοιμασία) + Χρόνος Διαδρομής
                     int travelTimeMins = (int) Math.round(metrics.get().durationSeconds() / 60.0);
                     eta = 20 + travelTimeMins;
                 } else {
-                    // Fallback αν αποτύχει το Routing Service
+                    // fallback αν αποτυχει το routing service
                     eta = 30; // 15 prep + 15 average travel
                 }
             } else {
-                // Fallback αν για κάποιο λόγο δεν υπάρχουν συντεταγμένες στην παραγγελία
+                // fallback αν για καποιο λογο δεν υπαρχουν συντεταγμενες στην παραγγελια
                 customerCoords = new double[]{restaurantLat, restaurantLon};
                 eta = 30;
             }
         }
 
-        // 5. Επιστροφή Αποτελέσματος
         return ResponseEntity.ok(new OrderTrackingView(
                 status,
                 eta,
@@ -110,11 +104,11 @@ public class OrderTrackingRestController {
         ));
     }
 
-    private String getFullAddress(gr.hua.dit.project.core.model.Address address) {
-        if (address == null) return "";
-        String street = address.getStreet() != null ? address.getStreet() : "";
-        String num = address.getNumber() != null ? " " + address.getNumber() : "";
-        String zip = address.getZipCode() != null ? ", " + address.getZipCode() : "";
-        return (street + num + zip).trim();
-    }
+//    private String getFullAddress(gr.hua.dit.project.core.model.Address address) {
+//        if (address == null) return "";
+//        String street = address.getStreet() != null ? address.getStreet() : "";
+//        String num = address.getNumber() != null ? " " + address.getNumber() : "";
+//        String zip = address.getZipCode() != null ? ", " + address.getZipCode() : "";
+//        return (street + num + zip).trim();
+//    }
 }

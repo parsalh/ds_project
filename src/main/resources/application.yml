@@ -1,6 +1,9 @@
 spring:
   application:
     name: DS Project
+  jackson:
+    serialization:
+      indent_output: true
 
 
   datasource:
