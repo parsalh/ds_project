@@ -19,7 +19,7 @@ git clone https://github.com/parsalh/ds_project.git
 
 ---
 
-**Run the project:**
+**Run the project on localhost (8080):**
 
 ```shell
 cd ds-project
