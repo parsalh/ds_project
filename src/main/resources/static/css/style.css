@@ -225,6 +225,11 @@ body.body-register {
     margin-bottom: 2rem;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
+
+    /* UPDATED: Make top flush */
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+
     box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
 
     /* Ensure text is white */
@@ -513,7 +518,10 @@ input[readonly] {
     color: white !important;
     border: none !important;
 }
-.filter-btn:not(.active-filter):hover {
+
+/* UPDATED: Applied hover effect to BOTH filter types */
+.filter-btn:not(.active-filter):hover,
+.filter-service-btn:not(.active-filter):hover {
     background-color: #ffe5e5 !important;
     color: #dc2626 !important;
 }

@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -67,10 +65,25 @@ public class CustomerOrderController {
 
         List<MenuItem> menuItems = menuItemService.findByRestaurantId(restaurantId);
 
+        List<ItemType> sortOrder = List.of(
+                ItemType.DEAL,
+                ItemType.STARTER,
+                ItemType.SIDE,
+                ItemType.SALAD,
+                ItemType.MAIN,
+                ItemType.DESSERT,
+                ItemType.DRINK,
+                ItemType.ALCOHOL
+        );
+
         Map<ItemType, List<MenuItem>> groupedItems =
                 menuItems.stream()
                         .filter(MenuItem::getAvailable)
-                        .collect(Collectors.groupingBy(MenuItem::getType));
+                        .collect(Collectors.groupingBy(
+                                MenuItem::getType,
+                                () -> new TreeMap<>(Comparator.comparingInt(sortOrder::indexOf)),
+                                Collectors.toList()
+                        ));
 
         Cart cart = getCart(session);
 
@@ -120,9 +133,6 @@ public class CustomerOrderController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Cart cart = getCart(session);
-//        if (cart.getTotalQuantity() == 0){
-//            return "redirect:/restaurants/"+restaurantId+"/menu";
-//        }
 
         BigDecimal deliveryFee = restaurant.getDeliveryFee() != null ? restaurant.getDeliveryFee() : BigDecimal.ZERO;
         BigDecimal cartTotal = cart.getTotalPrice() != null ? cart.getTotalPrice() : BigDecimal.ZERO;
@@ -173,7 +183,7 @@ public class CustomerOrderController {
                 deliveryAddress,
                 serviceType,
                 itemRequests
-                );
+        );
 
         try {
             var view = customerOrderService.createOrder(orderRequest);

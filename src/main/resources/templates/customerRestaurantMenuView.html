@@ -32,7 +32,7 @@
 
                 <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                        Hi, <span sec:authentication="name">User</span>
+                        Welcome, <span sec:authentication="name">User</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li sec:authorize="hasRole('CUSTOMER')">
@@ -54,7 +54,7 @@
     </div>
 </nav>
 
-<header class="hero-section mb-4">
+<header class="hero-section mb-0">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-8 text-center text-md-start">
@@ -91,8 +91,8 @@
     </div>
 </header>
 
-<div class="category-nav py-3 mb-4">
-    <div class="container d-flex gap-2 overflow-auto">
+<div class="container py-3 mb-4">
+    <div class="d-flex gap-2 overflow-auto">
         <button onclick="filterCategory('ALL', this)"
                 class="btn rounded-pill bg-dark text-white border px-3 py-2 fw-bold filter-btn active-filter">
             ALL
