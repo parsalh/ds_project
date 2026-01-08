@@ -1,5 +1,6 @@
 package gr.hua.dit.project.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ public class MenuItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id", nullable = false)
+    @JsonIgnore
     private Restaurant restaurant;
 
     @NotBlank(message = "Name is required.")
