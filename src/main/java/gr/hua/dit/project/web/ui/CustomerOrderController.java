@@ -239,5 +239,4 @@ public class CustomerOrderController {
             this.quantity = quantity;
         }
     }
-
 }

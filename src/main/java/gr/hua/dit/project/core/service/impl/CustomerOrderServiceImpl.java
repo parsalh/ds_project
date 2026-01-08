@@ -88,6 +88,12 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
             throw new IllegalArgumentException("This restaurant does not offer pickup.");
         }
 
+        if (requestedType == ServiceType.DELIVERY) {
+            if (request.deliveryAddress() == null || request.deliveryAddress().trim().isEmpty()) {
+                throw new IllegalArgumentException("Delivery address cannot be empty");
+            }
+        }
+
         final CustomerOrder order = new CustomerOrder();
         order.setCustomer(customer);
         order.setRestaurant(restaurant);
@@ -104,27 +110,22 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
             }
         } else {
             String requestAddrStr = request.deliveryAddress();
-            if (requestAddrStr == null || requestAddrStr.trim().isEmpty()) {
-                requestAddrStr = "Address not provided";
-            }
             deliveryAddr.setStreet(requestAddrStr);
 
-            if (request.deliveryAddress() != null) {
-                String targetAddr = request.deliveryAddress();
+            String targetAddr = requestAddrStr;
 
-                customer.getAddresses().stream()
-                        .filter(addr -> {
-                            String addrStr = addr.getStreet() + " " +
-                                    (addr.getNumber() != null ? addr.getNumber() : "") + ", " +
-                                    addr.getZipCode();
-                            return addrStr.equals(targetAddr) || targetAddr.contains(addr.getStreet());
-                        })
-                        .findFirst()
-                        .ifPresent(matchedAddr -> {
-                            deliveryAddr.setLatitude(matchedAddr.getLatitude());
-                            deliveryAddr.setLongitude(matchedAddr.getLongitude());
-                        });
-            }
+            customer.getAddresses().stream()
+                    .filter(addr -> {
+                        String addrStr = addr.getStreet() + " " +
+                                (addr.getNumber() != null ? addr.getNumber() : "") + ", " +
+                                addr.getZipCode();
+                        return addrStr.equals(targetAddr) || targetAddr.contains(addr.getStreet());
+                    })
+                    .findFirst()
+                    .ifPresent(matchedAddr -> {
+                        deliveryAddr.setLatitude(matchedAddr.getLatitude());
+                        deliveryAddr.setLongitude(matchedAddr.getLongitude());
+                    });
         }
         order.setDeliveryAddress(deliveryAddr);
 
