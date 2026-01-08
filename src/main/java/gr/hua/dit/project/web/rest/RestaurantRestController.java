@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/restaurants")
-@SecurityRequirement(name = "bearer-auth") //για το swagger
 public class RestaurantRestController {
 
     private final RestaurantService restaurantService;

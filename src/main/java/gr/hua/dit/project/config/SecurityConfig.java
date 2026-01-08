@@ -4,6 +4,7 @@ import gr.hua.dit.project.core.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -36,7 +37,13 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/token").permitAll()
-                        .requestMatchers("/api/v1/**").authenticated()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/restaurants",
+                                "/api/v1/restaurants/*",
+                                "/api/v1/restaurants/*/menu"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/orders/**").authenticated()
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(AbstractHttpConfigurer::disable)

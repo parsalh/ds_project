@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@SecurityRequirement(name = "BearerAuth")
 @RestController
 @RequestMapping("/api/v1/orders")
-@SecurityRequirement(name = "bearer-auth")
 public class OrderRestController {
 
     private final CustomerOrderService customerOrderService;
