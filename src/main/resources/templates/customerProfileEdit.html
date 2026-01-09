@@ -43,14 +43,21 @@
     </div>
 </nav>
 
-<div class="container edit-container">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Edit Profile</h2>
-        <a th:href="@{/customer/profile}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Profile
-        </a>
+<header class="hero-section">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <div class="mb-3 mb-md-0 text-center text-md-start">
+            <h1 class="display-5 fw-bold">Edit Profile</h1>
+            <p class="lead mb-0 opacity-75">Update your personal information and addresses</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/customer/profile}" class="btn btn-light-outline-custom btn-lg shadow-sm">
+                <i class="bi bi-arrow-left me-2"></i>Back to Profile
+            </a>
+        </div>
     </div>
+</header>
+
+<div class="container edit-container">
 
     <div class="card p-4">
         <h4 class="mb-3 text-secondary">Personal Information</h4>
@@ -73,8 +80,8 @@
                 <label class="form-label">Mobile Phone</label>
                 <input type="tel" name="mobilePhoneNumber" th:value="${person.mobilePhoneNumber}" class="form-control" required>
             </div>
-            <div class="text-end">
-                <button type="submit" class="btn btn-primary-custom">Save Changes</button>
+            <div>
+                <button type="submit" class="btn btn-gradient w-100">Save Changes</button>
             </div>
         </form>
     </div>
@@ -145,7 +152,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-lg"></i> Add Address</button>
+            <button type="submit" class="btn btn-gradient w-100"><i class="bi bi-plus-lg"></i> Add Address</button>
         </form>
     </div>
 </div>

@@ -9,14 +9,25 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body class="body-login">
+<body class="body-login" style="background: var(--gradient-hero);">
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm w-100">
     <div class="container">
-        <a class="navbar-brand" href="/">StreetFoodGo</a>
-        <div class="ms-auto">
-            <span class="text-muted me-2 small">New here?</span>
-            <a th:href="@{/register}" class="btn btn-sm btn-outline-danger fw-bold">Register</a>
+        <a class="navbar-brand fw-bold" href="/">StreetFoodGo</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-gradient ms-2" th:href="@{/register}">Register</a>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>

@@ -42,14 +42,14 @@
 </nav>
 
 <header class="hero-section">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div>
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+        <div class="mb-3 mb-md-0 text-center text-md-start">
             <h1 class="display-5 fw-bold">My Profile</h1>
-            <p class="lead mb-0" th:text="'Welcome back, ' + ${username} + '!'">Welcome back!</p>
+            <p class="lead mb-0 opacity-75" th:text="'Welcome back, ' + ${username} + '!'">Welcome back!</p>
         </div>
         <div>
-            <a th:href="@{/customer/profile/edit}" class="btn btn-light text-danger fw-bold shadow">
-                <i class="bi bi-pencil-square me-2"></i>Edit Profile
+            <a th:href="@{/customer/profile/edit}" class="btn btn-light-outline-custom btn-lg shadow-sm">
+                <i class="bi bi-person-gear me-2"></i>Edit Profile
             </a>
         </div>
     </div>

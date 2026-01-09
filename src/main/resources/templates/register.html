@@ -15,19 +15,38 @@
 
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
-<body class="body-register">
+<body class="body-register" style="background: var(--gradient-hero); display: flex; flex-direction: column; min-height: 100vh; padding: 0;">
 
-<div class="container">
-    <div class="row justify-content-center">
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm w-100">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/">StreetFoodGo</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/login}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="btn btn-gradient ms-2" th:href="@{/register}">Register</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container d-flex align-items-center justify-content-center" style="flex: 1; padding-top: 2rem; padding-bottom: 2rem;">
+    <div class="row justify-content-center w-100">
         <div class="col-lg-8 col-md-10">
             <div class="card register-card">
 
-                <div class="card-header-custom">
-                    <h3 class="mb-0 fw-bold"><i class="bi bi-person-plus-fill me-2"></i>Create an Account</h3>
-                    <p class="mb-0 opacity-75">Join us and start ordering delicious food!</p>
+                <div class="pt-4 px-4 pb-0 text-center bg-white border-bottom-0">
+                    <h3 class="mb-1 fw-bold text-gradient"><i class="bi bi-person-plus-fill me-2"></i>Create an Account</h3>
+                    <p class="text-muted small mb-0">Join us and start ordering delicious food!</p>
                 </div>
 
-                <div class="card-body p-4 p-md-5">
+                <div class="card-body p-4 p-md-5 pt-3">
 
                     <form th:action="@{/register}" method="post" id="registerForm" th:object="${createPersonRequest}">
 
@@ -37,16 +56,18 @@
                         </div>
 
                         <div class="mb-4 text-center">
-                            <label class="form-label d-block mb-3">I am a:</label>
-                            <div class="btn-group w-100" role="group">
+                            <label class="form-label d-block mb-2 text-muted small fw-bold text-uppercase">I am a:</label>
+
+                            <div class="btn-group w-100 gradient-toggle-container" role="group">
                                 <div class="text-danger small mt-1" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+
                                 <input type="radio" class="btn-check" th:field="*{type}" id="typeCustomer" value="CUSTOMER" onchange="toggleAddress()">
-                                <label class="btn btn-outline-danger" for="typeCustomer">
+                                <label class="btn btn-theme-toggle w-50" for="typeCustomer">
                                     <i class="bi bi-emoji-smile me-1"></i> Customer
                                 </label>
 
                                 <input type="radio" class="btn-check" th:field="*{type}" id="typeOwner" value="OWNER" onchange="toggleAddress()">
-                                <label class="btn btn-outline-danger" for="typeOwner">
+                                <label class="btn btn-theme-toggle w-50" for="typeOwner">
                                     <i class="bi bi-shop me-1"></i> Restaurant Owner
                                 </label>
                             </div>
@@ -139,10 +160,19 @@
                                     <div class="invalid-feedback" th:if="${#fields.hasErrors('zipCode')}" th:errors="*{zipCode}"></div>
                                 </div>
                             </div>
-                        </div> <div class="d-grid gap-2 mt-5">
-                        <button type="submit" class="btn btn-register">Register</button>
-                        <a href="/login" class="btn btn-link text-secondary text-decoration-none text-center">Already have an account? Login</a>
-                    </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-register shadow-sm">Register <i class="bi bi-arrow-right ms-2"></i></button>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <p class="small text-muted mb-0">Already have an account?</p>
+                            <a th:href="@{/login}" class="fw-bold text-decoration-none">
+                                <span class="text-gradient" style="font-size: 1rem;">Sign in</span>
+                            </a>
+                        </div>
+
                     </form>
                 </div>
             </div>
