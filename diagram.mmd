@@ -1,0 +1,71 @@
+graph BT
+%% Styles
+    classDef box fill:#fff,stroke:#000,stroke-width:2px,rx:5,ry:5;
+    classDef external fill:#ffebee,stroke:#b71c1c,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef docker fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef security fill:#fff3e0,stroke:#ef6c00,stroke-width:2px;
+    classDef client fill:#fff,stroke:#000,stroke-width:2px;
+
+%% --- External ---
+subgraph External_World ["External Systems" ]
+direction LR
+DataStore[("Data Store(s)<br/>(PostgreSQL Container)")]:::external
+ExtServiceBox["Service(s)<br/>(Nominatim / Routee / ORS)"]:::external
+end
+
+%% --- DOCKER  ---
+subgraph Docker_Container ["Docker Container (StreetFoodGo)"]
+direction BT
+
+%% --- Data Access Layer ---
+Model["Model<br/>(Entities e.g. CustomerOrder, Restaurant)"]:::box
+Repo["Repository<br/>(e.g. CustomerOrderRepository)"]:::box
+
+%% --- Business Logic Layer ---
+Service["Service<br/>(e.g. CustomerOrderService)"]:::box
+Adapter["Port / Adapter<br/>(e.g. ExternalDistanceAdapter)"]:::box
+
+%% --- Mapping Layer ---
+Mapper["Mapper / DTO<br/>(e.g. CustomerOrderMapper)"]:::box
+
+%% --- Presentation Layer ---
+Controller["Controller<br/>(e.g HomeController , OrderRestController)"]:::box
+
+subgraph Views [Views & Resources]
+direction TB
+View["View / Resource<br/>(HTML / JSON)"]:::box
+end
+
+%% --- SECURITY LAYER ---
+Security["Security Layer<br/>(JwtAuthenticationFilter / AuthController)"]:::security
+
+%% --- Infrastructure Layer ---
+WebServer["Web Server<br/>(Tomcat / Nginx)"]:::box
+end
+
+%% --- Client Layer ---
+Client["Browser<br/>(User + JWT Token)"]:::client
+
+%% --- CONNECTIONS ---
+
+%% Client -> Server
+Client --> WebServer
+
+%% Server -> Security
+WebServer --> Security
+
+%% Security
+Security --> Controller
+
+%% Controller Interactions
+Controller <--> View
+Controller <--> Mapper
+Mapper <--> Service
+
+%% Service Interactions
+Service <--> Adapter
+Adapter <--> ExtServiceBox
+
+Service <--> Repo
+Repo <--> Model
+Model <--> DataStore
