@@ -48,6 +48,8 @@
 
 <div class="container">
 
+    <div id="orders-container" th:fragment="ordersList">
+
     <div th:if="${orders.isEmpty()}" class="alert alert-info text-center py-4 border-0 shadow-sm">
         <i class="bi bi-inbox-fill fs-3 d-block mb-2"></i>
         No orders found for this restaurant yet.
@@ -171,11 +173,33 @@
                         <i class="bi bi-x-circle"></i> Order Rejected
                     </div>
 
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script th:inline="javascript">
+    const restaurantId = [[${restaurant.id}]];
+
+    function refreshOrders() {
+        fetch('/owner/restaurant/' + restaurantId + '/orders/fragment')
+            .then(response => {
+                if (response.ok) return response.text();
+                throw new Error('Network response was not ok');
+            })
+            .then(html => {
+                const container = document.getElementById('orders-container');
+                if (container) {
+                    container.innerHTML = html;
+                }
+            })
+            .catch(error => console.error('Error fetching orders:', error));
+    }
+
+    setInterval(refreshOrders, 3000);
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>

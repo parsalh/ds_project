@@ -302,4 +302,21 @@ public class OwnerDashboardController {
         }
         hours.sort(Comparator.comparing(OpenHour::getDayOfWeek));
     }
+
+    @GetMapping("/restaurant/{id}/orders/fragment")
+    public String getRestaurantOrdersFragment(@PathVariable Long id,
+                                              Authentication authentication,
+                                              Model model) {
+        ApplicationUserDetails userDetails = (ApplicationUserDetails) authentication.getPrincipal();
+
+        Restaurant restaurant = restaurantService.getRestaurantIfAuthorized(id, userDetails.personId());
+
+        List<CustomerOrder> orders = customerOrderRepository.findAllByRestaurantIdOrderByCreatedAtDesc(id);
+
+        model.addAttribute("restaurant", restaurant);
+        model.addAttribute("orders", orders);
+
+        // επιστρεφουμε μονο το fragment "ordersList"
+        return "ownerDashboardOrders :: ordersList";
+    }
 }

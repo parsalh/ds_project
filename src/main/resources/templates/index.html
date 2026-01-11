@@ -106,7 +106,6 @@
             </button>
 
             <button th:each="c : ${cuisines}"
-                    th:if="${cStat.index < 5}"
                     th:data-filter="${c}"
                     onclick="filterCuisine(this.getAttribute('data-filter'), this)"
                     class="filter-btn badge bg-white rounded-pill px-3 py-2">
