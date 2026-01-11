@@ -1,0 +1,64 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    shm_size: 1gb
+    volumes:
+      - /home/nick/docker/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: huagank123
+      PGDATA: /var/lib/postgresql/data
+      TZ: Europe/Athens
+    ports:
+      - "5432:5432"
+  adminer:
+    image: adminer
+    restart: always
+    environment:
+      TZ: Europe/Athens
+    ports:
+      - "8181:8080"
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    restart: always
+    ports:
+      - 6432:6432
+    volumes:
+      - /home/nick/docker/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+      - /home/nick/docker/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt
+    depends_on:
+      - db
+    environment:
+      - TZ=Europe/Athens
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASSWORD=huagank123
+
+  ds-project:
+    build:
+      context: https://github.com/parsalh/ds_project.git#main
+      network: host
+    ports:
+      - "8090:8080"
+    environment:
+      TZ: Europe/Athens
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres.pios.autos:6432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: huagank123
+      APP_EXTERNAL_SERVICE_URL: http://external-microservices:8081
+      JWT_SECRET: "1cf579501c12abea914d42320ec163d6064c5684b8ea090e4c52af6508e17fbd"
+    depends_on:
+      - external-microservices
+    restart: always
+
+  external-microservices:
+    build:
+      context: https://github.com/parsalh/external-microservices.git#main
+      network: host
+    ports:
+      - "8091:8081"
+    environment:
+      TZ: Europe/Athens
+      SERVER_PORT: 8081
+    restart: always
