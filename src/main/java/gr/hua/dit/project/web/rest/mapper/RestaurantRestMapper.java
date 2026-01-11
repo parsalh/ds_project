@@ -2,6 +2,7 @@ package gr.hua.dit.project.web.rest.mapper;
 
 import gr.hua.dit.project.core.model.MenuItem;
 import gr.hua.dit.project.core.model.Restaurant;
+import gr.hua.dit.project.web.rest.OpenHourDTO;
 import gr.hua.dit.project.web.rest.dto.MenuItemDTO;
 import gr.hua.dit.project.web.rest.dto.RestaurantDTO;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,6 @@ public class RestaurantRestMapper {
         dto.setMinimumOrderAmount(restaurant.getMinimumOrderAmount());
         dto.setDeliveryFee(restaurant.getDeliveryFee());
         dto.setServiceType(restaurant.getServiceType());
-        dto.setOpenHours(restaurant.getOpenHours());
         dto.setImageUrl(restaurant.getImageUrl());
         dto.setOpen(restaurant.isOpen());
 
@@ -39,6 +39,20 @@ public class RestaurantRestMapper {
             dto.setMenu(menuNames);
         } else {
             dto.setMenu(Collections.emptyList());
+        }
+
+        if (restaurant.getOpenHours() != null) {
+            List<OpenHourDTO> openHourDTOS = restaurant.getOpenHours().stream()
+                    .map(oh -> {
+                        OpenHourDTO ohDTO = new OpenHourDTO();
+                        ohDTO.setId(oh.getId());
+                        ohDTO.setDayOfWeek(oh.getDayOfWeek());
+                        ohDTO.setOpenTime(oh.getOpenTime());
+                        ohDTO.setCloseTime(oh.getCloseTime());
+                        return ohDTO;
+                    })
+                    .collect(Collectors.toList());
+            dto.setOpenHours(openHourDTOS);
         }
 
         return dto;

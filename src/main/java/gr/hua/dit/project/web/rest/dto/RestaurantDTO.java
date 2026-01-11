@@ -4,6 +4,7 @@ import gr.hua.dit.project.core.model.Address;
 import gr.hua.dit.project.core.model.Cuisine;
 import gr.hua.dit.project.core.model.OpenHour;
 import gr.hua.dit.project.core.model.ServiceType;
+import gr.hua.dit.project.web.rest.OpenHourDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -20,7 +21,7 @@ public class RestaurantDTO {
     private BigDecimal minimumOrderAmount;
     private BigDecimal deliveryFee;
     private ServiceType serviceType;
-    private List<OpenHour> openHours;
+    private List<OpenHourDTO> openHours;
     private String imageUrl;
     private boolean isOpen;
 
@@ -98,11 +99,11 @@ public class RestaurantDTO {
         this.serviceType = serviceType;
     }
 
-    public List<OpenHour> getOpenHours() {
+    public List<OpenHourDTO> getOpenHours() {
         return openHours;
     }
 
-    public void setOpenHours(List<OpenHour> openHours) {
+    public void setOpenHours(List<OpenHourDTO> openHours) {
         this.openHours = openHours;
     }
 
