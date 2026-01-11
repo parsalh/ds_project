@@ -68,9 +68,9 @@ public class CustomerOrderController {
         List<ItemType> sortOrder = List.of(
                 ItemType.DEAL,
                 ItemType.STARTER,
-                ItemType.SIDE,
                 ItemType.SALAD,
                 ItemType.MAIN,
+                ItemType.SIDE,
                 ItemType.DESSERT,
                 ItemType.DRINK,
                 ItemType.ALCOHOL
