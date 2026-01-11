@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record CreateOrderRequest(
+
+        @NotNull(message = "Restaurant ID is required.")
         Long restaurantId,
         String deliveryAddress,
 

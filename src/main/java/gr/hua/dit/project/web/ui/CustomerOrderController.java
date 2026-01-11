@@ -47,6 +47,27 @@ public class CustomerOrderController {
         this.personRepository = personRepository;
     }
 
+    private void prepareCheckoutModel(Long restaurantId,HttpSession httpSession, Model model){
+        CurrentUser currentUser = currentUserProvider.requireCurrentUser();
+
+        Restaurant restaurant = restaurantService.findById(restaurantId)
+                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+
+        Person customer = personRepository.findById(currentUser.id())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Cart cart = getCart(httpSession);
+
+        BigDecimal deliveryFee = restaurant.getDeliveryFee() != null ? restaurant.getDeliveryFee() : BigDecimal.ZERO;
+        BigDecimal cartTotal = cart.getTotalPrice() != null ? cart.getTotalPrice() : BigDecimal.ZERO;
+        BigDecimal grandTotal = cartTotal.add(deliveryFee);
+
+        model.addAttribute("restaurant", restaurant);
+        model.addAttribute("user", customer);
+        model.addAttribute("cart", cart);
+        model.addAttribute("grandTotal", grandTotal);
+    }
+
     private Cart getCart(HttpSession session){
         Cart cart = (Cart) session.getAttribute("cart");
         if (cart == null){
@@ -124,24 +145,7 @@ public class CustomerOrderController {
                                 Model model,
                                 HttpSession session) {
 
-        CurrentUser currentUser = currentUserProvider.requireCurrentUser();
-
-        Restaurant restaurant = restaurantService.findById(restaurantId)
-                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
-
-        Person customer = personRepository.findById(currentUser.id())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Cart cart = getCart(session);
-
-        BigDecimal deliveryFee = restaurant.getDeliveryFee() != null ? restaurant.getDeliveryFee() : BigDecimal.ZERO;
-        BigDecimal cartTotal = cart.getTotalPrice() != null ? cart.getTotalPrice() : BigDecimal.ZERO;
-        BigDecimal grandTotal = cartTotal.add(deliveryFee);
-
-        model.addAttribute("restaurant", restaurant);
-        model.addAttribute("user", customer);
-        model.addAttribute("cart", cart);
-        model.addAttribute("grandTotal", grandTotal);
+        prepareCheckoutModel(restaurantId,session,model);
 
         return "customerFinalizeOrder";
     }
@@ -153,6 +157,7 @@ public class CustomerOrderController {
                              @Valid @ModelAttribute OrderForm orderForm,
                              BindingResult bindingResult,
                              HttpSession session,
+                             Model model,
                              RedirectAttributes redirectAttributes) {
 
         if (orderForm.getItems() == null || orderForm.getItems().isEmpty()) {
@@ -193,8 +198,9 @@ public class CustomerOrderController {
             return "redirect:/restaurants/order/" + view.id() + "/track";
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/restaurants/" + restaurantId + "/order/finalize";
+            model.addAttribute("errorMessage", e.getMessage());
+            prepareCheckoutModel(restaurantId,session,model);
+            return "customerFinalizeOrder";
         }
     }
 

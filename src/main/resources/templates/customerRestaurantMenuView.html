@@ -92,6 +92,18 @@
 </header>
 
 <div class="container py-3 mb-4">
+    <div id="cart-notification" class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span id="cart-notification-msg"></span>
+        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
+    </div>
+
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}">Error message</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="d-flex gap-2 overflow-auto">
         <button onclick="filterCategory('ALL', this)"
                 class="btn rounded-pill bg-dark text-white border px-3 py-2 fw-bold filter-btn active-filter">
@@ -321,16 +333,19 @@
     }
 
     function goToFinalize() {
+        // ΕΛΕΓΧΟΣ ΑΔΕΙΟΥ ΚΑΛΑΘΙΟΥ
         if (Object.keys(cart).length === 0) {
             const notifyBox = document.getElementById('cart-notification');
             const notifyMsg = document.getElementById('cart-notification-msg');
 
+            // Τώρα που προσθέσαμε το HTML, αυτό θα είναι πάντα true
             if (notifyBox && notifyMsg) {
                 notifyMsg.innerText = "Your cart is empty! Please add items first.";
                 notifyBox.style.display = 'block';
                 notifyBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
-                alert("Your cart is empty! Please add items first.");
+                // Fallback (δεν θα τρέξει ποτέ αν υπάρχει το HTML)
+                console.warn("Cart notification element missing!");
             }
             return;
         }
