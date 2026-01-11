@@ -19,7 +19,7 @@ public class OrderItem {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 50)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
     @Column(name = "price", nullable = false)
@@ -31,8 +31,6 @@ public class OrderItem {
     @Column(name = "subtotal", nullable = false)
     private BigDecimal subtotal;
 
-    //TODO image_url σαν/απο το MenuItem
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private CustomerOrder order;
@@ -43,7 +41,6 @@ public class OrderItem {
 
     public OrderItem() {}
 
-    //TODO add Id to constructor
     public OrderItem(
                      String name,
                      BigDecimal price,

@@ -158,7 +158,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
                 MenuItem menuItem = menuItemRepository.findById(itemRequest.menuItemId())
                         .orElseThrow(() -> new EntityNotFoundException("Menu item not found: " + itemRequest.menuItemId()));
 
-                // Ownership Check
+                // Elenxoume Owner
                 if (!menuItem.getRestaurant().getId().equals(restaurant.getId())) {
                     throw new IllegalArgumentException("Menu item '" + menuItem.getName() + "' does not belong to the selected restaurant.");
                 }

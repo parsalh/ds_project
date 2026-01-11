@@ -120,11 +120,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script th:inline="javascript">
-    /*<![CDATA[*/
     const orderId = [[${orderId}]];
     const restaurantId = [[${order != null ? order.restaurantId : null}]];
     const serviceType = [[${order != null ? order.serviceType : 'DELIVERY'}]];
-    /*]]>*/
 
     if (restaurantId) {
         localStorage.removeItem('streetfoodgo_cart_' + restaurantId);
@@ -159,14 +157,12 @@
                         const descElement = document.getElementById('status-description');
                         if (descElement) descElement.style.display = 'none';
 
-                        // Hide Badges
                         const badgesEl = document.getElementById('badges-container');
                         if (badgesEl) badgesEl.style.display = 'none';
 
                         document.getElementById('profile-actions').style.display = 'none';
                         document.getElementById('completed-actions').style.display = 'block';
 
-                        // Hide Map
                         const mapEl = document.getElementById('map');
                         if (mapEl) mapEl.style.display = 'none';
 

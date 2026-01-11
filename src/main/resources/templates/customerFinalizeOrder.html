@@ -181,13 +181,11 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 <script th:inline="javascript">
-    /*<![CDATA[*/
     const restaurantId = [[${restaurant.id}]];
     const rawFee = [[${restaurant.deliveryFee}]];
     const deliveryFee = rawFee ? Number(String(rawFee).replace(',', '.')) : 0;
     const rawMinOrder = [[${restaurant.minimumOrderAmount}]];
     const minOrderAmount = rawMinOrder ? Number(String(rawMinOrder).replace(',', '.')) : 0;
-    /*]]>*/
 
     function loadOrder() {
         const storedCart = localStorage.getItem('streetfoodgo_cart_' + restaurantId);

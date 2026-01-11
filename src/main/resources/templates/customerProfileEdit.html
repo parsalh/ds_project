@@ -161,8 +161,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // Leaflet Map Initialization
-    var map = L.map('map').setView([37.9838, 23.7275], 12); // Default to Athens
+    var map = L.map('map').setView([37.9838, 23.7275], 12);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -185,11 +184,10 @@
             var el = document.getElementById(id);
             if (el) {
                 el.removeAttribute('readonly');
-                el.style.backgroundColor = 'white'; // Visual cue that it's active
+                el.style.backgroundColor = 'white';
             }
         });
 
-        // Reverse Geocoding
         const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`;
         fetch(url)
             .then(response => response.json())
