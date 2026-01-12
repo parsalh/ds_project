@@ -37,7 +37,7 @@ public class CustomerProfileController {
     public String customerProfile(Authentication authentication, Model model) {
         model.addAttribute("username", authentication.getName());
 
-        //order history
+        // order history
         List<CustomerOrderView> orders = customerOrderService.getMyOrders();
         model.addAttribute("orders", orders);
 

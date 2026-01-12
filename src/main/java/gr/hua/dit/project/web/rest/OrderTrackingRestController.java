@@ -103,12 +103,4 @@ public class OrderTrackingRestController {
                 customerCoords
         ));
     }
-
-//    private String getFullAddress(gr.hua.dit.project.core.model.Address address) {
-//        if (address == null) return "";
-//        String street = address.getStreet() != null ? address.getStreet() : "";
-//        String num = address.getNumber() != null ? " " + address.getNumber() : "";
-//        String zip = address.getZipCode() != null ? ", " + address.getZipCode() : "";
-//        return (street + num + zip).trim();
-//    }
 }

@@ -14,14 +14,6 @@ import java.util.Optional;
 @Repository
 public interface PersonRepository extends JpaRepository<Person,Long> {
 
-//    // CRUD
-//
-//    void savePerson(Person person);
-//
-//    Person getPersonById(Long id);
-//
-//    void deletePersonById(Long id);
-
     Optional<Person> findByUsernameIgnoreCase(final String username);
 
     Optional<Person> findByEmailAddressIgnoreCase(final String emailAddress);

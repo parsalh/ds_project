@@ -17,7 +17,7 @@ public class RestaurantDTO {
     private String name;
     private Address addressInfo;
     private Set<Cuisine> cuisines;
-    private List<String> menu; // να επιστρεφει μονο το ονομα του menu item
+    private List<String> menu;
     private BigDecimal minimumOrderAmount;
     private BigDecimal deliveryFee;
     private ServiceType serviceType;

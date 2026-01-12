@@ -30,7 +30,6 @@ logging:
     org.springframework.web: DEBUG
     gr.hua.dit.project: DEBUG
 
-#Custom application properties.
 app:
   jwt:
     issuer: "street-food-go-api"
@@ -38,7 +37,7 @@ app:
     secret: "${JWT_SECRET:Er4d/6nmWX6RWjDQW6CpeQZZwi9+WoBrhdQ4XEKWY9o=}" #openssl rand -base64 32
     ttl-minutes: 60
   external-service:
-    url: "http://localhost:8081" # Default for running locally without Docker
+    url: "http://localhost:8081"
     api-key: "streetfoodgo-api-key"
 
 server:
