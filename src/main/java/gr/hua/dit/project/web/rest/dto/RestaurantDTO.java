@@ -2,9 +2,7 @@ package gr.hua.dit.project.web.rest.dto;
 
 import gr.hua.dit.project.core.model.Address;
 import gr.hua.dit.project.core.model.Cuisine;
-import gr.hua.dit.project.core.model.OpenHour;
 import gr.hua.dit.project.core.model.ServiceType;
-import gr.hua.dit.project.web.rest.OpenHourDTO;
 
 import java.math.BigDecimal;
 import java.util.List;

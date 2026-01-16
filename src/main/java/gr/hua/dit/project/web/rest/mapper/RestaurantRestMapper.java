@@ -2,7 +2,7 @@ package gr.hua.dit.project.web.rest.mapper;
 
 import gr.hua.dit.project.core.model.MenuItem;
 import gr.hua.dit.project.core.model.Restaurant;
-import gr.hua.dit.project.web.rest.OpenHourDTO;
+import gr.hua.dit.project.web.rest.dto.OpenHourDTO;
 import gr.hua.dit.project.web.rest.dto.MenuItemDTO;
 import gr.hua.dit.project.web.rest.dto.RestaurantDTO;
 import org.springframework.stereotype.Component;

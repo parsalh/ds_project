@@ -12,6 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,10 +30,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
-    public JwtAuthenticationFilter(final JwtService jwtService) {
+    public JwtAuthenticationFilter(final JwtService jwtService, final UserDetailsService userDetailsService) {
         if (jwtService == null) throw new NullPointerException();
+        if (userDetailsService == null) throw new NullPointerException();
         this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
     }
 
     private void writeError(final HttpServletResponse response) throws IOException {
@@ -58,18 +63,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             final Claims claims = this.jwtService.parse(token);
             final String subject = claims.getSubject();
-            final Collection<String> roles = (Collection<String>) claims.get("roles");
-            //Convert String to GrantedAuthority
-            final var authorities =
-                    roles == null
-                            ? List.<GrantedAuthority>of() //empty list
-                            : roles.stream().map(role ->
-                            new SimpleGrantedAuthority("ROLE_"+role)).toList();
-            //Create User
-            final User principal = new User(subject,"",authorities);
-            final UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(principal, null, authorities);
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+            try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(subject);
+                final UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            } catch (Exception e) {
+                final Collection<String> roles = (Collection<String>) claims.get("roles");
+                //Convert String to GrantedAuthority
+                final var authorities =
+                        roles == null
+                                ? List.<GrantedAuthority>of() //empty list
+                                : roles.stream().map(role ->
+                                new SimpleGrantedAuthority("ROLE_"+role)).toList();
+                //Create User
+                final User principal = new User(subject,"",authorities);
+                final UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(principal, null, authorities);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            }
         } catch (Exception e) {
             // Invalid token or internal error.
             LOGGER.warn("JwtAuthenticationFilter failed", e);

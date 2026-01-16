@@ -34,9 +34,11 @@ public class SecurityConfig {
         http
                 .securityMatcher("/api/v1/**")
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/token").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/restaurants",
                                 "/api/v1/restaurants/*",
@@ -65,7 +67,8 @@ public class SecurityConfig {
                                 "/restaurants/*/menu",
                                 "/restaurants/*/cart/**",
                                 "/css/**",
-                                "/js/**"
+                                "/js/**",
+                                "/error"
                         ).permitAll()
                         .requestMatchers("/owner/**").hasRole("OWNER")
                         .requestMatchers("/customer/**").hasRole("CUSTOMER")
