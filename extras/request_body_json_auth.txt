@@ -1,3 +1,18 @@
+Αρχικά, συνδέθηκα με τον λογαριασμό μου: username:stav, password:1234
+Έπειτα , έκανα αυτό το request: curl -X 'POST' \
+  'http://localhost:8080/api/v1/auth/login' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "username": "stav",
+  "password": "1234"
+}' και είχε ως repsone: {
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdGF2IiwiaXNzIjoic3RyZWV0LWZvb2QtZ28tYXBpIiwiYXVkIjoiZXh0ZXJuYWwtc3lzdGVtcyIsInJvbGVzIjpbIlJPTEVfQ1VTVE9NRVIiXSwiaWF0IjoxNzY4NTc2MTAxLCJleHAiOjE3Njg1Nzk3MDF9.j4yUVJTXelOlaxjCwRWn5FpO4_FavkvFqVYgr8a4tjQ",
+  "tokenType": "Bearer",
+  "expiresIn": 3600
+}
+
+Μετά, έκανα authorize με το token και :
 curl -X 'GET' \
   'http://localhost:8080/api/v1/orders/604' \
   -H 'accept: */*' \
