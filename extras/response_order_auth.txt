@@ -5,14 +5,14 @@
     "username": "stav",
     "firstName": "Σταυρούλα",
     "lastName": "Πάρσαλη",
-    "mobilePhoneNumber": "+306988636546",
+    "mobilePhoneNumber": "+3069secret",
     "emailAddress": "stav@gmail.com",
     "address": "ΧΙΟΥ",
     "type": "CUSTOMER"
   },
   "restaurantId": 3,
   "restaurantName": "Goody's Burger House",
-  "deliveryAddress": "ΧΙΟΥ 26 18454",
+  "deliveryAddress": "Σπίτι 123 18454",
   "items": [
     {
       "name": "Cheese Box",
