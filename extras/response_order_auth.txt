@@ -1,0 +1,28 @@
+{
+  "id": 604,
+  "customer": {
+    "id": 52,
+    "username": "stav",
+    "firstName": "Σταυρούλα",
+    "lastName": "Πάρσαλη",
+    "mobilePhoneNumber": "+306988636546",
+    "emailAddress": "stav@gmail.com",
+    "address": "ΧΙΟΥ",
+    "type": "CUSTOMER"
+  },
+  "restaurantId": 3,
+  "restaurantName": "Goody's Burger House",
+  "deliveryAddress": "ΧΙΟΥ 26 18454",
+  "items": [
+    {
+      "name": "Cheese Box",
+      "price": 13,
+      "quantity": 1,
+      "subtotal": 13
+    }
+  ],
+  "orderStatus": "COMPLETED",
+  "serviceType": "DELIVERY",
+  "totalPrice": 14,
+  "createdAt": "2026-01-11T13:17:47.511466Z"
+}

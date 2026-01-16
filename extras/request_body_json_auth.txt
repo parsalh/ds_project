@@ -1,0 +1,4 @@
+curl -X 'GET' \
+  'http://localhost:8080/api/v1/orders/604' \
+  -H 'accept: */*' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzdGF2IiwiaXNzIjoic3RyZWV0LWZvb2QtZ28tYXBpIiwiYXVkIjoiZXh0ZXJuYWwtc3lzdGVtcyIsInJvbGVzIjpbIlJPTEVfQ1VTVE9NRVIiXSwiaWF0IjoxNzY4NTc2MTAxLCJleHAiOjE3Njg1Nzk3MDF9.j4yUVJTXelOlaxjCwRWn5FpO4_FavkvFqVYgr8a4tjQ'

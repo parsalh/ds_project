@@ -1,0 +1,252 @@
+[
+  {
+    "id": 9,
+    "restaurantId": 1,
+    "name": "Πατάτες Τηγανητές",
+    "price": 3,
+    "available": true,
+    "description": "",
+    "itemType": "STARTER",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/874a1d0c-f48f-11ed-b7d8-76fb604612be__________________.jpg?w=600"
+  },
+  {
+    "id": 10,
+    "restaurantId": 1,
+    "name": "Πατάτες Τηγανητές με Σως Cocktail",
+    "price": 3.5,
+    "available": true,
+    "description": "",
+    "itemType": "STARTER",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/7e92b70a-f48f-11ed-8dfa-9237bc0db489_________________________.jpg?w=600"
+  },
+  {
+    "id": 11,
+    "restaurantId": 1,
+    "name": "Coca-Cola 0.33 l",
+    "price": 1.5,
+    "available": true,
+    "description": "",
+    "itemType": "DRINK",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/41ea6cf2-ed64-11ee-9dad-6605283b15d2_1k8hcfzug66d9vgwk8cfxzjjrnywghgr2.jpg?w=600"
+  },
+  {
+    "id": 12,
+    "restaurantId": 1,
+    "name": "Coca-Cola Zero 0.33 l",
+    "price": 1.5,
+    "available": true,
+    "description": "",
+    "itemType": "DRINK",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/55ad3d94-fc75-11ee-93aa-fabdeb7e6d63_1fppdpn26plcny_cqnu_jrf0onri8fcpd.jpg?w=600"
+  },
+  {
+    "id": 14,
+    "restaurantId": 1,
+    "name": "Φυσικό Μεταλλικό Νερό 0.5 l",
+    "price": 0.5,
+    "available": true,
+    "description": "",
+    "itemType": "DRINK",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/f70a617e-ef3f-11ed-8cf0-72b954ca7d6e_generic_500ml.jpg?w=600"
+  },
+  {
+    "id": 13,
+    "restaurantId": 1,
+    "name": "Άλφα 0.33 l",
+    "price": 2.2,
+    "available": true,
+    "description": "5%vol",
+    "itemType": "ALCOHOL",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/02c50168-ef40-11ed-bff3-7a14670b5944______________033l.jpg?w=600"
+  },
+  {
+    "id": 15,
+    "restaurantId": 1,
+    "name": "Kοτομπουκιές Μερίδα",
+    "price": 7,
+    "available": true,
+    "description": "8 Τεμάχια. Συνοδεύεται από πατάτες τηαγνητές και σως cocktail\r\nπροβολή περισσότερων",
+    "itemType": "MAIN",
+    "imageUrl": "https://imageproxy.wolt.com/assets/681f9ace2d144b8e648f73c0?w=600"
+  },
+  {
+    "id": 17,
+    "restaurantId": 1,
+    "name": "Καλαμάκι Κοτόπουλο Μερίδα",
+    "price": 8,
+    "available": true,
+    "description": "3 Τεμάχια. Συνοδεύεται από ντομάτα, κρεμμύδι, πατάτες τηγανητές, σως cocktail και ψωμάκι\r\nπροβολή περισσότερων",
+    "itemType": "MAIN",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/78679aa8-f48f-11ed-8924-caf96039ade0___________________________.jpg?w=600"
+  },
+  {
+    "id": 3,
+    "restaurantId": 1,
+    "name": "Κεμπάπ σε Σάντουιτς",
+    "price": 5.5,
+    "available": true,
+    "description": "Σάντουιτς κεμπάπ με: gouda, πατάτες, ντομάτα, κρεμμύδι, μαγιονέζα, τυροσαλάτα, μουστάρδα και ketchup",
+    "itemType": "MAIN",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/97aea924-f48f-11ed-8034-aee8788ff18e_________________.jpg?w=600"
+  },
+  {
+    "id": 5,
+    "restaurantId": 1,
+    "name": "Πανσέτα Χοιρινή σε Σάντουιτς",
+    "price": 5.5,
+    "available": true,
+    "description": "Σάντουιτς πανσέτα χοιρινή με: gouda, πατάτες, ντομάτα, κρεμμύδι, μαγιονέζα, τυροσαλάτα, μουστάρδα και ketchup",
+    "itemType": "MAIN",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/9b3f6fe2-f48f-11ed-9476-6a68997a8e9c__________________.jpg?w=600"
+  },
+  {
+    "id": 8,
+    "restaurantId": 1,
+    "name": "Καλαμάκι Χοιρινό",
+    "price": 1.8,
+    "available": true,
+    "description": "Συνοδεύεται από ψωμάκι",
+    "itemType": "SIDE",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/a00552b2-f48f-11ed-9ae4-caf96039ade0_________________________.jpg?w=600"
+  },
+  {
+    "id": 7,
+    "restaurantId": 1,
+    "name": "Καλαμάκι Κοτόπουλο",
+    "price": 1.8,
+    "available": true,
+    "description": "Συνοδεύεται από ψωμάκι",
+    "itemType": "SIDE",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/a00552b2-f48f-11ed-9ae4-caf96039ade0_________________________.jpg?w=600"
+  },
+  {
+    "id": 1,
+    "restaurantId": 1,
+    "name": "Καλαμάκι Χοιρινό σε Σάντουιτς",
+    "price": 5.5,
+    "available": true,
+    "description": "Σάντουιτς καλαμάκι χοιρινό με: gouda, πατάτες, ντομάτα, κρεμμύδι, μαγιονέζα, τυροσαλάτα, μουστάρδα και ketchup.",
+    "itemType": "MAIN",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/93f14ecc-f48f-11ed-97f8-6acf0e719d09___________________________.jpg?w=600"
+  },
+  {
+    "id": 2,
+    "restaurantId": 1,
+    "name": "Καλαμάκι Κοτόπουλο σε Σάντουιτς",
+    "price": 5.5,
+    "available": true,
+    "description": "Σάντουιτς καλαμάκι κοτόπουλο με: gouda, πατάτες, ντομάτα, κρεμμύδι, μαγιονέζα, τυροσαλάτα, μουστάρδα και ketchup",
+    "itemType": "MAIN",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/8f03f982-f48f-11ed-9b3b-c6538baafd61_____________________________.jpg?w=600"
+  },
+  {
+    "id": 154,
+    "restaurantId": 1,
+    "name": "Fix 0.33 l",
+    "price": 2.2,
+    "available": true,
+    "description": "5%vol",
+    "itemType": "ALCOHOL",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/9ae373da-5232-11ee-8998-e2c199b689f0_23f96d98_4327_11ee_b65c_220e8f05fcf1_4b2ebd9a_27ad_11ee_a87a_ee4b3124a978_fix_0_33_l__1__2_.png?w=600"
+  },
+  {
+    "id": 153,
+    "restaurantId": 1,
+    "name": "Heineken 0.33 l",
+    "price": 2.2,
+    "available": true,
+    "description": "5%vol",
+    "itemType": "ALCOHOL",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/140af806-ef40-11ed-8d21-72b954ca7d6e_heineken_0.33_l.jpg?w=600"
+  },
+  {
+    "id": 152,
+    "restaurantId": 1,
+    "name": "Amstel 0.33 l",
+    "price": 2.2,
+    "available": true,
+    "description": "5%vol",
+    "itemType": "ALCOHOL",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/09ca038c-ef40-11ed-a246-2ab2f4935a56_amstel_________0.33l.jpg?w=600"
+  },
+  {
+    "id": 155,
+    "restaurantId": 1,
+    "name": "Coca-Cola Light 0.33 l",
+    "price": 1.5,
+    "available": true,
+    "description": "",
+    "itemType": "DRINK",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/c85f9890-2318-11ef-ad1c-9ead00b2e4e0_1k4fk22eu0lh0kdx68u82l3yp44kxcoqa.jpg?w=600"
+  },
+  {
+    "id": 16,
+    "restaurantId": 1,
+    "name": "Καλαμάκι Χοιρινό Μερίδα",
+    "price": 8,
+    "available": true,
+    "description": "3 Τεμάχια. Συνοδεύεται από ντομάτα, κρεμμύδι, πατάτες τηγανητές, τζατζίκι και ψωμάκι\r\nπροβολή περισσότερων",
+    "itemType": "MAIN",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/79c71400-f48f-11ed-900d-6a68997a8e9c_________________________.jpg?w=600"
+  },
+  {
+    "id": 4,
+    "restaurantId": 1,
+    "name": "Λουκάνικο Χωριάτικο σε Σάντουιτς",
+    "price": 5.5,
+    "available": true,
+    "description": "Σάντουιτς λουκάνικο χωριάτικο με: gouda, πατάτες, ντομάτα, κρεμμύδι, μαγιονέζα, τυροσαλάτα, μουστάρδα και ketchup",
+    "itemType": "MAIN",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/965d6254-f48f-11ed-b913-26da0a8b0575____________________.jpg?w=600"
+  },
+  {
+    "id": 6,
+    "restaurantId": 1,
+    "name": "Κοτομπουκιές σε Σάντουιτς",
+    "price": 5.5,
+    "available": true,
+    "description": "Σάντουιτς κοτομπουκιές με: gouda, πατάτες, ντομάτα, κρεμμύδι, μαγιονέζα, τυροσαλάτα, μουστάρδα και ketchup\r\n",
+    "itemType": "MAIN",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/shared/9a199f66-f48f-11ed-91d4-7e62ab3cdd5e__________________________.jpg?w=600"
+  },
+  {
+    "id": 156,
+    "restaurantId": 1,
+    "name": "Fanta Κόκκινη 0.33 l",
+    "price": 1.5,
+    "available": true,
+    "description": "",
+    "itemType": "DRINK",
+    "imageUrl": "https://imageproxy.wolt.com/assets/67dd699de5ad963a028d6c1e?w=600"
+  },
+  {
+    "id": 157,
+    "restaurantId": 1,
+    "name": "Fanta Μπλε 0.33 l",
+    "price": 1.5,
+    "available": true,
+    "description": "",
+    "itemType": "DRINK",
+    "imageUrl": "https://imageproxy.wolt.com/assets/67dddce5149a6079e5cec172?w=600"
+  },
+  {
+    "id": 158,
+    "restaurantId": 1,
+    "name": "Sprite 0.33 l",
+    "price": 1.5,
+    "available": true,
+    "description": "",
+    "itemType": "DRINK",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/5a2450f4-2d3c-11ef-81e3-f2b3c3acb0a6_1omi8uupzvcak8psvkfrwiai16o6r5ozv.jpg?w=600"
+  },
+  {
+    "id": 159,
+    "restaurantId": 1,
+    "name": "Schweppes Soda Water 0.33 l",
+    "price": 1.5,
+    "available": true,
+    "description": "",
+    "itemType": "DRINK",
+    "imageUrl": "https://imageproxy.wolt.com/menu/menu-images/645ba416144e00574e9665fb/66a0b66a-2cfb-11ef-9e55-4a04b3fd9bd2_1rtbktnlc_ljbhod_ohztc_hy9phu6bt2.jpg?w=600"
+  }
+]
