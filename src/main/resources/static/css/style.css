@@ -2,8 +2,8 @@
    1. VARIABLES & GLOBAL SETTINGS
    ========================================= */
 :root {
-    --primary-color: #dc2626;      /* Red */
-    --primary-hover: #b91c1c;      /* Dark Red */
+    --primary-color: #dc2626;
+    --primary-hover: #b91c1c;
     --gradient-main: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 100%);
     --gradient-hero: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
     --bg-light: #f8f9fa;
@@ -15,7 +15,6 @@ body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
-/* Smooth scrolling for menu page */
 html {
     scroll-behavior: smooth;
 }
@@ -61,7 +60,6 @@ body.body-register {
     font-weight: bold;
 }
 
-/* Gradient Text Utility */
 .text-gradient {
     background: var(--gradient-main);
     -webkit-background-clip: text;
@@ -70,7 +68,6 @@ body.body-register {
     display: inline-block;
 }
 
-/* Dropdown Menu Styling */
 .dropdown-menu {
     border: none;
     border-radius: 12px;
@@ -180,7 +177,6 @@ body.body-register {
     cursor: pointer;
 }
 
-/* Custom Radio Buttons Outline */
 .btn-check:checked + .btn-outline-danger {
     background-color: #ff6b6b;
     border-color: #ff6b6b;
@@ -199,7 +195,6 @@ body.body-register {
    5. UNIFIED HERO & FILTER STYLES
    ========================================= */
 
-/* 1. Shared Gradient Style (Use this for both Hero and Filter box) */
 .gradient-box {
     background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
     color: white;
@@ -207,20 +202,15 @@ body.body-register {
     border-radius: 20px;
 }
 
-/* 2. Unified Hero Section (Applies to Index, OwnerDashboard, Menu) */
 .hero-section {
-    /* Set the Gradient */
     background: linear-gradient(135deg, #ff6b6b 0%, #ff8c42 50%, #ff7b89 100%);
 
-    /* FORCE SIZE: Matches OwnerDashboard exactly (320px) */
     min-height: 200px;
 
-    /* CENTER CONTENT: Keeps text/search bar in the middle of the big box */
     display: flex;
     align-items: center;
-    justify-content: center; /* Ensure vertical centering */
+    justify-content: center;
 
-    /* Spacing & Borders */
     padding: 2rem 1rem;
     margin-bottom: 2rem;
     border-bottom-left-radius: 20px;
@@ -231,12 +221,9 @@ body.body-register {
     border-top-right-radius: 0;
 
     box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
-
-    /* Ensure text is white */
     color: white;
 }
 
-/* FORCE WHITE TEXT: Business Dashboard Titles & Subtitles */
 .hero-section h1,
 .hero-section h2,
 .hero-section h3,
@@ -245,19 +232,15 @@ body.body-register {
     color: white !important;
 }
 
-/* Exception: Inputs inside hero should keep dark text */
 .hero-section input {
     color: #212529 !important;
 }
 
-/* 3. Filter Box Specifics */
 .filter-box-container {
     padding: 2rem;
     margin-bottom: 2rem;
 }
 
-/* 4. Fix for Filter Buttons inside the Orange Box */
-/* When inside a gradient box, inactive buttons should be white */
 .gradient-box .filter-btn.bg-white,
 .gradient-box .filter-service-btn.bg-white {
     background-color: #ffffff !important;
@@ -266,7 +249,6 @@ body.body-register {
     font-weight: 500;
 }
 
-/* Active buttons inside gradient box (Dark Red to pop against Orange) */
 .gradient-box .btn-primary-custom {
     background-color: #b91c1c !important;
     color: white !important;
@@ -283,7 +265,6 @@ body.body-register {
     box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
 }
 
-/* Restaurant Card */
 .restaurant-card {
     transition: transform 0.2s, box-shadow 0.3s ease;
     border: none;
@@ -297,7 +278,6 @@ body.body-register {
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
-/* Login Container */
 .login-container {
     max-width: 400px;
     width: 100%;
@@ -309,7 +289,6 @@ body.body-register {
     margin-bottom: 2rem;
 }
 
-/* Register Card */
 .register-card {
     border: none;
     border-radius: 1rem;
@@ -326,7 +305,6 @@ body.body-register {
     border: none;
 }
 
-/* Menu Card */
 .menu-card {
     border: none;
     box-shadow: 0 4px 6px rgba(0,0,0,0.08);
@@ -337,7 +315,6 @@ body.body-register {
    6. PAGE SPECIFIC STYLES
    ========================================= */
 
-/* --- Owner Dashboard --- */
 .card-status-strip {
     height: 6px;
     width: 100%;
@@ -345,7 +322,6 @@ body.body-register {
 .status-open { background-color: #198754; }
 .status-closed { background-color: #6c757d; }
 
-/* --- Register / Map --- */
 #map {
     height: 250px;
     width: 100%;
@@ -354,7 +330,6 @@ body.body-register {
     margin-bottom: 1rem;
 }
 
-/* Select2 Customization */
 .select2-container .select2-selection--single {
     height: 38px;
     padding-top: 5px;
@@ -369,7 +344,6 @@ body.body-register {
     width: 110px !important;
 }
 
-/* Form inputs focus state */
 .form-control:focus, .form-select:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.25rem rgba(220, 38, 38, 0.25);
@@ -379,7 +353,6 @@ body.body-register {
     color: #495057;
 }
 
-/* --- Customer Menu View --- */
 .category-nav {
     position: sticky;
     top: 56px;
@@ -426,7 +399,6 @@ body.body-register {
     padding: 0 1rem;
 }
 
-/* Special style for form cards */
 .edit-container .card {
     border: none;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
@@ -434,12 +406,10 @@ body.body-register {
     border-radius: 1rem;
 }
 
-/* Map override for edit pages */
 .edit-container #map {
     height: 300px;
 }
 
-/* Input readonly styling */
 input[readonly] {
     background-color: #e9ecef;
     cursor: not-allowed;
@@ -449,7 +419,6 @@ input[readonly] {
    8. UI IMPROVEMENTS (Final Polish)
    ========================================= */
 
-/* --- 1. Bottom Bar (Total) --- */
 .order-total-bar {
     background: var(--gradient-main) !important;
     border-top: none;
@@ -463,7 +432,6 @@ input[readonly] {
     text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* --- 2. View Order Button --- */
 .order-total-bar button {
     background: white !important;
     border: none !important;
@@ -493,14 +461,12 @@ input[readonly] {
     padding: 0.35em 0.6em;
 }
 
-/* --- 3. Menu Item Images --- */
 .menu-card .card-img-top {
     height: 250px !important;
     object-fit: cover;
     width: 100%;
 }
 
-/* --- 4. Buttons & Filters Gradient --- */
 .add-btn.btn-primary-custom {
     background: var(--gradient-main) !important;
     border: none;
@@ -519,7 +485,6 @@ input[readonly] {
     border: none !important;
 }
 
-/* UPDATED: Applied hover effect to BOTH filter types */
 .filter-btn:not(.active-filter):hover,
 .filter-service-btn:not(.active-filter):hover {
     background-color: #ffe5e5 !important;
@@ -541,7 +506,6 @@ input[readonly] {
    10. ORDER & TRACKING PAGES
    ========================================= */
 
-/* --- Finalize Order Page --- */
 .order-card {
     background: white;
     border-radius: 1rem;
@@ -551,7 +515,6 @@ input[readonly] {
     transition: transform 0.2s ease;
 }
 
-/* Products Table */
 .table thead th {
     background-color: #f8f9fa;
     border-bottom: 2px solid #dee2e6;
@@ -562,7 +525,6 @@ input[readonly] {
     border-top: 2px solid var(--primary-color);
 }
 
-/* --- Tracking Page --- */
 .tracking-container {
     max-width: 800px;
     margin: 0 auto;
@@ -571,10 +533,9 @@ input[readonly] {
     border-radius: 1rem;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     position: relative;
-    top: -50px; /* Pulls it up over the hero section */
+    top: -50px;
 }
 
-/* Status Icons & Text */
 .status-box {
     text-align: center;
     padding: 1rem;

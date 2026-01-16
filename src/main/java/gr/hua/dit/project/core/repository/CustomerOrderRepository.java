@@ -32,8 +32,4 @@ public interface CustomerOrderRepository extends JpaRepository<CustomerOrder,Lon
     boolean existsByCustomerIdAndOrderStatus(final Long customerId, final OrderStatus orderStatus);
 
     boolean existsByRestaurantIdAndOrderStatus(final Long restaurantId, final OrderStatus orderStatus);
-
-    //IDK
-//    List<CustomerOrder> findAllByCustomerId(final Long customerId, final Pageable pageable);
-
 }
