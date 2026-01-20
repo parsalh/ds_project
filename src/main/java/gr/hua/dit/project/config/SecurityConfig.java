@@ -45,6 +45,9 @@ public class SecurityConfig {
                                 "/api/v1/restaurants/*",
                                 "/api/v1/restaurants/*/menu"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/sms/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/geocoding/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/distance/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/orders/**").authenticated()
                         .anyRequest().authenticated()
                 )
