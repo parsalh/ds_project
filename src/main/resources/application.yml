@@ -47,3 +47,4 @@ server:
     include-message: always
     include-binding-errors: always
     include-exception: true
+  forward-headers-strategy: framework

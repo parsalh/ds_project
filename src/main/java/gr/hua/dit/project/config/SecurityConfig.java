@@ -33,6 +33,7 @@ public class SecurityConfig {
                                         final JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 .securityMatcher("/api/v1/**")
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
