@@ -54,9 +54,9 @@ public class RestaurantServiceImpl implements RestaurantService {
         );
 
         return candidates.stream()
-                .filter(Restaurant::isOpen)
+                .filter(Restaurant::isOpen)     // Elenxoume an einai anoixta
                 .sorted(Comparator.comparingDouble(r ->
-                        calculateHaversineDistance(userLat, userLon, getLat(r), getLon(r))
+                        calculateHaversineDistance(userLat, userLon, getLat(r), getLon(r))      // Xrhsimopoioume Haversine gia na ta kanoume sort
                 ))
                 .limit(30)
                 .toList();

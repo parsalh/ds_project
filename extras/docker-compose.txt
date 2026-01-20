@@ -43,7 +43,7 @@ services:
       - "8090:8080"
     environment:
       TZ: Europe/Athens
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres.pios.autos:6432/postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres.pali.autos:6432/postgres
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: SuperSecurePassword
       APP_EXTERNAL_SERVICE_URL: http://external-microservices:8081
